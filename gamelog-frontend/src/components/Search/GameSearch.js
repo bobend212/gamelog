@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import gameService from '../../services/gameService';
 import SearchResultCard from './SearchResultCard';
 import LoadingSpinner from '../Common/LoadingSpinner';
@@ -13,7 +13,6 @@ const GameSearch = () => {
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalResults, setTotalResults] = useState(0);
 
   const handleSearch = async (query = searchQuery, page = 1) => {
     if (!query.trim()) {
@@ -49,10 +48,6 @@ const GameSearch = () => {
     e.preventDefault();
     setCurrentPage(1);
     handleSearch(searchQuery, 1);
-  };
-
-  const handleLoadMore = () => {
-    handleSearch(searchQuery, currentPage + 1);
   };
 
   const handleQuickSearch = (query) => {
@@ -93,7 +88,6 @@ const GameSearch = () => {
           {/* Quick Search Suggestions */}
           {!hasSearched && (
             <div className="quick-search">
-              <p>Popular searches:</p>
               <div className="quick-search-tags">
                 {POPULAR_SEARCHES.map((term, index) => (
                   <button
@@ -119,7 +113,7 @@ const GameSearch = () => {
             <div className="results-header">
               <h2>Search Results</h2>
               {searchResults.length > 0 && (
-                <p>{searchResults.length} games found for "{searchQuery}"</p>
+                <p>{searchResults.length} games found for "{searchQuery}" | metadata by RAWG API</p>
               )}
             </div>
 
@@ -131,8 +125,8 @@ const GameSearch = () => {
                       key={game.id}
                       game={game}
                       onGameAdded={() => {
-                        // Optionally refresh search results to update status
-                        handleSearch(searchQuery, 1);
+                        setSearchQuery('');
+                        setSearchResults([]);
                       }}
                     />
                   ))}
@@ -148,7 +142,7 @@ const GameSearch = () => {
             )}
           </div>
         )}
-
+        <p className="footer" >provided by RAWG API</p>
         {/* Loading Spinner */}
         {loading && currentPage === 1 && <LoadingSpinner />}
       </div>

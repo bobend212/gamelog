@@ -6,6 +6,8 @@ import Library from './components/Library/Library';
 import Wishlist from './components/Wishlist/Wishlist';
 import GameSearch from './components/Search/GameSearch';
 import './App.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -20,6 +22,17 @@ function App() {
             <Route path="/search" element={<GameSearch />} />
           </Routes>
         </main>
+
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          theme="dark"
+          hideProgressBar={true}
+          newestOnTop={true}
+          closeOnClick
+          pauseOnHover
+          draggable
+        />
       </div>
     </Router>
   );

@@ -5,6 +5,7 @@ import com.matkon.gamelog.data.GameStatus;
 import com.matkon.gamelog.data.GameUpdateRequest;
 import com.matkon.gamelog.services.RawgApiService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,19 +31,32 @@ public class GameController
         this.rawgApiService = rawgApiService;
     }
 
+//    @GetMapping("/all-games")
+//    @Operation(summary = "Get all library games (wishlist excluded)")
+//    public ResponseEntity<Page<Game>> getAllGames(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "6") int size)
+//    {
+//        Page<Game> games = rawgApiService.getAllGames(page, size);
+//        return ResponseEntity.ok(games);
+//    }
+
     @GetMapping("/all-games")
-    @Operation(summary = "Get all library games (wishlist excluded)")
-    public ResponseEntity<List<Game>> getAllGames()
+    public ResponseEntity<Page<Game>> getLibraryGames(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size,
+            @RequestParam(defaultValue = "ALL") String status,
+            @RequestParam(defaultValue = "") String search)
     {
-        List<Game> games = rawgApiService.getAllGames();
+
+        Page<Game> games = rawgApiService.getLibraryGamesWithFilter(page, size, status, search);
         return ResponseEntity.ok(games);
     }
 
+
     @GetMapping("/wishlist")
     @Operation(summary = "Get all wishlist games")
-    public ResponseEntity<List<Game>> getWishlistGames()
+    public ResponseEntity<Page<Game>> getWishlistGames(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "8") int size)
     {
-        List<Game> games = rawgApiService.getWishlistGames();
+        Page<Game> games = rawgApiService.getWishlistGames(page, size);
         return ResponseEntity.ok(games);
     }
 

@@ -1,10 +1,10 @@
 .game-search {
-  padding: 2rem 0;
+  padding: 1rem 0;
 }
 
 .search-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .search-header h1 {
@@ -21,13 +21,13 @@
 
 .search-form-container {
   background-color: #2d2d2d;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 8px;
   margin-bottom: 2rem;
 }
 
 .search-form {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .search-input-group {
@@ -91,11 +91,11 @@
 }
 
 .search-results {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .results-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .results-header h2 {
@@ -110,8 +110,8 @@
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
@@ -170,7 +170,7 @@
 }
 
 .game-content {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .game-title {
@@ -256,4 +256,15 @@
   .action-buttons {
     flex-direction: column;
   }
+}
+
+.footer {
+  background-color: #1a1a1a;
+  border-top: 1px solid #404040;
+  padding: 1rem 0 0 0;
+  margin-top: auto;
+  color: #9ca3af;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 200;
 }

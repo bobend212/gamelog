@@ -1,12 +1,12 @@
 .library {
-  padding: 2rem 0;
+  padding: 1rem 0;
 }
 
 .library-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
@@ -20,7 +20,6 @@
 .library-controls {
   display: flex;
   gap: 1rem;
-  /* align-items: center; */
 }
 
 .search-input,
@@ -45,13 +44,13 @@
 
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
 }
 
 .game-card {
   background-color: #2d2d2d;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   transition: transform 0.2s ease;
 }
@@ -83,7 +82,7 @@
 }
 
 .game-content {
-  padding: 1.5rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -178,4 +177,66 @@
   .games-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.clear-filters-btn {
+  padding: 0.5rem 1rem;
+  background-color: #6b7280; /* Neutral gray instead of red */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.clear-filters-btn:hover {
+  background-color: #4b5563; /* Darker gray on hover */
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.clear-filters-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .library-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  
+  .search-input,
+  .filter-select,
+  .clear-filters-btn {
+    width: 100%;
+  }
+  
+  .clear-filters-btn {
+    order: 3; /* Show button last on mobile */
+  }
+}
+
+
+
+/*  */
+
+.search-container {
+  position: relative;
+  display: inline-block;
+}
+
+.search-loading {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 0.9rem;
+  pointer-events: none;
 }

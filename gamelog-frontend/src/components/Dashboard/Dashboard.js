@@ -21,12 +21,24 @@ const Dashboard = () => {
     loadDashboardData();
   }, []);
 
+  // const fetchWishlistGamesNumber = async (page) => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await gameService.getWishlistGames(page, pageSize);
+  //     setTotalGames(response.totalElements);
+  //   } catch (error) {
+  //     console.error('Failed to fetch wishlist games:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
       const [libraryGames, wishlistGames] = await Promise.all([
-        gameService.getLibraryGames(),
-        gameService.getWishlistGames()
+        gameService.getAllLibraryGames(),
+        gameService.getAllWishlistGames()
       ]);
 
       // Calculate statistics
@@ -44,7 +56,7 @@ const Dashboard = () => {
       const allGames = [...libraryGames, ...wishlistGames];
       const sortedGames = allGames.sort((a, b) =>
         new Date(b.updatedAt) - new Date(a.updatedAt)
-      ).slice(0, 6);
+      ).slice(0, 8);
 
       setLastEditedGames(sortedGames);
     } catch (err) {
@@ -92,7 +104,7 @@ const Dashboard = () => {
 
         {/* Last Edited Games Section */}
         <div className="last-edited-section">
-          <h2>Last Modified</h2>
+          <h2>Recently Updated</h2>
           {lastEditedGames.length > 0 ? (
             <div className="games-grid">
               {lastEditedGames.map(game => (

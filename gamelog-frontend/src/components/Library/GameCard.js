@@ -7,19 +7,6 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const handleStatusChange = async (newStatus) => {
-    try {
-      setIsUpdating(true);
-      await gameService.updateGameStatus(game.id, newStatus);
-      onUpdate();
-    } catch (error) {
-      console.error('Failed to update game status:', error);
-      alert('Failed to update game status. Please try again.');
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
   const handleDelete = async () => {
     if (window.confirm(`Are you want to remove "${game.title}" from the Library?`)) {
       try {
@@ -46,7 +33,6 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
       setShowEditModal(false);
       onUpdate();
     } catch (error) {
-      console.log(updatedGame)
       console.error('Failed to update game:', error);
       alert('Failed to update game. Please try again.');
     } finally {
@@ -77,13 +63,13 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
+    if (!dateString) return 'TBA';
     try {
       const dateObj = new Date(dateString);
       const options = { day: '2-digit', month: 'long', year: 'numeric' };
       return dateObj.toLocaleDateString('en-GB', options);
     } catch (error) {
-      return 'Unknown';
+      return 'TBA';
     }
   };
 
@@ -144,7 +130,7 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
           <div className="game-details">
             {game.notes && (
               <div className="game-meta">
-                <p className="game-notes">Notes: {game.notes}</p>
+                <p className="game-notes">{game.notes}</p>
               </div>
             )}
           </div>

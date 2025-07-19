@@ -8,6 +8,10 @@ import com.matkon.gamelog.data.GameUpdateRequest;
 import com.matkon.gamelog.repos.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -38,22 +42,34 @@ public class RawgApiService
     }
 
     // Get all library games
-    public List<Game> getAllGames()
+//    public List<Game> getAllGames()
+//    {
+//        Sort sort = Sort.by(Sort.Direction.DESC, "updatedAt");
+//        return gameRepository.findByStatusNot(GameStatus.WISHLIST, sort);
+//    }
+
+    public Page<Game> getAllGames(int page, int size)
     {
-        return gameRepository.findByStatusNot(GameStatus.WISHLIST);
+        Pageable pageable = PageRequest.of(page, size);
+        return gameRepository.findByStatusNotOrderByPlayingFirstThenUpdatedAt(
+                GameStatus.WISHLIST,
+                GameStatus.PLAYING,
+                pageable
+        );
     }
 
     // Get all wishlist games
-    public List<Game> getWishlistGames()
+    public Page<Game> getWishlistGames(int page, int size)
     {
-        return gameRepository.findByStatus(GameStatus.WISHLIST);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        return gameRepository.findByStatus(GameStatus.WISHLIST, pageable);
     }
 
     public List<Game> getGamesFromRawgByQuery(String query)
     {
         try {
             String response = webClient.get()
-                    .uri(rawgApiUrl + "/games?key=" + rawgApiKey + "&search=" + query + "&page_size=6")
+                    .uri(rawgApiUrl + "/games?key=" + rawgApiKey + "&search=" + query + "&page_size=8")
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
@@ -63,6 +79,28 @@ public class RawgApiService
             System.err.println("Error searching games: " + e.getMessage());
             return new ArrayList<>();
         }
+    }
+
+    public Page<Game> getLibraryGamesWithFilter(int page, int size, String status, String searchTerm)
+    {
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Convert string status to GameStatus enum
+        GameStatus dbStatus;
+        if (status == null || "ALL".equals(status) || status.trim().isEmpty()) {
+            dbStatus = null;
+        } else {
+            try {
+                dbStatus = GameStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid status: " + status);
+            }
+        }
+
+        // Handle search term
+        String dbSearchTerm = (searchTerm == null || searchTerm.trim().isEmpty()) ? null : searchTerm;
+
+        return gameRepository.findLibraryGamesWithFilter(dbStatus, dbSearchTerm, pageable);
     }
 
     public Game getByIdAndSaveGame(Long rawgId, GameStatus gameStatus)

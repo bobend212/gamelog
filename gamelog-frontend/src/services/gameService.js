@@ -25,19 +25,72 @@ const gameService = {
   },
 
   // Get all library games (without wishlist)
-  getLibraryGames: async () => {
+  // getLibraryGames: async () => {
+  //   try {
+  //     const response = await axios.get(`${API_BASE_URL}/games/all-games`);
+  //     return response.data;
+  //   } catch (error) {
+  //     throw new Error('Failed to fetch library games');
+  //   }
+  // },
+
+  // Get all library games number
+  getAllLibraryGames: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/games/all-games`);
+      const response = await axios.get(`${API_BASE_URL}/games/all-games`, {
+        params: { page: 0, size: 1000 }
+      });
+      return response.data.content || [];
+    } catch (error) {
+      throw new Error('Failed to fetch all library games');
+    }
+  },
+
+  // getLibraryGames: async (page = 0, size = 6) => {
+  //   try {
+  //     const response = await axios.get(`${API_BASE_URL}/games/all-games`, {
+  //       params: { page, size }
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     throw new Error('Failed to fetch library games');
+  //   }
+  // },
+
+  getLibraryGames: async (page = 0, size = 8, status = 'ALL', searchTerm = '') => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/games/all-games`, {
+        params: {
+          page,
+          size,
+          status: status !== 'ALL' ? status : 'ALL',
+          search: searchTerm
+        }
+      });
       return response.data;
     } catch (error) {
       throw new Error('Failed to fetch library games');
     }
   },
 
-  // Get all wishlist games
-  getWishlistGames: async () => {
+  // Get all wishlist games number
+  getAllWishlistGames: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/games/wishlist`);
+      const response = await axios.get(`${API_BASE_URL}/games/wishlist`, {
+        params: { page: 0, size: 1000 }
+      });
+      return response.data.content || [];
+    } catch (error) {
+      throw new Error('Failed to fetch all wishlist games');
+    }
+  },
+
+  // Get all wishlist games
+  getWishlistGames: async (page = 0, size = 8) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/games/wishlist`, {
+        params: { page, size }
+      });
       return response.data;
     } catch (error) {
       throw new Error('Failed to fetch wishlist games');

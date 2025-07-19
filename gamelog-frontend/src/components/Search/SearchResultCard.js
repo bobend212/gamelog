@@ -1,16 +1,30 @@
 import React, { useState } from 'react';
 import gameService from '../../services/gameService';
+import { toast } from 'react-toastify';
+import EditGameModal from '../Library/EditGameModal';
 
 const SearchResultCard = ({ game, onGameAdded }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [addedStatus, setAddedStatus] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [gameData, setGameData] = useState(null);
+
+  const openEditModalFor = (game) => {
+    setGameData(game);
+    setShowEditModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowEditModal(false);
+    setGameData(null);
+  };
 
   const handleAddToLibrary = async () => {
     try {
       setIsAdding(true);
-      await gameService.addToLibrary(game.rawgId);
       setAddedStatus('library');
-      onGameAdded();
+      const updatedGame = await gameService.addToLibrary(game.rawgId);
+      openEditModalFor(updatedGame);
     } catch (error) {
       console.error('Failed to add to library:', error);
       alert('Failed to add game to library');
@@ -24,7 +38,8 @@ const SearchResultCard = ({ game, onGameAdded }) => {
       setIsAdding(true);
       await gameService.addToWishlist(game.rawgId);
       setAddedStatus('wishlist');
-      onGameAdded();
+      // onGameAdded();
+      toast.success(`"${game.title}" added to Wishlist! 🟣`);
     } catch (error) {
       console.error('Failed to add to wishlist:', error);
       alert('Failed to add game to wishlist');
@@ -34,66 +49,86 @@ const SearchResultCard = ({ game, onGameAdded }) => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
+    if (!dateString) return 'TBA';
     try {
       const dateObj = new Date(dateString);
       const options = { day: '2-digit', month: 'long', year: 'numeric' };
       return dateObj.toLocaleDateString('en-GB', options);
     } catch (error) {
-      return 'Unknown';
+      return 'TBA';
+    }
+  };
+
+  const handleEditSave = async (updatedGame) => {
+    try {
+      await gameService.updateGame(gameData.id, updatedGame);
+      setShowEditModal(false);
+      toast.success(`"${game.title}" added to Library! 🟢`);
+    } catch (error) {
+      console.error('Failed to update game:', error);
+      alert('Failed to update game. Please try again.');
     }
   };
 
   return (
-    <div className="search-result-card">
-      <div className="game-image">
-        {game.imageUrl ? (
-          <img src={game.imageUrl} alt={game.title} />
-        ) : (
-          <div className="no-image">🎮</div>
-        )}
+    <>
+      <div className="search-result-card">
+        <div className="game-image">
+          {game.imageUrl ? (
+            <img src={game.imageUrl} alt={game.title} />
+          ) : (
+            <div className="no-image">🎮</div>
+          )}
 
-        {/* Status Badge */}
-        {addedStatus && (
-          <div className={`status-badge ${addedStatus}`}>
-            {addedStatus === 'library' ? '📚 In Library' : '⭐ In Wishlist'}
-          </div>
-        )}
-      </div>
-
-      <div className="game-content">
-        <h3 className="game-title">{game.title}</h3>
-
-        <div className="game-meta">
-          <p className="release-date">Released: {formatDate(game.releaseDate)}</p>
-          {game.rating && (
-            <div className="rating">
-              ⭐ {game.rating.toFixed(1)}
+          {/* Status Badge */}
+          {addedStatus && (
+            <div className={`status-badge ${addedStatus}`}>
+              {addedStatus === 'library' ? '📚 In Library' : '⭐ In Wishlist'}
             </div>
           )}
         </div>
 
-        <div className="action-buttons">
-          <button
-            onClick={handleAddToLibrary}
-            disabled={isAdding || addedStatus === 'library'}
-            className="btn btn-primary btn-sm"
-          >
-            {addedStatus === 'library' ? 'In Library' :
-              isAdding ? 'Adding...' : 'Add to Library'}
-          </button>
+        <div className="game-content">
+          <h3 className="game-title">{game.title}</h3>
 
-          <button
-            onClick={handleAddToWishlist}
-            disabled={isAdding || addedStatus === 'wishlist'}
-            className="btn btn-secondary btn-sm"
-          >
-            {addedStatus === 'wishlist' ? 'In Wishlist' :
-              isAdding ? 'Adding...' : 'Add to Wishlist'}
-          </button>
+          <div className="game-meta">
+            <p className="release-date">Released: {formatDate(game.releaseDate)}</p>
+            {game.rating && (
+              <div className="rating">
+                ⭐ {game.rating.toFixed(1)}
+              </div>
+            )}
+          </div>
+
+          <div className="action-buttons">
+            <button
+              onClick={handleAddToLibrary}
+              disabled={isAdding || addedStatus === 'library'}
+              className="btn btn-primary btn-sm"
+            >
+              {addedStatus === 'library' ? 'In Library' :
+                isAdding ? 'Adding...' : 'Log'}
+            </button>
+
+            <button
+              onClick={handleAddToWishlist}
+              disabled={isAdding || addedStatus === 'wishlist'}
+              className="btn btn-secondary btn-sm"
+            >
+              {addedStatus === 'wishlist' ? 'In Wishlist' :
+                isAdding ? 'Adding...' : 'Wishlist'}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+      {showEditModal && gameData && (
+        <EditGameModal
+          game={game}
+          onSave={handleEditSave}
+          onCancel={handleCloseModal}
+        />
+      )}
+    </>
   );
 };
 
