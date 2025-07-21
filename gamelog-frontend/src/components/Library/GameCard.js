@@ -2,24 +2,26 @@ import React, { useState } from 'react';
 import gameService from '../../services/gameService';
 import EditGameModal from './EditGameModal';
 import './GameCard.css';
+import { toast } from 'react-toastify';
 
 const GameCard = ({ game, onUpdate, showStatus = true }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
   const handleDelete = async () => {
-    if (window.confirm(`Are you want to remove "${game.title}" from the Library?`)) {
-      try {
-        setIsUpdating(true);
-        await gameService.deleteGame(game.id);
-        onUpdate();
-      } catch (error) {
-        console.error('Failed to delete game:', error);
-        alert('Failed to delete game. Please try again.');
-      } finally {
-        setIsUpdating(false);
-      }
+    // if (window.confirm(`Are you want to remove "${game.title}" from the Library?`)) {
+    try {
+      setIsUpdating(true);
+      await gameService.deleteGame(game.id);
+      onUpdate();
+      toast.info(`"${game.title}" removed from database! 🟣`);
+    } catch (error) {
+      console.error('Failed to delete game:', error);
+      alert('Failed to delete game. Please try again.');
+    } finally {
+      setIsUpdating(false);
     }
+    // }
   };
 
   const handleEdit = () => {
@@ -93,17 +95,17 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
 
           {game.rating && (
             <div
-              className="rating-badge persistent"
+              className="rating-badge"
               style={{ backgroundColor: getRatingColor(game.rating) }}
             >
-              <span className="rating-icon">⭐</span>
+              <span className="rating-icon">★</span>
               <span className="rating-text">{game.rating.toFixed(1)}</span>
             </div>
           )}
 
           {showStatus && (
             <div
-              className="status-badge persistent"
+              className="status-badge"
               style={{ backgroundColor: getStatusColor(game.status) }}
             >
               {getStatusLabel(game.status)}
@@ -116,6 +118,7 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
 
           <div className="game-meta">
             <p className="game-release">Release: {formatDate(game.releaseDate)}</p>
+            <br />
             {game.completedAt && (
               <p className="game-release">
                 Completed: {formatDate(game.completedAt)}

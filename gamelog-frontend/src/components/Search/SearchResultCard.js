@@ -21,10 +21,14 @@ const SearchResultCard = ({ game, onGameAdded }) => {
 
   const handleAddToLibrary = async () => {
     try {
-      setIsAdding(true);
-      setAddedStatus('library');
-      const updatedGame = await gameService.addToLibrary(game.rawgId);
-      openEditModalFor(updatedGame);
+      const result = await gameService.addToLibrary(game.rawgId);
+      if (result.alreadyExists) {
+        handleGameAlreadyExists(result.game);
+      } else {
+        setIsAdding(true);
+        setAddedStatus('library');
+        openEditModalFor(result);
+      }
     } catch (error) {
       console.error('Failed to add to library:', error);
       alert('Failed to add game to library');
@@ -35,11 +39,15 @@ const SearchResultCard = ({ game, onGameAdded }) => {
 
   const handleAddToWishlist = async () => {
     try {
-      setIsAdding(true);
-      await gameService.addToWishlist(game.rawgId);
-      setAddedStatus('wishlist');
-      // onGameAdded();
-      toast.success(`"${game.title}" added to Wishlist! 🟣`);
+      const result = await gameService.addToWishlist(game.rawgId);
+      if (result.alreadyExists) {
+        handleGameAlreadyExists(result.game);
+      } else {
+        setIsAdding(true);
+        setAddedStatus('wishlist');
+        onGameAdded();
+        toast.success(`"${game.title}" added to Wishlist! 🟣`);
+      }
     } catch (error) {
       console.error('Failed to add to wishlist:', error);
       alert('Failed to add game to wishlist');
@@ -61,14 +69,28 @@ const SearchResultCard = ({ game, onGameAdded }) => {
 
   const handleEditSave = async (updatedGame) => {
     try {
-      await gameService.updateGame(gameData.id, updatedGame);
+      await gameService.updateGame(gameData.game.id, updatedGame);
       setShowEditModal(false);
       toast.success(`"${game.title}" added to Library! 🟢`);
+      onGameAdded();
     } catch (error) {
       console.error('Failed to update game:', error);
       alert('Failed to update game. Please try again.');
     }
   };
+
+  const handleGameAlreadyExists = (game) => {
+    toast.warning(
+      `"${game.title}" is already in the database!`,
+      {
+        icon: "⚠️",
+        autoClose: 3000,
+        position: "bottom-right",
+        theme: "dark"
+      }
+    );
+  };
+
 
   return (
     <>
@@ -82,8 +104,8 @@ const SearchResultCard = ({ game, onGameAdded }) => {
 
           {/* Status Badge */}
           {addedStatus && (
-            <div className={`status-badge ${addedStatus}`}>
-              {addedStatus === 'library' ? '📚 In Library' : '⭐ In Wishlist'}
+            <div className={`status-badge-search ${addedStatus}`}>
+              {addedStatus === 'library' ? '📚 In Library' : '★ In Wishlist'}
             </div>
           )}
         </div>
@@ -121,7 +143,7 @@ const SearchResultCard = ({ game, onGameAdded }) => {
           </div>
         </div>
       </div>
-      {showEditModal && gameData && (
+      {showEditModal && gameData.game && (
         <EditGameModal
           game={game}
           onSave={handleEditSave}

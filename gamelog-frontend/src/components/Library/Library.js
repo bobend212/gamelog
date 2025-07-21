@@ -25,7 +25,7 @@ const Library = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 400); // 300ms delay
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
@@ -124,7 +124,7 @@ const Library = () => {
                 className="clear-filters-btn"
                 title="Clear all filters"
               >
-                Clear Filters ✕
+                ✕
               </button>
             )}
             <div className="search-container">

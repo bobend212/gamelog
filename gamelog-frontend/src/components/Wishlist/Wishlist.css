@@ -20,7 +20,6 @@
 .wishlist-controls {
   display: flex;
   gap: 1rem;
-  align-items: center;
 }
 
 .wishlist-game-card {
@@ -49,4 +48,17 @@
     margin-top: 1rem;
     text-align: center;
   }
+}
+
+.clear-filters-btn {
+  padding: 0.5rem 1rem;
+  background-color: #6b7280; /* Neutral gray instead of red */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }

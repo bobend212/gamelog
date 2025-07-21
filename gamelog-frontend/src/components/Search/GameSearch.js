@@ -86,22 +86,20 @@ const GameSearch = () => {
           </form>
 
           {/* Quick Search Suggestions */}
-          {!hasSearched && (
-            <div className="quick-search">
-              <div className="quick-search-tags">
-                {POPULAR_SEARCHES.map((term, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleQuickSearch(term)}
-                    className="quick-search-tag"
-                    disabled={loading}
-                  >
-                    {term}
-                  </button>
-                ))}
-              </div>
+          <div className="quick-search">
+            <div className="quick-search-tags">
+              {POPULAR_SEARCHES.map((term, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleQuickSearch(term)}
+                  className="quick-search-tag"
+                  disabled={loading}
+                >
+                  {term}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Error Display */}
@@ -113,7 +111,7 @@ const GameSearch = () => {
             <div className="results-header">
               <h2>Search Results</h2>
               {searchResults.length > 0 && (
-                <p>{searchResults.length} games found for "{searchQuery}" | metadata by RAWG API</p>
+                <p>{searchResults.length} games found for "{searchQuery}"</p>
               )}
             </div>
 
@@ -142,7 +140,7 @@ const GameSearch = () => {
             )}
           </div>
         )}
-        <p className="footer" >provided by RAWG API</p>
+        <p className="footer" >metadata by RAWG API</p>
         {/* Loading Spinner */}
         {loading && currentPage === 1 && <LoadingSpinner />}
       </div>

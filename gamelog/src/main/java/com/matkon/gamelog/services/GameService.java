@@ -3,6 +3,7 @@ package com.matkon.gamelog.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.data.Game;
+import com.matkon.gamelog.data.GameSaveResult;
 import com.matkon.gamelog.data.GameStatus;
 import com.matkon.gamelog.data.GameUpdateRequest;
 import com.matkon.gamelog.repos.GameRepository;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class RawgApiService
+public class GameService
 {
     @Autowired
     private GameRepository gameRepository;
@@ -35,37 +36,44 @@ public class RawgApiService
     @Value("${rawg.api.key}")
     private String rawgApiKey;
 
-    public RawgApiService()
+    public GameService()
     {
         this.webClient = WebClient.builder().build();
         this.objectMapper = new ObjectMapper();
     }
 
-    // Get all library games
-//    public List<Game> getAllGames()
-//    {
-//        Sort sort = Sort.by(Sort.Direction.DESC, "updatedAt");
-//        return gameRepository.findByStatusNot(GameStatus.WISHLIST, sort);
-//    }
-
-    public Page<Game> getAllGames(int page, int size)
-    {
-        Pageable pageable = PageRequest.of(page, size);
-        return gameRepository.findByStatusNotOrderByPlayingFirstThenUpdatedAt(
-                GameStatus.WISHLIST,
-                GameStatus.PLAYING,
-                pageable
-        );
-    }
-
-    // Get all wishlist games
-    public Page<Game> getWishlistGames(int page, int size)
+    public Page<Game> getWishlistGames(int page, int size, String searchTerm)
     {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
-        return gameRepository.findByStatus(GameStatus.WISHLIST, pageable);
+
+        if (searchTerm != null && !searchTerm.isBlank()) {
+            return gameRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
+        }
+
+        return gameRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
     }
 
-    public List<Game> getGamesFromRawgByQuery(String query)
+    public Page<Game> getLibraryGames(int page, int size, String status, String searchTerm)
+    {
+        Pageable pageable = PageRequest.of(page, size);
+
+        GameStatus dbStatus;
+        if (status == null || "ALL".equals(status) || status.trim().isEmpty()) {
+            dbStatus = null;
+        } else {
+            try {
+                dbStatus = GameStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid status: " + status);
+            }
+        }
+
+        String dbSearchTerm = (searchTerm == null || searchTerm.trim().isEmpty()) ? null : searchTerm;
+
+        return gameRepository.findLibraryGames(dbStatus, dbSearchTerm, pageable);
+    }
+
+    public List<Game> searchGames(String query)
     {
         try {
             String response = webClient.get()
@@ -81,34 +89,17 @@ public class RawgApiService
         }
     }
 
-    public Page<Game> getLibraryGamesWithFilter(int page, int size, String status, String searchTerm)
-    {
-        Pageable pageable = PageRequest.of(page, size);
-
-        // Convert string status to GameStatus enum
-        GameStatus dbStatus;
-        if (status == null || "ALL".equals(status) || status.trim().isEmpty()) {
-            dbStatus = null;
-        } else {
-            try {
-                dbStatus = GameStatus.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid status: " + status);
-            }
-        }
-
-        // Handle search term
-        String dbSearchTerm = (searchTerm == null || searchTerm.trim().isEmpty()) ? null : searchTerm;
-
-        return gameRepository.findLibraryGamesWithFilter(dbStatus, dbSearchTerm, pageable);
-    }
-
-    public Game getByIdAndSaveGame(Long rawgId, GameStatus gameStatus)
+    public GameSaveResult saveGameToDatabase(Long rawgId, GameStatus gameStatus)
     {
         Optional<Game> existingGame = gameRepository.findByRawgId(rawgId);
         if (existingGame.isPresent()) {
-            return existingGame.get();
+            return new GameSaveResult(
+                    existingGame.get(),
+                    true,
+                    "Game already exists in the library"
+            );
         }
+
         try {
             String response = webClient.get()
                     .uri(rawgApiUrl + "/games/" + rawgId + "?key=" + rawgApiKey)
@@ -120,28 +111,50 @@ public class RawgApiService
                 Game game = parseGameFromRawg(response, rawgId);
                 if (game != null) {
                     game.setStatus(gameStatus);
-                    return saveGameToLibrary(game);
+                    Game savedGame = gameRepository.save(game);
+                    return new GameSaveResult(
+                            savedGame,
+                            false,
+                            "Game added successfully"
+                    );
                 }
             }
-
         } catch (Exception e) {
             System.err.println("Error fetching game: " + e.getMessage());
-            return null;
+            throw new RuntimeException("Error adding game to library");
         }
 
         throw new RuntimeException("Game not found with ID: " + rawgId);
     }
 
-    public Game saveGameToLibrary(Game game)
+
+    public void deleteGame(Long gameId)
     {
-        return gameRepository.save(game);
+        gameRepository.deleteById(gameId);
     }
+
+    public Game updateGame(Long id, GameUpdateRequest updateRequest)
+    {
+        Game existingGame = gameRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Game not found with id: " + id));
+
+        existingGame.setPlayedOn(updateRequest.getPlayedOn());
+        existingGame.setStatus(updateRequest.getStatus());
+        existingGame.setRating(updateRequest.getRating());
+        existingGame.setNotes(updateRequest.getNotes());
+        existingGame.setCompletedAt(updateRequest.getCompletedAt());
+        existingGame.setUpdatedAt(LocalDateTime.now());
+
+        return gameRepository.save(existingGame);
+    }
+
+    // -- RAWG Helpers
 
     private Game parseGameFromRawg(String response, Long rawgId)
     {
         try {
             JsonNode gameNode = objectMapper.readTree(response);
-            Game game = createGameFromNode(gameNode);
+            Game game = createGameFromRAWGResponse(gameNode);
             if (game != null) {
                 game.setRawgId(rawgId);
             }
@@ -161,7 +174,7 @@ public class RawgApiService
 
             if (results != null && results.isArray()) {
                 for (JsonNode gameNode : results) {
-                    Game game = createGameFromNode(gameNode);
+                    Game game = createGameFromRAWGResponse(gameNode);
                     if (game != null) {
                         games.add(game);
                     }
@@ -173,7 +186,7 @@ public class RawgApiService
         return games;
     }
 
-    private Game createGameFromNode(JsonNode gameNode)
+    private Game createGameFromRAWGResponse(JsonNode gameNode)
     {
         try {
             Game game = new Game();
@@ -199,57 +212,5 @@ public class RawgApiService
             System.err.println("Error creating game from node: " + e.getMessage());
             return null;
         }
-    }
-
-    // Search games method with WebClient
-    public List<Game> searchGames(String query, int page, int pageSize)
-    {
-        if (query == null || query.trim().isEmpty()) {
-            throw new IllegalArgumentException("Search query cannot be empty");
-        }
-
-        String response = webClient.get()
-                .uri(rawgApiUrl + "/games?key=" + rawgApiKey + "&search=" + query + "&page=" + page + "&page_size=" + pageSize)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
-
-        return parseGamesFromResponse(response);
-    }
-
-    // Helper method to check if game exists in database
-    public boolean gameExistsInDatabase(Long rawgId)
-    {
-        return gameRepository.existsByRawgId(rawgId);
-    }
-
-    // Delete game from database
-    public void deleteGame(Long gameId)
-    {
-        gameRepository.deleteById(gameId);
-    }
-
-    public Optional<Game> getGameById(Long id)
-    {
-        return gameRepository.findById(id);
-    }
-
-    public Game updateGame(Long id, GameUpdateRequest updateRequest)
-    {
-        Game existingGame = gameRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Game not found with id: " + id));
-
-        // Update only the specified fields
-        existingGame.setPlayedOn(updateRequest.getPlayedOn());
-        existingGame.setStatus(updateRequest.getStatus());
-        existingGame.setRating(updateRequest.getRating());
-        existingGame.setNotes(updateRequest.getNotes());
-        existingGame.setCompletedAt(updateRequest.getCompletedAt());
-
-        // Update the updatedAt timestamp
-        existingGame.setUpdatedAt(LocalDateTime.now());
-
-        return gameRepository.save(existingGame);
     }
 }

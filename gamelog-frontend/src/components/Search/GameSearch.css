@@ -149,7 +149,7 @@
   color: #6b7280;
 }
 
-.status-badge {
+.status-badge-search {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
@@ -161,11 +161,11 @@
   z-index: 10;
 }
 
-.status-badge.library {
+.status-badge-search.library {
   background-color: #10b981;
 }
 
-.status-badge.wishlist {
+.status-badge-search.wishlist {
   background-color: #f59e0b;
 }
 

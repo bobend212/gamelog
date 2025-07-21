@@ -4,40 +4,30 @@ const API_BASE_URL = 'http://localhost:8080/api';
 
 const gameService = {
 
-  // [RAWG API] Get by rawgId and add game to library
+  // [RAWG API] Add game to library by rawgAPI
   addToLibrary: async (rawgId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/games/add-library/${rawgId}`);
+      const response = await axios.post(`${API_BASE_URL}/games/add-library/${rawgId}`);
       return response.data;
     } catch (error) {
       throw new Error('Failed to add game to library');
     }
   },
 
-  // [RAWG API] Get by rawgId and add game to wishlist
+  // [RAWG API] Add game to wishlist by rawgAPI
   addToWishlist: async (rawgId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/games/add-wishlist/${rawgId}`);
+      const response = await axios.post(`${API_BASE_URL}/games/add-wishlist/${rawgId}`);
       return response.data;
     } catch (error) {
       throw new Error('Failed to add game to wishlist');
     }
   },
 
-  // Get all library games (without wishlist)
-  // getLibraryGames: async () => {
-  //   try {
-  //     const response = await axios.get(`${API_BASE_URL}/games/all-games`);
-  //     return response.data;
-  //   } catch (error) {
-  //     throw new Error('Failed to fetch library games');
-  //   }
-  // },
-
-  // Get all library games number
+  // Get all library games count
   getAllLibraryGames: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/games/all-games`, {
+      const response = await axios.get(`${API_BASE_URL}/games/library`, {
         params: { page: 0, size: 1000 }
       });
       return response.data.content || [];
@@ -46,20 +36,10 @@ const gameService = {
     }
   },
 
-  // getLibraryGames: async (page = 0, size = 6) => {
-  //   try {
-  //     const response = await axios.get(`${API_BASE_URL}/games/all-games`, {
-  //       params: { page, size }
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     throw new Error('Failed to fetch library games');
-  //   }
-  // },
-
+  // Get all library games
   getLibraryGames: async (page = 0, size = 8, status = 'ALL', searchTerm = '') => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/games/all-games`, {
+      const response = await axios.get(`${API_BASE_URL}/games/library`, {
         params: {
           page,
           size,
@@ -73,7 +53,7 @@ const gameService = {
     }
   },
 
-  // Get all wishlist games number
+  // Get all wishlist games count
   getAllWishlistGames: async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/games/wishlist`, {
@@ -86,15 +66,11 @@ const gameService = {
   },
 
   // Get all wishlist games
-  getWishlistGames: async (page = 0, size = 8) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/games/wishlist`, {
-        params: { page, size }
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch wishlist games');
-    }
+  getWishlistGames: async (page = 0, size = 8, search = '') => {
+    const response = await axios.get(`${API_BASE_URL}/games/wishlist`, {
+      params: { page, size, search }
+    });
+    return response.data;
   },
 
   // Update game
@@ -132,24 +108,7 @@ const gameService = {
     } catch (error) {
       throw new Error('Failed to search games');
     }
-  },
-
-  // [RAWG API] Search games (advanced with pagination)
-  searchGamesWithPagination: async (query, page = 1, pageSize = 20) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/games/search`, {
-        params: {
-          query: query,
-          page: page,
-          pageSize: pageSize
-        }
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to search games');
-    }
   }
-
 };
 
 export default gameService;

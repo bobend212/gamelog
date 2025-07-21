@@ -11,7 +11,9 @@ const Dashboard = () => {
     totalLibrary: 0,
     totalWishlist: 0,
     completedGames: 0,
-    currentlyPlaying: 0
+    currentlyPlaying: 0,
+    backloggedGames: 0,
+    droppedGames: 0
   });
   const [lastEditedGames, setLastEditedGames] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,18 +22,6 @@ const Dashboard = () => {
   useEffect(() => {
     loadDashboardData();
   }, []);
-
-  // const fetchWishlistGamesNumber = async (page) => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await gameService.getWishlistGames(page, pageSize);
-  //     setTotalGames(response.totalElements);
-  //   } catch (error) {
-  //     console.error('Failed to fetch wishlist games:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const loadDashboardData = async () => {
     try {
@@ -44,12 +34,16 @@ const Dashboard = () => {
       // Calculate statistics
       const completedCount = libraryGames.filter(game => game.status === 'COMPLETED').length;
       const playingCount = libraryGames.filter(game => game.status === 'PLAYING').length;
+      const backlogCount = libraryGames.filter(game => game.status === 'BACKLOG').length;
+      const droppedCount = libraryGames.filter(game => game.status === 'DROPPED').length;
 
       setStats({
         totalLibrary: libraryGames.length,
         totalWishlist: wishlistGames.length,
         completedGames: completedCount,
-        currentlyPlaying: playingCount
+        currentlyPlaying: playingCount,
+        backloggedGames: backlogCount,
+        droppedGames: droppedCount
       });
 
       // Get last edited games (most recent 5)
@@ -77,16 +71,22 @@ const Dashboard = () => {
         {/* Statistics Section */}
         <div className="stats-grid">
           <StatCard
-            title="Library Games"
+            title="Logged"
             value={stats.totalLibrary}
-            icon="📋"
+            icon="📚"
             color="#3b82f6"
           />
           <StatCard
-            title="Wishlist Games"
+            title="Wishlisted"
             value={stats.totalWishlist}
             icon="❤️"
-            color="#f59e0b"
+            color="#ef4444"
+          />
+          <StatCard
+            title="Playing"
+            value={stats.currentlyPlaying}
+            icon="🎮"
+            color="#8b5cf6"
           />
           <StatCard
             title="Completed"
@@ -95,10 +95,16 @@ const Dashboard = () => {
             color="#10b981"
           />
           <StatCard
-            title="Playing"
-            value={stats.currentlyPlaying}
-            icon="🎮"
-            color="#8b5cf6"
+            title="Backlog"
+            value={stats.backloggedGames}
+            icon="📝"
+            color="#f59e0b"
+          />
+          <StatCard
+            title="Dropped"
+            value={stats.droppedGames}
+            icon="👎"
+            color="#6b7280"
           />
         </div>
 
