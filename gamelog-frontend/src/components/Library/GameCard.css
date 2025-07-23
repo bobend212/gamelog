@@ -40,7 +40,7 @@
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
-  margin-top: auto;
+  padding-top: 0.2rem;
 }
 
 /* ---------- Rating Badge ---------- */
@@ -202,4 +202,13 @@
     padding: 0.3rem 0.6rem;
     height: 22px;
   }
+}
+
+.completion-details-text {
+  font-style: italic;
+}
+
+.spacer {
+  margin-top: 10px;
+  margin-bottom: px;
 }

@@ -6,5 +6,6 @@ public enum GameStatus
     BACKLOG,    // Games you own but haven't started
     PLAYING,    // Currently playing
     COMPLETED,  // Finished games
-    DROPPED     // Games you stopped playing
+    DROPPED,    // Games you stopped playing
+    ONLINE      // Online-type games
 }

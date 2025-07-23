@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import gameService from '../../services/gameService';
 import GameCard from './GameCard';
 import LoadingSpinner from '../Common/LoadingSpinner';
@@ -150,6 +150,7 @@ const Library = () => {
               <option value="COMPLETED">Completed</option>
               <option value="BACKLOG">Backlog</option>
               <option value="DROPPED">Dropped</option>
+              <option value="ONLINE">Online</option>
             </select>
           </div>
         </div>

@@ -1,26 +1,28 @@
 import React, { useState } from 'react';
 import './EditGameModal.css';
-import { PLAYED_ON_OPTIONS } from '../../utils/constants';
+import { PLATFORM_OPTIONS } from '../../utils/constants';
 
 const EditGameModal = ({ game, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
-    playedOn: game.playedOn || '',
+    platform: game.platform || '',
     status: game.status || 'BACKLOG',
     notes: game.notes || '',
     rating: game.rating || '',
-    completedAt: game.completedAt || null
+    completedAt: game.completedAt || null,
+    favourite: game.favourite || false
   });
 
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    const fieldValue = type === 'checkbox' ? checked : value;
+
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: fieldValue
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -61,7 +63,7 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
         <div className="modal-header">
-          <h2>{game.title}</h2>
+          <div className="modal-header-title" >{game.title}</div>
           <button onClick={onCancel} className="modal-close">×</button>
         </div>
 
@@ -69,17 +71,17 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
           {/* Platform and Status Row */}
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="playedOn">Played On</label>
+              <label htmlFor="platform">Platform</label>
               <select
-                id="playedOn"
-                name="playedOn"
-                value={formData.playedOn}
+                id="platform"
+                name="platform"
+                value={formData.platform}
                 onChange={handleChange}
                 className="form-select"
               >
                 <option value="">Select</option>
-                {PLAYED_ON_OPTIONS.map(playedOn => (
-                  <option key={playedOn} value={playedOn}>{playedOn}</option>
+                {PLATFORM_OPTIONS.map(platform => (
+                  <option key={platform} value={platform}>{platform}</option>
                 ))}
               </select>
             </div>
@@ -98,6 +100,7 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
                 <option value="PLAYING">Playing</option>
                 <option value="COMPLETED">Completed</option>
                 <option value="DROPPED">Dropped</option>
+                <option value="ONLINE">Online</option>
               </select>
             </div>
           </div>
@@ -163,6 +166,19 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
               placeholder="Add your personal notes about this game..."
               className="form-textarea"
             />
+          </div>
+
+          {/* ✅ Favourite Toggle */}
+          <div className="form-group checkbox-group">
+            <label>
+              <input
+                type="checkbox"
+                name="favourite"
+                checked={formData.favourite}
+                onChange={handleChange}
+              />
+              Favourite
+            </label>
           </div>
 
           <div className="modal-actions">

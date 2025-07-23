@@ -4,6 +4,8 @@ import com.matkon.gamelog.data.Game;
 import com.matkon.gamelog.data.GameSaveResult;
 import com.matkon.gamelog.data.GameStatus;
 import com.matkon.gamelog.data.GameUpdateRequest;
+import com.matkon.gamelog.data.ReleaseFilter;
+import com.matkon.gamelog.data.WishlistGameForTableDTO;
 import com.matkon.gamelog.services.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
@@ -54,6 +56,19 @@ public class GameController
     {
         Page<Game> wishlistGames = gameService.getWishlistGames(page, size, search);
         return ResponseEntity.ok(wishlistGames);
+    }
+
+    @GetMapping("/wishlist/dashboard")
+    @Operation(summary = "Get WISHLIST games -> DASHBOARD TABLE")
+    public ResponseEntity<Page<WishlistGameForTableDTO>> getWishlistGamesDashboard(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "releaseDate,asc") String sort,
+            @RequestParam(defaultValue = "ALL") ReleaseFilter release
+    )
+    {
+        Page<WishlistGameForTableDTO> games = gameService.getWishlistGamesDashboard(page, size, sort, release);
+        return ResponseEntity.ok(games);
     }
 
     @GetMapping("/search")

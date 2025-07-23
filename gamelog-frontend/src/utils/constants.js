@@ -23,6 +23,6 @@ export const POPULAR_SEARCHES = [
     'Call of Duty', 'FIFA', 'Assassin\'s Creed', 'Red Dead Redemption'
 ];
 
-export const PLAYED_ON_OPTIONS = [
+export const PLATFORM_OPTIONS = [
     'PS5', 'PS4', 'Xbox Series X/S', 'Xbox One', 'PC', 'Mobile'
 ];

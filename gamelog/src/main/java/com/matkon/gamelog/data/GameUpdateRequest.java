@@ -4,27 +4,29 @@ import java.time.LocalDate;
 
 public class GameUpdateRequest
 {
-    private String playedOn;
+    private String platform;
     private GameStatus status;
     private Double rating;
     private String notes;
     private LocalDate completedAt;
+    private boolean favourite;
 
     public GameUpdateRequest() {}
 
-    public GameUpdateRequest(String playedOn, GameStatus status, Double rating, String notes, LocalDate completedAt)
+    public GameUpdateRequest(String platform, GameStatus status, Double rating, String notes, LocalDate completedAt, boolean favourite)
     {
-        this.playedOn = playedOn;
+        this.platform = platform;
         this.status = status;
         this.rating = rating;
         this.notes = notes;
         this.completedAt = completedAt;
+        this.favourite = favourite;
     }
 
     // Getters and Setters
-    public String getPlayedOn() {return playedOn;}
+    public String getPlatform() {return platform;}
 
-    public void setPlayedOn(String playedOn) {this.playedOn = playedOn;}
+    public void setPlatform(String platform) {this.platform = platform;}
 
     public GameStatus getStatus() {return status;}
 
@@ -41,4 +43,6 @@ public class GameUpdateRequest
     public LocalDate getCompletedAt() {return completedAt;}
 
     public void setCompletedAt(LocalDate completedAt) {this.completedAt = completedAt;}
+
+    public boolean getFavourite() {return favourite;}
 }

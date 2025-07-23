@@ -6,6 +6,8 @@ import com.matkon.gamelog.data.Game;
 import com.matkon.gamelog.data.GameSaveResult;
 import com.matkon.gamelog.data.GameStatus;
 import com.matkon.gamelog.data.GameUpdateRequest;
+import com.matkon.gamelog.data.ReleaseFilter;
+import com.matkon.gamelog.data.WishlistGameForTableDTO;
 import com.matkon.gamelog.repos.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +56,29 @@ public class GameService
 
         return gameRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
     }
+
+    public Page<WishlistGameForTableDTO> getWishlistGamesDashboard(int page, int size, String sort, ReleaseFilter releaseFilter)
+    {
+        String[] sortParts = sort.split(",");
+        String field = sortParts[0].trim();
+        Sort.Direction direction = (sortParts.length > 1 && "desc".equalsIgnoreCase(sortParts[1]))
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, field));
+        LocalDate today = LocalDate.now();
+
+        Page<Game> games = switch (releaseFilter) {
+            case RELEASED_ONLY ->
+                    gameRepository.findByStatusAndReleaseDateLessThanEqual(GameStatus.WISHLIST, today, pageable);
+            case NOT_RELEASED_ONLY ->
+                    gameRepository.findByStatusAndReleaseDateAfter(GameStatus.WISHLIST, today, pageable);
+            default -> gameRepository.findByStatus(GameStatus.WISHLIST, pageable);
+        };
+
+        return games.map(WishlistGameForTableDTO::fromEntity);
+    }
+
 
     public Page<Game> getLibraryGames(int page, int size, String status, String searchTerm)
     {
@@ -138,12 +165,13 @@ public class GameService
         Game existingGame = gameRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + id));
 
-        existingGame.setPlayedOn(updateRequest.getPlayedOn());
+        existingGame.setPlatform(updateRequest.getPlatform());
         existingGame.setStatus(updateRequest.getStatus());
         existingGame.setRating(updateRequest.getRating());
         existingGame.setNotes(updateRequest.getNotes());
         existingGame.setCompletedAt(updateRequest.getCompletedAt());
         existingGame.setUpdatedAt(LocalDateTime.now());
+        existingGame.setFavourite(updateRequest.getFavourite());
 
         return gameRepository.save(existingGame);
     }
@@ -200,7 +228,15 @@ public class GameService
             }
 
             if (gameNode.has("released") && !gameNode.get("released").isNull()) {
-                game.setReleaseDate(gameNode.get("released").asText());
+                String rawDate = gameNode.get("released").asText();
+
+                try {
+                    // RAWG typically uses "yyyy-MM-dd"
+                    LocalDate releaseDate = LocalDate.parse(rawDate, DateTimeFormatter.ISO_LOCAL_DATE);
+                    game.setReleaseDate(releaseDate);
+                } catch (Exception e) {
+                    System.err.println("Error parsing releaseDate: " + rawDate);
+                }
             }
 
             if (gameNode.has("background_image") && !gameNode.get("background_image").isNull()) {

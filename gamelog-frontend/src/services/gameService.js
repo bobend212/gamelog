@@ -73,17 +73,24 @@ const gameService = {
     return response.data;
   },
 
+  getWishlistGamesDashboard: async (page, size, sort, release = 'ALL') => {
+    const response = await axios.get(`${API_BASE_URL}/games/wishlist/dashboard`, {
+      params: { page, size, sort, release }
+    });
+    return response.data;
+  },
+
   // Update game
   updateGame: async (gameId, updateData) => {
     try {
       const requestBody = {
-        playedOn: updateData.playedOn || null,
+        platform: updateData.platform || null,
         status: updateData.status,
         rating: updateData.rating || null,
         notes: updateData.notes || null,
-        completedAt: updateData.completedAt || null
+        completedAt: updateData.completedAt || null,
+        favourite: updateData.favourite || false
       };
-
       const response = await axios.put(`${API_BASE_URL}/games/${gameId}`, requestBody);
       return response.data;
     } catch (error) {

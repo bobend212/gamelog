@@ -31,7 +31,10 @@ public class Game
 
     private String notes;
 
-    private String playedOn;
+    private String platform;
+
+    @Column(nullable = false)
+    private boolean favourite = false;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -52,7 +55,7 @@ public class Game
     private String title;
 
     @Column(name = "release_date")
-    private String releaseDate;
+    private LocalDate releaseDate;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -70,6 +73,11 @@ public class Game
     protected void onUpdate()
     {
         updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isFavourite()
+    {
+        return favourite;
     }
 
     public Game() {}
@@ -99,9 +107,14 @@ public class Game
 
     public void setNotes(String notes) {this.notes = notes;}
 
-    public String getPlayedOn() {return playedOn;}
+    public String getPlatform() {return platform;}
 
-    public void setPlayedOn(String playedOn) {this.playedOn = playedOn;}
+    public void setPlatform(String platform) {this.platform = platform;}
+
+    public void setFavourite(boolean favourite)
+    {
+        this.favourite = favourite;
+    }
 
     public LocalDateTime getCreatedAt() {return createdAt;}
 
@@ -119,9 +132,9 @@ public class Game
 
     public void setTitle(String title) {this.title = title;}
 
-    public String getReleaseDate() {return releaseDate;}
+    public LocalDate getReleaseDate() {return releaseDate;}
 
-    public void setReleaseDate(String releaseDate) {this.releaseDate = releaseDate;}
+    public void setReleaseDate(LocalDate releaseDate) {this.releaseDate = releaseDate;}
 
     public String getImageUrl() {return imageUrl;}
 

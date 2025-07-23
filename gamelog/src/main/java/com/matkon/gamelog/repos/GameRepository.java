@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
@@ -38,4 +39,11 @@ public interface GameRepository extends JpaRepository<Game, Long>
             @Param("searchTerm") String searchTerm,
             Pageable pageable
     );
+
+    // for Wishlist table in Dashboard
+    Page<Game> findByStatus(GameStatus status, Pageable pageable);
+
+    Page<Game> findByStatusAndReleaseDateLessThanEqual(GameStatus status, LocalDate date, Pageable pageable);
+
+    Page<Game> findByStatusAndReleaseDateAfter(GameStatus status, LocalDate date, Pageable pageable);
 }

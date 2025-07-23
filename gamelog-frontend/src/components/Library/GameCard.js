@@ -49,6 +49,7 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
       case 'BACKLOG': return '#f59e0b';
       case 'WISHLIST': return '#ef4444';
       case 'DROPPED': return '#6b7280';
+      case 'ONLINE': return '#38bdf8';
       default: return '#6b7280';
     }
   };
@@ -60,6 +61,7 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
       case 'BACKLOG': return 'Backlog';
       case 'WISHLIST': return 'Wishlist';
       case 'DROPPED': return 'Dropped';
+      case 'ONLINE': return 'Online';
       default: return 'Unknown';
     }
   };
@@ -90,7 +92,7 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
           {game.imageUrl ? (
             <img src={game.imageUrl} alt={game.title} />
           ) : (
-            <div className="no-image">🎮</div>
+            <img src="gamer-placeholder.png" alt="no-image" />
           )}
 
           {game.rating && (
@@ -114,19 +116,22 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
         </div>
 
         <div className="game-content">
-          <h3 className="game-title">{game.title}</h3>
+          <h3 className="game-title">
+            {game.title}
+            {game.favourite && (<span>❤️</span>)}
+          </h3>
 
           <div className="game-meta">
             <p className="game-release">Release: {formatDate(game.releaseDate)}</p>
-            <br />
+            <div className="spacer"></div>
             {game.completedAt && (
-              <p className="game-release">
-                Completed: {formatDate(game.completedAt)}
-                {game.playedOn && ` • ${game.playedOn}`}
-              </p>
+              <div className="game-release">
+                <p className="completion-details-text">Completion details</p>
+                {formatDate(game.completedAt)}
+                {game.platform && ` • ${game.platform}`}
+              </div>
             )}
-            {game.playedOn && !game.completedAt && (
-              <p className="game-release">Played on: {game.playedOn}</p>
+            {game.platform && !game.completedAt && (<p className="game-release">Platform: {game.platform}</p>
             )}
           </div>
 
