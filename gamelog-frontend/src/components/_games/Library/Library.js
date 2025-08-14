@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import gameService from '../../services/gameService';
+import gameService from '../services/gameService';
 import GameCard from './GameCard';
 import LoadingSpinner from '../Common/LoadingSpinner';
 import ErrorMessage from '../Common/ErrorMessage';
 import './Library.css';
 import Pagination from '../Common/Pagination';
+import Navbar from '../Navigation/Navbar';
 
 const Library = () => {
   const [games, setGames] = useState([]);
@@ -106,78 +107,81 @@ const Library = () => {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div className="library">
-      <div className="container">
-        <div className="library-header">
-          <h1>{getLibraryTitle()}</h1>
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          )}
-          <div className="library-controls">
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="clear-filters-btn"
-                title="Clear all filters"
-              >
-                ✕
-              </button>
+    <>
+      <Navbar />
+      <div className="library">
+        <div className="container">
+          <div className="library-header">
+            <h1>{getLibraryTitle()}</h1>
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
             )}
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="Search games..."
-                value={searchTerm} // ✅ Uses immediate state for UI responsiveness
-                onChange={handleSearchChange}
-                className="search-input"
-              />
-              {/* ✅ Optional: Show loading indicator while searching */}
-              {searchTerm !== debouncedSearchTerm && (
-                <div className="search-loading">🔍</div>
+            <div className="library-controls">
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="clear-filters-btn"
+                  title="Clear all filters"
+                >
+                  ✕
+                </button>
               )}
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Search games..."
+                  value={searchTerm} // ✅ Uses immediate state for UI responsiveness
+                  onChange={handleSearchChange}
+                  className="search-input"
+                />
+                {/* ✅ Optional: Show loading indicator while searching */}
+                {searchTerm !== debouncedSearchTerm && (
+                  <div className="search-loading">🔍</div>
+                )}
+              </div>
+              <select
+                value={statusFilter}
+                onChange={handleStatusChange}
+                className="filter-select"
+              >
+                <option value="ALL">All</option>
+                <option value="PLAYING">Playing</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="BACKLOG">Backlog</option>
+                <option value="DROPPED">Dropped</option>
+                <option value="ONLINE">Online</option>
+              </select>
             </div>
-            <select
-              value={statusFilter}
-              onChange={handleStatusChange}
-              className="filter-select"
-            >
-              <option value="ALL">All</option>
-              <option value="PLAYING">Playing</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="BACKLOG">Backlog</option>
-              <option value="DROPPED">Dropped</option>
-              <option value="ONLINE">Online</option>
-            </select>
           </div>
-        </div>
 
-        {games.length > 0 ? (
-          <div className="games-grid">
-            {games.map(game => (
-              <GameCard
-                key={game.id}
-                game={game}
-                onUpdate={handleGameUpdate}
-                showStatus={true}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="no-games">
-            <p>
-              {debouncedSearchTerm || statusFilter !== 'ALL'
-                ? 'No games match your current filters.'
-                : 'Your library is empty. Add some games to get started!'
-              }
-            </p>
-          </div>
-        )}
+          {games.length > 0 ? (
+            <div className="games-grid">
+              {games.map(game => (
+                <GameCard
+                  key={game.id}
+                  game={game}
+                  onUpdate={handleGameUpdate}
+                  showStatus={true}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="no-games">
+              <p>
+                {debouncedSearchTerm || statusFilter !== 'ALL'
+                  ? 'No games match your current filters.'
+                  : 'Your library is empty. Add some games to get started!'
+                }
+              </p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

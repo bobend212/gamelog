@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import gameService from '../../services/gameService';
+import gameService from '../services/gameService';
 import EditGameModal from './EditGameModal';
 import './GameCard.css';
 import { toast } from 'react-toastify';
@@ -92,7 +92,7 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
           {game.imageUrl ? (
             <img src={game.imageUrl} alt={game.title} />
           ) : (
-            <img src="gamer-placeholder.png" alt="no-image" />
+            <img src="../gamer-placeholder.png" alt="no-image" />
           )}
 
           {game.rating && (

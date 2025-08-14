@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import gameService from '../../services/gameService';
+import gameService from '../services/gameService';
 import { toast } from 'react-toastify';
 import EditGameModal from '../Library/EditGameModal';
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './EditGameModal.css';
-import { PLATFORM_OPTIONS } from '../../utils/constants';
+import { PLATFORM_OPTIONS } from '../utils/constants';
 
 const EditGameModal = ({ game, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -55,7 +55,7 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
-      onCancel();
+      // onCancel(); // temp disabled
     }
   };
 

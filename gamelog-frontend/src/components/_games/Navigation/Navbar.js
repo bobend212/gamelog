@@ -17,15 +17,19 @@ const Navbar = () => {
         </div>
         <div className="nav-links">
           <Link to="/" className={isActive('/')}>
+            Home
+          </Link>
+          <hr />
+          <Link to="/games/dashboard" className={isActive('/games/dashboard')}>
             Dashboard
           </Link>
-          <Link to="/library" className={isActive('/library')}>
+          <Link to="/games/library" className={isActive('/games/library')}>
             Library
           </Link>
-          <Link to="/wishlist" className={isActive('/wishlist')}>
+          <Link to="/games/wishlist" className={isActive('/games/wishlist')}>
             Wishlist
           </Link>
-          <Link to="/search" className={isActive('/search')}>
+          <Link to="/games/search" className={isActive('/games/search')}>
             Search Games
           </Link>
         </div>
