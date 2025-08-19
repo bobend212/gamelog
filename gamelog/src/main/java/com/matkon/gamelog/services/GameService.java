@@ -8,6 +8,9 @@ import com.matkon.gamelog.data.GameStatus;
 import com.matkon.gamelog.data.GameUpdateRequest;
 import com.matkon.gamelog.data.ReleaseFilter;
 import com.matkon.gamelog.data.WishlistGameForTableDTO;
+import com.matkon.gamelog.data.game.sync.FieldChange;
+import com.matkon.gamelog.data.game.sync.GameChangeDetail;
+import com.matkon.gamelog.data.game.sync.GameSyncResultDto;
 import com.matkon.gamelog.repos.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -225,6 +228,8 @@ public class GameService
 
             if (gameNode.has("name")) {
                 game.setTitle(gameNode.get("name").asText());
+            } else {
+                game.setTitle("<no_title>");
             }
 
             if (gameNode.has("released") && !gameNode.get("released").isNull()) {
@@ -249,4 +254,77 @@ public class GameService
             return null;
         }
     }
+
+    public GameSyncResultDto syncLibraryGames(GameStatus status)
+    {
+        List<Game> libraryGames = gameRepository.findAll()
+                .stream()
+                .filter(game -> game.getStatus() == status)
+                .toList();
+
+        int updatedCount = 0;
+        List<GameChangeDetail> changes = new ArrayList<>();
+
+        for (Game localGame : libraryGames) {
+
+            String response = webClient.get()
+                    .uri(rawgApiUrl + "/games/" + localGame.getRawgId() + "?key=" + rawgApiKey)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            if (response == null) continue;
+
+            Game latestData = parseGameFromRawg(response, localGame.getRawgId());
+
+            if (latestData == null) continue;
+
+            List<FieldChange> fieldChanges = new ArrayList<>();
+            boolean changed = false;
+
+            // Release date
+            if (areDatesDifferent(localGame.getReleaseDate(), latestData.getReleaseDate())) {
+                fieldChanges.add(new FieldChange("Release_Date", String.valueOf(localGame.getReleaseDate()), String.valueOf(latestData.getReleaseDate())));
+                localGame.setReleaseDate(latestData.getReleaseDate());
+                changed = true;
+            }
+
+            // Title
+            if (areStringsDifferent(localGame.getTitle(), latestData.getTitle())) {
+                fieldChanges.add(new FieldChange("Title", localGame.getTitle(), latestData.getTitle()));
+                localGame.setTitle(latestData.getTitle());
+                changed = true;
+            }
+
+            // Image url
+            if (areStringsDifferent(localGame.getImageUrl(), latestData.getImageUrl())) {
+                fieldChanges.add(new FieldChange("Image_Url", localGame.getImageUrl(), latestData.getImageUrl()));
+                localGame.setImageUrl(latestData.getImageUrl());
+                changed = true;
+            }
+
+            if (changed) {
+                gameRepository.save(localGame);
+                updatedCount++;
+                changes.add(new GameChangeDetail(localGame.getId(), localGame.getTitle(), fieldChanges));
+            }
+        }
+
+        return new GameSyncResultDto(libraryGames.size(), updatedCount, changes);
+    }
+
+    public boolean areDatesDifferent(LocalDate oldDate, LocalDate newDate)
+    {
+        if (oldDate == null && newDate == null) return false;           // both null = no change
+        if (oldDate == null || newDate == null) return true;            // one null, one not = change
+        return !oldDate.equals(newDate);                                // both non-null compare values
+    }
+
+    public boolean areStringsDifferent(String oldStr, String newStr)
+    {
+        if (oldStr == null && newStr == null) return false;          // both null = no change
+        if (oldStr == null || newStr == null) return true;           // one null, one not = change
+        return !oldStr.equals(newStr);                               // both non-null compare values
+    }
+
 }

@@ -6,6 +6,7 @@ import com.matkon.gamelog.data.GameStatus;
 import com.matkon.gamelog.data.GameUpdateRequest;
 import com.matkon.gamelog.data.ReleaseFilter;
 import com.matkon.gamelog.data.WishlistGameForTableDTO;
+import com.matkon.gamelog.data.game.sync.GameSyncResultDto;
 import com.matkon.gamelog.services.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -41,7 +43,6 @@ public class GameController
             @RequestParam(defaultValue = "ALL") String status,
             @RequestParam(defaultValue = "") String search)
     {
-
         Page<Game> games = gameService.getLibraryGames(page, size, status, search);
         return ResponseEntity.ok(games);
     }
@@ -128,4 +129,12 @@ public class GameController
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PatchMapping("/sync-library")
+    public ResponseEntity<GameSyncResultDto> syncLibraryGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status)
+    {
+        GameSyncResultDto result = gameService.syncLibraryGames(status);
+        return ResponseEntity.ok(result);
+    }
+
 }
