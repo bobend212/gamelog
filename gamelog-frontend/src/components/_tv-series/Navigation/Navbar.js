@@ -13,14 +13,14 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="container">
         <div className="nav-brand">
-          <h2>🎮 Game Library</h2>
+          <h2>📺 TV Series Library</h2>
         </div>
         <div className="nav-links">
           <Link to="/" className={isActive('/')}>
             Home
           </Link>
           <hr />
-          <Link to="/games/dashboard" className={isActive('/games/dashboard')}>
+          <Link to="/tv-series/dashboard" className={isActive('/tv-series/dashboard')}>
             Dashboard
           </Link>
           <Link to="/games/library" className={isActive('/games/library')}>
@@ -29,11 +29,8 @@ const Navbar = () => {
           <Link to="/games/wishlist" className={isActive('/games/wishlist')}>
             Wishlist
           </Link>
-          <Link to="/games/sync" className={isActive('/games/sync')}>
-            Sync
-          </Link>
-          <Link to="/games/search" className={isActive('/games/search')}>
-            Search Games
+          <Link to="/tv-series/search" className={isActive('/tv-series/search')}>
+            Search TV Series
           </Link>
         </div>
       </div>

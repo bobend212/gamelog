@@ -1,4 +1,4 @@
-package com.matkon.gamelog.data.game.sync;
+package com.matkon.gamelog.data.games.sync;
 
 public class FieldChange
 {

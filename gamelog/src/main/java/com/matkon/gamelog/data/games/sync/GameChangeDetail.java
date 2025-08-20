@@ -1,4 +1,4 @@
-package com.matkon.gamelog.data.game.sync;
+package com.matkon.gamelog.data.games.sync;
 
 import java.util.List;
 

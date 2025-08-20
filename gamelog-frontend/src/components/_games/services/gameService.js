@@ -115,7 +115,20 @@ const gameService = {
     } catch (error) {
       throw new Error('Failed to search games');
     }
+  },
+
+  // [RAWG API] Sync library
+  syncLibraryGames: async (status) => {
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/games/sync-library`, null, {
+        params: { status }
+      });
+      return response.data;  // return full response containing change details
+    } catch (error) {
+      throw new Error('Failed to sync library');
+    }
   }
+
 };
 
 export default gameService;

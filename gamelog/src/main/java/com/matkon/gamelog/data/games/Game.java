@@ -1,4 +1,4 @@
-package com.matkon.gamelog.data;
+package com.matkon.gamelog.data.games;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

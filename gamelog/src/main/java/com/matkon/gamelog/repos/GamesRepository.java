@@ -1,7 +1,7 @@
 package com.matkon.gamelog.repos;
 
-import com.matkon.gamelog.data.Game;
-import com.matkon.gamelog.data.GameStatus;
+import com.matkon.gamelog.data.games.Game;
+import com.matkon.gamelog.data.games.GameStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface GameRepository extends JpaRepository<Game, Long>
+public interface GamesRepository extends JpaRepository<Game, Long>
 {
     // Find game by RAWG ID
     Optional<Game> findByRawgId(Long rawgId);

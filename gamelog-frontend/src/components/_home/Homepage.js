@@ -14,7 +14,7 @@ const Homepage = () => {
             <Typography variant="h4" gutterBottom>Select media type</Typography>
             <Grid container spacing={4} justifyContent="center">
                 {[
-                    { label: 'TV Shows', path: '/tv-shows' },
+                    { label: 'TV Series', path: '/tv-series/dashboard' },
                     { label: 'Movies', path: '/movies' },
                     { label: 'Games', path: '/games/dashboard' }
                 ].map(({ label, path }) => (

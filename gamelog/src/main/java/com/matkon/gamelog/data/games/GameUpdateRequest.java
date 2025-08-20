@@ -1,4 +1,4 @@
-package com.matkon.gamelog.data;
+package com.matkon.gamelog.data.games;
 
 import java.time.LocalDate;
 

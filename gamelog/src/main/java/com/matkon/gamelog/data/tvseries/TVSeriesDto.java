@@ -1,26 +1,12 @@
 package com.matkon.gamelog.data.tvseries;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "series")
-public class TVSeries
+public class TVSeriesDto
 {
-    @Id
-    @GeneratedValue
     private Long id;
-
     private Long tmdbId;
     private String name;
     private LocalDate first_air_date;
@@ -30,17 +16,31 @@ public class TVSeries
     private String poster_path;
     private LocalDate last_air_date;
     private String status;
-
-    @Enumerated(EnumType.STRING)
     private TrackingType trackingType;
+    private List<SeasonDto> seasons = new ArrayList<>();
 
-    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Season> seasons = new ArrayList<>();
-
-    public void addSeason(Season season)
+    public static TVSeriesDto fromEntity(TVSeries tvSeries)
     {
-        seasons.add(season);
-        season.setSeries(this);
+        TVSeriesDto dto = new TVSeriesDto();
+        dto.id = tvSeries.getId();
+        dto.tmdbId = tvSeries.getTmdbId();
+        dto.name = tvSeries.getName();
+        dto.first_air_date = tvSeries.getFirst_air_date();
+        dto.in_production = tvSeries.isIn_production();
+        dto.number_of_episodes = tvSeries.getNumber_of_episodes();
+        dto.number_of_seasons = tvSeries.getNumber_of_seasons();
+        dto.poster_path = tvSeries.getPoster_path();
+        dto.last_air_date = tvSeries.getLast_air_date();
+        dto.status = tvSeries.getStatus();
+        dto.trackingType = tvSeries.getTrackingType();
+
+        if (tvSeries.getSeasons() != null) {
+            for (Season season : tvSeries.getSeasons()) {
+                dto.seasons.add(SeasonDto.fromEntity(season));
+            }
+        }
+
+        return dto;
     }
 
     public Long getId()
@@ -153,12 +153,12 @@ public class TVSeries
         this.trackingType = trackingType;
     }
 
-    public List<Season> getSeasons()
+    public List<SeasonDto> getSeasons()
     {
         return seasons;
     }
 
-    public void setSeasons(List<Season> seasons)
+    public void setSeasons(List<SeasonDto> seasons)
     {
         this.seasons = seasons;
     }

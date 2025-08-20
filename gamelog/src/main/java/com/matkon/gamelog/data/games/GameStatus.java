@@ -1,4 +1,4 @@
-package com.matkon.gamelog.data;
+package com.matkon.gamelog.data.games;
 
 public enum GameStatus
 {

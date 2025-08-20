@@ -1,13 +1,13 @@
 package com.matkon.gamelog.controllers;
 
-import com.matkon.gamelog.data.Game;
-import com.matkon.gamelog.data.GameSaveResult;
-import com.matkon.gamelog.data.GameStatus;
-import com.matkon.gamelog.data.GameUpdateRequest;
-import com.matkon.gamelog.data.ReleaseFilter;
-import com.matkon.gamelog.data.WishlistGameForTableDTO;
-import com.matkon.gamelog.data.game.sync.GameSyncResultDto;
-import com.matkon.gamelog.services.GameService;
+import com.matkon.gamelog.data.games.Game;
+import com.matkon.gamelog.data.games.GameSaveResult;
+import com.matkon.gamelog.data.games.GameStatus;
+import com.matkon.gamelog.data.games.GameUpdateRequest;
+import com.matkon.gamelog.data.games.ReleaseFilter;
+import com.matkon.gamelog.data.games.WishlistGameForTableDTO;
+import com.matkon.gamelog.data.games.sync.GameSyncResultDto;
+import com.matkon.gamelog.services.GamesService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/games")
 @CrossOrigin(origins = "*")
-public class GameController
+public class GamesController
 {
-    private final GameService gameService;
+    private final GamesService gamesService;
 
-    public GameController(GameService gameService)
+    public GamesController(GamesService gamesService)
     {
-        this.gameService = gameService;
+        this.gamesService = gamesService;
     }
 
     @GetMapping("/library")
@@ -43,7 +43,7 @@ public class GameController
             @RequestParam(defaultValue = "ALL") String status,
             @RequestParam(defaultValue = "") String search)
     {
-        Page<Game> games = gameService.getLibraryGames(page, size, status, search);
+        Page<Game> games = gamesService.getLibraryGames(page, size, status, search);
         return ResponseEntity.ok(games);
     }
 
@@ -55,7 +55,7 @@ public class GameController
             @RequestParam(defaultValue = "") String search
     )
     {
-        Page<Game> wishlistGames = gameService.getWishlistGames(page, size, search);
+        Page<Game> wishlistGames = gamesService.getWishlistGames(page, size, search);
         return ResponseEntity.ok(wishlistGames);
     }
 
@@ -68,7 +68,7 @@ public class GameController
             @RequestParam(defaultValue = "ALL") ReleaseFilter release
     )
     {
-        Page<WishlistGameForTableDTO> games = gameService.getWishlistGamesDashboard(page, size, sort, release);
+        Page<WishlistGameForTableDTO> games = gamesService.getWishlistGamesDashboard(page, size, sort, release);
         return ResponseEntity.ok(games);
     }
 
@@ -77,7 +77,7 @@ public class GameController
     public ResponseEntity<?> searchGames(@RequestParam String query)
     {
         try {
-            return ResponseEntity.ok(gameService.searchGames(query));
+            return ResponseEntity.ok(gamesService.searchGames(query));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body("Error searching external games: " + e.getMessage());
@@ -89,7 +89,7 @@ public class GameController
     public ResponseEntity<GameSaveResult> addGameToLibrary(@PathVariable Long rawgId)
     {
         try {
-            GameSaveResult result = gameService.saveGameToDatabase(rawgId, GameStatus.BACKLOG);
+            GameSaveResult result = gamesService.saveGameToDatabase(rawgId, GameStatus.BACKLOG);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -101,7 +101,7 @@ public class GameController
     public ResponseEntity<GameSaveResult> addToWishlist(@PathVariable Long rawgId)
     {
         try {
-            GameSaveResult result = gameService.saveGameToDatabase(rawgId, GameStatus.WISHLIST);
+            GameSaveResult result = gamesService.saveGameToDatabase(rawgId, GameStatus.WISHLIST);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -112,7 +112,7 @@ public class GameController
     @Operation(summary = "Delete game from database by id")
     public ResponseEntity<Void> deleteGame(@PathVariable Long id)
     {
-        gameService.deleteGame(id);
+        gamesService.deleteGame(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -121,7 +121,7 @@ public class GameController
     public ResponseEntity<Game> updateGame(@PathVariable Long id, @RequestBody GameUpdateRequest gameUpdate)
     {
         try {
-            Game updatedGame = gameService.updateGame(id, gameUpdate);
+            Game updatedGame = gamesService.updateGame(id, gameUpdate);
             return ResponseEntity.ok(updatedGame);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -133,7 +133,7 @@ public class GameController
     @PatchMapping("/sync-library")
     public ResponseEntity<GameSyncResultDto> syncLibraryGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status)
     {
-        GameSyncResultDto result = gameService.syncLibraryGames(status);
+        GameSyncResultDto result = gamesService.syncLibraryGames(status);
         return ResponseEntity.ok(result);
     }
 

@@ -1,33 +1,27 @@
 package com.matkon.gamelog.data.tvseries;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "seasons")
-public class Season
+public class SeasonDto
 {
-    @Id
-    @GeneratedValue
     private Long id;
-
     private String name;
     private int season_number;
     private LocalDate air_date;
     private int episode_count;
-
     private int watchedCount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "series_id")
-    private TVSeries series;
+    public static SeasonDto fromEntity(Season season)
+    {
+        SeasonDto dto = new SeasonDto();
+        dto.id = season.getId();
+        dto.name = season.getName();
+        dto.season_number = season.getSeason_number();
+        dto.air_date = season.getAir_date();
+        dto.episode_count = season.getEpisode_count();
+        dto.watchedCount = season.getWatchedCount();
+        return dto;
+    }
 
     public Long getId()
     {
@@ -87,15 +81,5 @@ public class Season
     public void setWatchedCount(int watchedCount)
     {
         this.watchedCount = watchedCount;
-    }
-
-    public TVSeries getSeries()
-    {
-        return series;
-    }
-
-    public void setSeries(TVSeries series)
-    {
-        this.series = series;
     }
 }

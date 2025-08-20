@@ -2,16 +2,16 @@ package com.matkon.gamelog.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matkon.gamelog.data.Game;
-import com.matkon.gamelog.data.GameSaveResult;
-import com.matkon.gamelog.data.GameStatus;
-import com.matkon.gamelog.data.GameUpdateRequest;
-import com.matkon.gamelog.data.ReleaseFilter;
-import com.matkon.gamelog.data.WishlistGameForTableDTO;
-import com.matkon.gamelog.data.game.sync.FieldChange;
-import com.matkon.gamelog.data.game.sync.GameChangeDetail;
-import com.matkon.gamelog.data.game.sync.GameSyncResultDto;
-import com.matkon.gamelog.repos.GameRepository;
+import com.matkon.gamelog.data.games.Game;
+import com.matkon.gamelog.data.games.GameSaveResult;
+import com.matkon.gamelog.data.games.GameStatus;
+import com.matkon.gamelog.data.games.GameUpdateRequest;
+import com.matkon.gamelog.data.games.ReleaseFilter;
+import com.matkon.gamelog.data.games.WishlistGameForTableDTO;
+import com.matkon.gamelog.data.games.sync.FieldChange;
+import com.matkon.gamelog.data.games.sync.GameChangeDetail;
+import com.matkon.gamelog.data.games.sync.GameSyncResultDto;
+import com.matkon.gamelog.repos.GamesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GameService
+public class GamesService
 {
     @Autowired
-    private GameRepository gameRepository;
+    private GamesRepository gamesRepository;
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -43,7 +43,7 @@ public class GameService
     @Value("${rawg.api.key}")
     private String rawgApiKey;
 
-    public GameService()
+    public GamesService()
     {
         this.webClient = WebClient.builder().build();
         this.objectMapper = new ObjectMapper();
@@ -54,10 +54,10 @@ public class GameService
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
 
         if (searchTerm != null && !searchTerm.isBlank()) {
-            return gameRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
+            return gamesRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
         }
 
-        return gameRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
+        return gamesRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
     }
 
     public Page<WishlistGameForTableDTO> getWishlistGamesDashboard(int page, int size, String sort, ReleaseFilter releaseFilter)
@@ -73,10 +73,10 @@ public class GameService
 
         Page<Game> games = switch (releaseFilter) {
             case RELEASED_ONLY ->
-                    gameRepository.findByStatusAndReleaseDateLessThanEqual(GameStatus.WISHLIST, today, pageable);
+                    gamesRepository.findByStatusAndReleaseDateLessThanEqual(GameStatus.WISHLIST, today, pageable);
             case NOT_RELEASED_ONLY ->
-                    gameRepository.findByStatusAndReleaseDateAfter(GameStatus.WISHLIST, today, pageable);
-            default -> gameRepository.findByStatus(GameStatus.WISHLIST, pageable);
+                    gamesRepository.findByStatusAndReleaseDateAfter(GameStatus.WISHLIST, today, pageable);
+            default -> gamesRepository.findByStatus(GameStatus.WISHLIST, pageable);
         };
 
         return games.map(WishlistGameForTableDTO::fromEntity);
@@ -100,7 +100,7 @@ public class GameService
 
         String dbSearchTerm = (searchTerm == null || searchTerm.trim().isEmpty()) ? null : searchTerm;
 
-        return gameRepository.findLibraryGames(dbStatus, dbSearchTerm, pageable);
+        return gamesRepository.findLibraryGames(dbStatus, dbSearchTerm, pageable);
     }
 
     public List<Game> searchGames(String query)
@@ -121,7 +121,7 @@ public class GameService
 
     public GameSaveResult saveGameToDatabase(Long rawgId, GameStatus gameStatus)
     {
-        Optional<Game> existingGame = gameRepository.findByRawgId(rawgId);
+        Optional<Game> existingGame = gamesRepository.findByRawgId(rawgId);
         if (existingGame.isPresent()) {
             return new GameSaveResult(
                     existingGame.get(),
@@ -141,7 +141,7 @@ public class GameService
                 Game game = parseGameFromRawg(response, rawgId);
                 if (game != null) {
                     game.setStatus(gameStatus);
-                    Game savedGame = gameRepository.save(game);
+                    Game savedGame = gamesRepository.save(game);
                     return new GameSaveResult(
                             savedGame,
                             false,
@@ -160,12 +160,12 @@ public class GameService
 
     public void deleteGame(Long gameId)
     {
-        gameRepository.deleteById(gameId);
+        gamesRepository.deleteById(gameId);
     }
 
     public Game updateGame(Long id, GameUpdateRequest updateRequest)
     {
-        Game existingGame = gameRepository.findById(id)
+        Game existingGame = gamesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + id));
 
         existingGame.setPlatform(updateRequest.getPlatform());
@@ -176,7 +176,7 @@ public class GameService
         existingGame.setUpdatedAt(LocalDateTime.now());
         existingGame.setFavourite(updateRequest.getFavourite());
 
-        return gameRepository.save(existingGame);
+        return gamesRepository.save(existingGame);
     }
 
     // -- RAWG Helpers
@@ -257,7 +257,7 @@ public class GameService
 
     public GameSyncResultDto syncLibraryGames(GameStatus status)
     {
-        List<Game> libraryGames = gameRepository.findAll()
+        List<Game> libraryGames = gamesRepository.findAll()
                 .stream()
                 .filter(game -> game.getStatus() == status)
                 .toList();
@@ -304,7 +304,7 @@ public class GameService
             }
 
             if (changed) {
-                gameRepository.save(localGame);
+                gamesRepository.save(localGame);
                 updatedCount++;
                 changes.add(new GameChangeDetail(localGame.getId(), localGame.getTitle(), fieldChanges));
             }
