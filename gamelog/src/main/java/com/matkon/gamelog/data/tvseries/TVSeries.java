@@ -24,7 +24,6 @@ public class TVSeries
     private Long tmdbId;
     private String name;
     private LocalDate first_air_date;
-    private boolean in_production;
     private int number_of_episodes;
     private int number_of_seasons;
     private String poster_path;
@@ -81,16 +80,6 @@ public class TVSeries
     public void setFirst_air_date(LocalDate first_air_date)
     {
         this.first_air_date = first_air_date;
-    }
-
-    public boolean isIn_production()
-    {
-        return in_production;
-    }
-
-    public void setIn_production(boolean in_production)
-    {
-        this.in_production = in_production;
     }
 
     public int getNumber_of_episodes()

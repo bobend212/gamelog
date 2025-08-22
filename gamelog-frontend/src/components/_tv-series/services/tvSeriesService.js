@@ -61,6 +61,32 @@ const tvSeriesService = {
             throw new Error("Failed to search series");
         }
     },
+
+    deleteSeries: async (seriesId) => {
+        try {
+            await axios.delete(`${API_BASE}/${seriesId}`);
+        } catch (error) {
+            throw new Error('Failed to delete series');
+        }
+    },
+
+    getAllSeriesByTrackingType: async (trackingType) => {
+        try {
+            const response = await axios.get(`${API_BASE}/filter?trackingType=${trackingType}`);
+            return response.data;
+        } catch (error) {
+            throw new Error("Failed to fetch tracked series");
+        }
+    },
+
+    syncSeries: async (seriesId) => {
+        try {
+            await axios.patch(`${API_BASE}/sync-library/${seriesId}`);
+        } catch (error) {
+            throw new Error("Failed to sync library");
+        }
+    },
+
 };
 
 export default tvSeriesService;

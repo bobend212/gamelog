@@ -10,7 +10,6 @@ public class TVSeriesDto
     private Long tmdbId;
     private String name;
     private LocalDate first_air_date;
-    private boolean in_production;
     private int number_of_episodes;
     private int number_of_seasons;
     private String poster_path;
@@ -18,6 +17,8 @@ public class TVSeriesDto
     private String status;
     private TrackingType trackingType;
     private List<SeasonDto> seasons = new ArrayList<>();
+    private int totalWatchedEpisodes;
+    private int percentageProgress;
 
     public static TVSeriesDto fromEntity(TVSeries tvSeries)
     {
@@ -26,7 +27,6 @@ public class TVSeriesDto
         dto.tmdbId = tvSeries.getTmdbId();
         dto.name = tvSeries.getName();
         dto.first_air_date = tvSeries.getFirst_air_date();
-        dto.in_production = tvSeries.isIn_production();
         dto.number_of_episodes = tvSeries.getNumber_of_episodes();
         dto.number_of_seasons = tvSeries.getNumber_of_seasons();
         dto.poster_path = tvSeries.getPoster_path();
@@ -34,13 +34,51 @@ public class TVSeriesDto
         dto.status = tvSeries.getStatus();
         dto.trackingType = tvSeries.getTrackingType();
 
+        int totalWatched = 0;
         if (tvSeries.getSeasons() != null) {
             for (Season season : tvSeries.getSeasons()) {
                 dto.seasons.add(SeasonDto.fromEntity(season));
+                totalWatched += season.getWatchedCount();
             }
+        }
+        dto.totalWatchedEpisodes = totalWatched;
+
+        if (dto.number_of_episodes > 0) {
+            dto.percentageProgress = (int) Math.round((totalWatched * 100.0) / dto.number_of_episodes);
+        } else {
+            dto.percentageProgress = 0;
         }
 
         return dto;
+    }
+
+    public static TVSeries toEntity(TVSeriesDto dto)
+    {
+        TVSeries entity = new TVSeries();
+        entity.setId(dto.getId());
+        entity.setTmdbId(dto.getTmdbId());
+        entity.setName(dto.getName());
+        entity.setFirst_air_date(dto.getFirst_air_date());
+        entity.setNumber_of_episodes(dto.getNumber_of_episodes());
+        entity.setNumber_of_seasons(dto.getNumber_of_seasons());
+        entity.setPoster_path(dto.getPoster_path());
+        entity.setLast_air_date(dto.getLast_air_date());
+        entity.setStatus(dto.getStatus());
+        entity.setTrackingType(dto.getTrackingType());
+
+        if (dto.getSeasons() != null) {
+            List<Season> seasonEntities = new ArrayList<>();
+            for (SeasonDto obj : dto.getSeasons()) {
+                if (obj != null) {
+                    Season season = SeasonDto.toEntity(obj);
+                    season.setSeries(entity);
+                    seasonEntities.add(season);
+                }
+            }
+            entity.setSeasons(seasonEntities);
+        }
+
+        return entity;
     }
 
     public Long getId()
@@ -81,16 +119,6 @@ public class TVSeriesDto
     public void setFirst_air_date(LocalDate first_air_date)
     {
         this.first_air_date = first_air_date;
-    }
-
-    public boolean isIn_production()
-    {
-        return in_production;
-    }
-
-    public void setIn_production(boolean in_production)
-    {
-        this.in_production = in_production;
     }
 
     public int getNumber_of_episodes()
@@ -161,5 +189,25 @@ public class TVSeriesDto
     public void setSeasons(List<SeasonDto> seasons)
     {
         this.seasons = seasons;
+    }
+
+    public int getTotalWatchedEpisodes()
+    {
+        return totalWatchedEpisodes;
+    }
+
+    public void setTotalWatchedEpisodes(int totalWatchedEpisodes)
+    {
+        this.totalWatchedEpisodes = totalWatchedEpisodes;
+    }
+
+    public int getPercentageProgress()
+    {
+        return percentageProgress;
+    }
+
+    public void setPercentageProgress(int percentageProgress)
+    {
+        this.percentageProgress = percentageProgress;
     }
 }

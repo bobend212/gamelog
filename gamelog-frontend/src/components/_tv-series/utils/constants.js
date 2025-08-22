@@ -9,38 +9,38 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 export const TRACKING_TYPES = {
     WATCHING: {
         value: "WATCHING",
-        color: "info",
-        label: "Watching",
+        color: "primary",
+        label: "WATCHING",
         icon: <PlayCircleFilledWhiteIcon fontSize="small" />
     },
     UP_TO_DATE: {
         value: "UP_TO_DATE",
-        color: "info",
-        label: "Up To Date",
+        color: "success",
+        label: "UP TO DATE",
         icon: <CheckCircleOutlineIcon fontSize="small" />
     },
     COMPLETED: {
         value: "COMPLETED",
-        color: "success",
-        label: "Completed",
+        color: "secondary",
+        label: "COMPLETED",
         icon: <DoneAllIcon fontSize="small" />
     },
     ON_HOLD: {
         value: "ON_HOLD",
         color: "warning",
-        label: "On Hold",
+        label: "ON HOLD",
         icon: <PauseCircleFilledIcon fontSize="small" />
     },
     DROPPED: {
         value: "DROPPED",
         color: "error",
-        label: "Dropped",
+        label: "DROPPED",
         icon: <CancelIcon fontSize="small" />
     },
     WISHLIST: {
         value: "WISHLIST",
-        color: "warning",
-        label: "Wishlist",
+        color: "error",
+        label: "WISHLIST",
         icon: <ScheduleIcon fontSize="small" />
     }
 };

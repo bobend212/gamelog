@@ -1,38 +1,89 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, Grid, Paper } from '@mui/material';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Box, Typography, Grid, Paper } from "@mui/material";
 
 const Homepage = () => {
     const navigate = useNavigate();
+
+    const options = [
+        { label: "TV Series", path: "/tv-series/dashboard" },
+        { label: "Movies", path: "/movies" },
+        { label: "Games", path: "/games/dashboard" },
+    ];
 
     const handleSelection = (path) => {
         navigate(path);
     };
 
     return (
-        <Box sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="h4" gutterBottom>Select media type</Typography>
-            <Grid container spacing={4} justifyContent="center">
-                {[
-                    { label: 'TV Series', path: '/tv-series/dashboard' },
-                    { label: 'Movies', path: '/movies' },
-                    { label: 'Games', path: '/games/dashboard' }
-                ].map(({ label, path }) => (
-                    <Grid item key={label} xs={12} sm={4} md={3}>
+        <Box
+            sx={{
+                minHeight: "100vh",
+                background: "linear-gradient(135deg, #1a1a1a 0%, #5a6152ff 100%)"
+,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 4,
+                color: "white",
+                textAlign: "center",
+            }}
+        >
+            <Typography variant="h2" sx={{ fontWeight: "bold", mb: 3 }}>
+                The Library
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3 }}>
+                Select Media Type
+            </Typography>
+
+            <Grid container spacing={4} justifyContent="center" sx={{ maxWidth: 700, mb: 4 }}>
+                {options.map(({ label, path }) => (
+                    <Grid item xs={12} sm={6} md={4} key={label}>
                         <Paper
-                            elevation={3}
+                            elevation={8}
                             sx={{
-                                p: 4,
-                                cursor: 'pointer',
-                                ':hover': { boxShadow: 6 },
+                                p: 5,
+                                cursor: "pointer",
+                                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                transition: "all 0.3s ease",
+                                borderRadius: 3,
+                                "&:hover": {
+                                    backgroundColor: "rgba(255, 255, 255, 0.25)",
+                                    transform: "scale(1.05)",
+                                },
+                                userSelect: "none",
                             }}
                             onClick={() => handleSelection(path)}
                         >
-                            <Typography variant="h6">{label}</Typography>
+                            <Typography variant="h5" sx={{ fontWeight: "medium", color: "white" }}>
+                                {label}
+                            </Typography>
                         </Paper>
                     </Grid>
                 ))}
             </Grid>
+
+            <Typography variant="body1" sx={{ maxWidth: 600, opacity: 0.85, fontSize: "1.1rem" }}>
+                For <strong>Games</strong>, this app uses the&nbsp;
+                <a
+                    href="https://rawg.io/apidocs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#ffdd57", textDecoration: "underline" }}
+                >
+                    RAWG API
+                </a>
+                <br /> For <strong>Movies</strong> and <strong>TV Series</strong>, it uses the&nbsp;
+                <a
+                    href="https://www.themoviedb.org/documentation/api"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#ffdd57", textDecoration: "underline" }}
+                >
+                    TMDB API
+                </a>
+            </Typography>
         </Box>
     );
 };

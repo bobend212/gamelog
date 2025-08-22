@@ -23,14 +23,11 @@ const Navbar = () => {
           <Link to="/tv-series/dashboard" className={isActive('/tv-series/dashboard')}>
             Dashboard
           </Link>
-          <Link to="/games/library" className={isActive('/games/library')}>
-            Library
-          </Link>
-          <Link to="/games/wishlist" className={isActive('/games/wishlist')}>
-            Wishlist
+          <Link to="/tv-series/sync" className={isActive('/tv-series/sync')}>
+            Sync
           </Link>
           <Link to="/tv-series/search" className={isActive('/tv-series/search')}>
-            Search TV Series
+            Search
           </Link>
         </div>
       </div>

@@ -85,8 +85,8 @@ const SyncLibrary = ({ onSyncComplete }) => {
                                 <h3>Updated Games Details</h3>
                                 <ul>
                                     {syncSummary.changes.map(change => (
-                                        <li key={change.gameId}>
-                                            <strong>{change.gameName}</strong>
+                                        <li key={change.mediaId}>
+                                            <strong>{change.mediaName}</strong>
                                             <ul>
                                                 {change.fieldChanges.map((field, index) => (
                                                     <li key={index}>

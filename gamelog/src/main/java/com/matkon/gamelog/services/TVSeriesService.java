@@ -1,6 +1,11 @@
 package com.matkon.gamelog.services;
 
+import com.matkon.gamelog.data.sync.ChangeDetail;
+import com.matkon.gamelog.data.sync.FieldChange;
+import com.matkon.gamelog.data.sync.SyncResultDto;
+import com.matkon.gamelog.data.sync.SyncUtils;
 import com.matkon.gamelog.data.tvseries.Season;
+import com.matkon.gamelog.data.tvseries.SeasonDto;
 import com.matkon.gamelog.data.tvseries.TVSeries;
 import com.matkon.gamelog.data.tvseries.TVSeriesDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesListDto;
@@ -9,6 +14,7 @@ import com.matkon.gamelog.data.tvseries.TrackingType;
 import com.matkon.gamelog.repos.SeasonRepository;
 import com.matkon.gamelog.repos.TVSeriesRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +22,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -87,7 +97,6 @@ public class TVSeriesService
         tvSeries.setTmdbId(details.id);
         tvSeries.setName(details.name);
         tvSeries.setFirst_air_date(details.first_air_date);
-        tvSeries.setIn_production(details.in_production);
         tvSeries.setNumber_of_episodes(details.number_of_episodes);
         tvSeries.setNumber_of_seasons(details.number_of_seasons);
         tvSeries.setPoster_path(details.poster_path);
@@ -96,6 +105,7 @@ public class TVSeriesService
         tvSeries.setTrackingType(trackingType);
 
         details.seasons.forEach(s -> {
+            if (s.season_number == 0) return; // skip specials
             Season season = new Season();
             season.setName(s.name);
             season.setSeason_number(s.season_number);
@@ -136,7 +146,8 @@ public class TVSeriesService
     // ---- Get all series ----
     public List<TVSeriesListDto> getAllSeries()
     {
-        return seriesRepo.findAll().stream().map(TVSeriesListDto::fromEntity).toList();
+        return seriesRepo.findAll(Sort.by(Sort.Direction.ASC, "name"))
+                .stream().map(TVSeriesListDto::fromEntity).toList();
     }
 
     // ---- Get series by id ----
@@ -145,7 +156,18 @@ public class TVSeriesService
         Optional<TVSeries> seriesOpt = seriesRepo.findById(id);
         TVSeries series = seriesOpt.orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "TV series not found"));
+
+        if (series.getSeasons() != null) {
+            series.getSeasons().sort(Comparator.comparing(Season::getSeason_number));
+        }
+
         return TVSeriesDto.fromEntity(series);
+    }
+
+    public List<TVSeriesListDto> getAllSeriesByTrackingType(TrackingType trackingType)
+    {
+        return seriesRepo.findByTrackingType(trackingType, Sort.by(Sort.Direction.ASC, "name"))
+                .stream().map(TVSeriesListDto::fromEntity).toList();
     }
 
     // ---- Update trackingType ----
@@ -156,6 +178,173 @@ public class TVSeriesService
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "TV series not found"));
         series.setTrackingType(trackingType);
         seriesRepo.save(series);
+    }
+
+    // ---- Delete series by Id ----
+    @Transactional
+    public void deleteSeries(Long seriesId)
+    {
+        if (!seriesRepo.existsById(seriesId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "TV series not found");
+        }
+        seriesRepo.deleteById(seriesId);
+    }
+
+    @Transactional
+    public SyncResultDto syncLibrarySeries(Long id)
+    {
+        TVSeriesDto localTVSeries = getSeriesById(id);
+
+        int updatedCount = 0;
+        List<ChangeDetail> changes = new ArrayList<>();
+
+        TMDBSeriesToUpdate seriesToUpdate = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/tv/{id}")
+                        .queryParam("api_key", tmdbApiKey)
+                        .queryParam("language", "en-US")
+                        .build(localTVSeries.getTmdbId()))
+                .retrieve()
+                .bodyToMono(TMDBSeriesToUpdate.class)
+                .block();
+
+        if (seriesToUpdate == null) return null;
+
+        List<FieldChange> fieldChanges = new ArrayList<>();
+        boolean changed = false;
+
+        // Name
+        if (SyncUtils.areStringsDifferent(localTVSeries.getName(), seriesToUpdate.name)) {
+            fieldChanges.add(new FieldChange("Name",
+                    String.valueOf(localTVSeries.getName()),
+                    String.valueOf(seriesToUpdate.name)));
+            localTVSeries.setName(seriesToUpdate.name);
+            changed = true;
+        }
+
+        // Number_Of_Episodes
+        if (SyncUtils.areIntsDifferent(localTVSeries.getNumber_of_episodes(), seriesToUpdate.number_of_episodes)) {
+            fieldChanges.add(new FieldChange("Number_Of_Episodes",
+                    String.valueOf(localTVSeries.getNumber_of_episodes()),
+                    String.valueOf(seriesToUpdate.number_of_episodes)));
+            localTVSeries.setNumber_of_episodes(seriesToUpdate.number_of_episodes);
+            changed = true;
+        }
+
+        // Number_Of_Seasons
+        if (SyncUtils.areIntsDifferent(localTVSeries.getNumber_of_seasons(), seriesToUpdate.number_of_seasons)) {
+            fieldChanges.add(new FieldChange("Number_Of_Seasons",
+                    String.valueOf(localTVSeries.getNumber_of_seasons()),
+                    String.valueOf(seriesToUpdate.number_of_seasons)));
+            localTVSeries.setNumber_of_seasons(seriesToUpdate.number_of_seasons);
+            changed = true;
+        }
+
+        // Last_Air_Date
+        if (SyncUtils.areDatesDifferent(localTVSeries.getLast_air_date(), seriesToUpdate.last_air_date)) {
+            fieldChanges.add(new FieldChange("Last_Air_Date",
+                    String.valueOf(localTVSeries.getLast_air_date()),
+                    String.valueOf(seriesToUpdate.last_air_date)));
+            localTVSeries.setLast_air_date(seriesToUpdate.last_air_date);
+            changed = true;
+        }
+
+        // First_Air_Date
+        if (SyncUtils.areDatesDifferent(localTVSeries.getFirst_air_date(), seriesToUpdate.first_air_date)) {
+            fieldChanges.add(new FieldChange("First_Air_Date",
+                    String.valueOf(localTVSeries.getFirst_air_date()),
+                    String.valueOf(seriesToUpdate.first_air_date)));
+            localTVSeries.setFirst_air_date(seriesToUpdate.first_air_date);
+            changed = true;
+        }
+
+        // Status
+        if (SyncUtils.areStringsDifferent(localTVSeries.getStatus(), seriesToUpdate.status)) {
+            fieldChanges.add(new FieldChange("Status",
+                    String.valueOf(localTVSeries.getStatus()),
+                    String.valueOf(seriesToUpdate.status)));
+            localTVSeries.setStatus(seriesToUpdate.status);
+            changed = true;
+        }
+
+        // Poster
+        if (SyncUtils.areStringsDifferent(localTVSeries.getPoster_path(), seriesToUpdate.poster_path)) {
+            fieldChanges.add(new FieldChange("Poster_Path",
+                    String.valueOf(localTVSeries.getPoster_path()),
+                    String.valueOf(seriesToUpdate.poster_path)));
+            localTVSeries.setPoster_path(seriesToUpdate.poster_path);
+            changed = true;
+        }
+
+        // Seasons
+        Map<Integer, SeasonDto> localSeasonMap = new HashMap<>();
+        for (Object obj : localTVSeries.getSeasons()) {
+            if (obj instanceof SeasonDto seasonDto) {
+                localSeasonMap.put(seasonDto.getSeason_number(), seasonDto);
+            }
+        }
+
+        List<SeasonDto> updatedSeasons = new ArrayList<>();
+        for (TMDBSeason tmdbSeason : seriesToUpdate.seasons.stream().filter(season -> season.season_number != 0).toList()) {
+            SeasonDto localSeason = localSeasonMap.get(tmdbSeason.season_number);
+            if (localSeason == null) {
+                // New season
+                SeasonDto newSeason = new SeasonDto();
+                newSeason.setName(tmdbSeason.name);
+                newSeason.setSeason_number(tmdbSeason.season_number);
+                newSeason.setEpisode_count(tmdbSeason.episode_count);
+                newSeason.setAir_date(tmdbSeason.air_date);
+                updatedSeasons.add(newSeason);
+                fieldChanges.add(new FieldChange(
+                        "Season_Added", null,
+                        tmdbSeason.name + " (" + tmdbSeason.episode_count + " episodes)"
+                ));
+                changed = true;
+            } else {
+                if (SyncUtils.areStringsDifferent(localSeason.getName(), tmdbSeason.name)) {
+                    fieldChanges.add(new FieldChange(
+                            "Season_" + tmdbSeason.season_number + "_Name",
+                            String.valueOf(localSeason.getName()),
+                            String.valueOf(tmdbSeason.name)
+                    ));
+                    localSeason.setName(tmdbSeason.name);
+                    changed = true;
+                }
+
+                if (SyncUtils.areDatesDifferent(localSeason.getAir_date(), tmdbSeason.air_date)) {
+                    fieldChanges.add(new FieldChange(
+                            "Season_" + tmdbSeason.season_number + "_Air_Date",
+                            String.valueOf(localSeason.getAir_date()),
+                            String.valueOf(tmdbSeason.air_date)
+                    ));
+                    localSeason.setAir_date(tmdbSeason.air_date);
+                    changed = true;
+                }
+
+                if (SyncUtils.areIntsDifferent(localSeason.getEpisode_count(), tmdbSeason.episode_count)) {
+                    fieldChanges.add(new FieldChange(
+                            "Season_" + tmdbSeason.season_number + "_Episode_Count",
+                            String.valueOf(localSeason.getEpisode_count()),
+                            String.valueOf(tmdbSeason.episode_count)
+                    ));
+                    localSeason.setEpisode_count(tmdbSeason.episode_count);
+                    changed = true;
+                }
+
+                updatedSeasons.add(localSeason);
+            }
+        }
+        localTVSeries.setSeasons(updatedSeasons);
+
+        TVSeries seriesToSave = TVSeriesDto.toEntity(localTVSeries);
+
+        if (changed) {
+            seriesRepo.save(seriesToSave);
+            updatedCount++;
+            changes.add(new ChangeDetail(seriesToSave.getId(), seriesToSave.getName(), fieldChanges));
+        }
+
+        return new SyncResultDto(1, updatedCount, changes);
     }
 
     // ---- Utility Mappers ----
@@ -186,10 +375,21 @@ public class TVSeriesService
         public List<TMDBSeason> seasons;
         public String status;
         public LocalDate first_air_date;
-        public boolean in_production;
         public int number_of_episodes;
         public int number_of_seasons;
         public LocalDate last_air_date;
+    }
+
+    private static class TMDBSeriesToUpdate
+    {
+        public String name;
+        public int number_of_episodes;
+        public int number_of_seasons;
+        public LocalDate last_air_date;
+        public LocalDate first_air_date;
+        public String status;
+        public String poster_path;
+        public List<TMDBSeason> seasons;
     }
 
     private static class TMDBSeason

@@ -1,14 +1,14 @@
-package com.matkon.gamelog.data.games.sync;
+package com.matkon.gamelog.data.sync;
 
 import java.util.List;
 
-public class GameSyncResultDto
+public class SyncResultDto
 {
     private int totalChecked;
     private int updatedCount;
-    private List<GameChangeDetail> changes;
+    private List<ChangeDetail> changes;
 
-    public GameSyncResultDto(int totalChecked, int updatedCount, List<GameChangeDetail> changes)
+    public SyncResultDto(int totalChecked, int updatedCount, List<ChangeDetail> changes)
     {
         this.totalChecked = totalChecked;
         this.updatedCount = updatedCount;
@@ -35,12 +35,12 @@ public class GameSyncResultDto
         this.updatedCount = updatedCount;
     }
 
-    public List<GameChangeDetail> getChanges()
+    public List<ChangeDetail> getChanges()
     {
         return changes;
     }
 
-    public void setChanges(List<GameChangeDetail> changes)
+    public void setChanges(List<ChangeDetail> changes)
     {
         this.changes = changes;
     }

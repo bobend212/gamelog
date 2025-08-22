@@ -23,6 +23,19 @@ public class SeasonDto
         return dto;
     }
 
+    public static Season toEntity(SeasonDto dto)
+    {
+        Season entity = new Season();
+        entity.setId(dto.getId());
+        entity.setName(dto.getName());
+        entity.setSeason_number(dto.getSeason_number());
+        entity.setAir_date(dto.getAir_date());
+        entity.setEpisode_count(dto.getEpisode_count());
+        entity.setWatchedCount(dto.getWatchedCount());
+
+        return entity;
+    }
+
     public Long getId()
     {
         return id;

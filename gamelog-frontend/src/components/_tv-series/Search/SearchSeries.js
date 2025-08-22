@@ -19,9 +19,6 @@ import Navbar from "../Navigation/Navbar";
 import tvSeriesService from "../../_tv-series/services/tvSeriesService";
 import { toast } from 'react-toastify';
 
-// Fallback poster image
-const FALLBACK_POSTER = "https://via.placeholder.com/54x76.png?text=No+Poster";
-
 const SearchSeries = ({ onSeriesAdded }) => {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
@@ -54,10 +51,7 @@ const SearchSeries = ({ onSeriesAdded }) => {
     };
 
     // Helper for TMDB poster:
-    const getPosterUrl = (poster_path) =>
-        poster_path
-            ? `https://image.tmdb.org/t/p/w92${poster_path}`
-            : FALLBACK_POSTER;
+    const getPosterUrl = (poster_path) => `https://image.tmdb.org/t/p/w92${poster_path}`;
 
     return (
         <>

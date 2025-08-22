@@ -6,7 +6,7 @@ import com.matkon.gamelog.data.games.GameStatus;
 import com.matkon.gamelog.data.games.GameUpdateRequest;
 import com.matkon.gamelog.data.games.ReleaseFilter;
 import com.matkon.gamelog.data.games.WishlistGameForTableDTO;
-import com.matkon.gamelog.data.games.sync.GameSyncResultDto;
+import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.services.GamesService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
@@ -131,9 +131,10 @@ public class GamesController
     }
 
     @PatchMapping("/sync-library")
-    public ResponseEntity<GameSyncResultDto> syncLibraryGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status)
+    @Operation(summary = "[RAWG API]  Sync library")
+    public ResponseEntity<SyncResultDto> syncLibraryGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status)
     {
-        GameSyncResultDto result = gamesService.syncLibraryGames(status);
+        SyncResultDto result = gamesService.syncLibraryGames(status);
         return ResponseEntity.ok(result);
     }
 

@@ -15,10 +15,10 @@ import tvSeriesService from "../../_tv-series/services/tvSeriesService";
 import StatusDialog from "../Common/StatusDialog";
 import Navbar from "../Navigation/Navbar";
 import { TRACKING_TYPES } from "../utils/constants";
-
-const FALLBACK_POSTER =
-    "https://image.tmdb.org/t/p/original/ipNCnwKaRqyddXRukTslsl3hiop.jpg";
-const MAIN_PATH_POSTER = "https://image.tmdb.org/t/p/w200";
+import { LinearProgress } from "@mui/material";
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import EditIcon from '@mui/icons-material/Edit';
+import { toast } from 'react-toastify';
 
 const SeriesDetails = () => {
     const { id } = useParams();
@@ -51,6 +51,25 @@ const SeriesDetails = () => {
         await loadDetails(seriesId);
     };
 
+    const handleSetWatchedCount = async (seriesId, seasonId) => {
+        const input = window.prompt("Enter number of watched episodes:");
+        if (input !== null) {
+            const count = parseInt(input, 10);
+            if (!isNaN(count) && count >= 0) {
+                await tvSeriesService.incrementWatchedCount(seasonId, count);
+                await loadDetails(seriesId);
+            } else {
+                alert("Please enter a valid non-negative number.");
+            }
+        }
+    };
+
+    const handleSync = async (seriesId) => {
+        await tvSeriesService.syncSeries(seriesId);
+        await loadDetails(seriesId);
+        toast.success(`Sync completed`);
+    };
+
     const handleSaveStatus = async (newStatus) => {
         if (series) {
             await tvSeriesService.updateTrackingType(series.id, newStatus);
@@ -63,7 +82,7 @@ const SeriesDetails = () => {
     if (!series) return <Typography align="center" sx={{ mt: 6 }}>Series not found.</Typography>;
 
     const info = TRACKING_TYPES[series.trackingType];
-    const imgUrl = series.poster_path ? MAIN_PATH_POSTER + series.poster_path : FALLBACK_POSTER;
+    const imgUrl = "https://image.tmdb.org/t/p/w200" + series.poster_path;
 
     return (
         <>
@@ -89,7 +108,6 @@ const SeriesDetails = () => {
                 </Button>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems="flex-start">
 
-                    {/* Left Side - Poster + new fields below it */}
                     <Box sx={{ minWidth: 200 }}>
                         <CardMedia
                             component="img"
@@ -98,23 +116,26 @@ const SeriesDetails = () => {
                             sx={{ height: 280, width: 200, objectFit: "cover", borderRadius: 2, boxShadow: 3, mb: 2 }}
                         />
 
-                        {/* New fields directly under poster */}
                         <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
                             Release Date
                         </Typography>
                         <Typography variant="body2" color="#cfd8dc" sx={{ mb: 2 }}>
-                            {series.first_air_date}
+                            ✦ {series.first_air_date}
                         </Typography>
                         <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
                             Status
                         </Typography>
                         <Typography variant="body2" color="#cfd8dc" sx={{ mb: 2 }}>
-                            {series.status}
+                            ✦ {series.status}
                         </Typography>
-
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                            Last Episode Air Date
+                        </Typography>
+                        <Typography variant="body2" color="#cfd8dc" sx={{ mb: 2 }}>
+                            ✦ {series.last_air_date}
+                        </Typography>
                     </Box>
 
-                    {/* Right Side - Title, status, seasons */}
                     <Box flex={1}>
                         <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
                             {series.name}
@@ -130,15 +151,46 @@ const SeriesDetails = () => {
                             <Button
                                 variant="outlined"
                                 onClick={() => setDialogOpen(true)}
-                                sx={{ textTransform: "none", fontWeight: 600 }}
+                                sx={{ textTransform: "none" }}
+                                endIcon={<EditIcon />}
                             >
-                                Edit
+                                EDIT
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={() => handleSync(series.id)}
+                                sx={{ textTransform: "none" }}
+                                color="success"
+                                endIcon={<CloudSyncIcon />}
+                            >
+                                SYNC
                             </Button>
                         </Stack>
 
-                        <Divider sx={{ my: 2, bgcolor: "#334" }} />
+                        <Box sx={{ mb: 0, mt: 1, p: 1, bgcolor: '#374579ff', borderRadius: 1 }}>
+                            <Typography variant="h6" sx={{ mb: 1 }}>
+                                Progress: {series.totalWatchedEpisodes} / {series.number_of_episodes} episodes
+                                ({series.percentageProgress}%)
+                            </Typography>
+                            <LinearProgress
+                                variant="determinate"
+                                value={series.percentageProgress}
+                                sx={{
+                                    height: 12,
+                                    borderRadius: 2,
+                                    backgroundColor: '#eee',
+                                    '& .MuiLinearProgress-bar': {
+                                        borderRadius: 2,
+                                        backgroundColor: series.percentageProgress === 100 ? 'green' : '#689B8A',
+                                        // transition: 'width 0.5s ease-in-out',
+                                    }
+                                }}
+                            />
+                        </Box>
+
+                        <Divider sx={{ my: 1, bgcolor: "#334" }} />
                         <Typography variant="h6" sx={{ mb: 1 }}>
-                            Seasons
+                            Seasons ({series.number_of_seasons})
                         </Typography>
                         <Stack spacing={3}>
                             {series.seasons.map((season, idx) => (
@@ -149,26 +201,36 @@ const SeriesDetails = () => {
                                     <Typography variant="body2" color="#aad6ff">
                                         {season.watchedCount} / {season.episode_count} episodes watched
                                     </Typography>
-                                    {season.watchedCount < season.episode_count && (
-                                        <Stack mt={1} direction="row" spacing={1}>
-                                            <Button
-                                                variant="outlined"
-                                                color="primary"
-                                                size="small"
-                                                onClick={() => handleAllWatched(series.id, season.id, season.episode_count)}
-                                            >
-                                                All Watched
-                                            </Button>
-                                            <Button
-                                                variant="contained"
-                                                color="success"
-                                                size="small"
-                                                onClick={() => handleIncrement(series.id, season.id)}
-                                            >
-                                                +1 Watched
-                                            </Button>
-                                        </Stack>
-                                    )}
+                                    <Stack mt={1} direction="row" spacing={1}>
+                                        <Button
+                                            size="small"
+                                            variant="outlined"
+                                            onClick={() => handleSetWatchedCount(series.id, season.id)}
+                                            sx={{ mr: 1 }}
+                                        >
+                                            Set Watched
+                                        </Button>
+                                        {season.watchedCount < season.episode_count && (
+                                            <>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="primary"
+                                                    size="small"
+                                                    onClick={() => handleAllWatched(series.id, season.id, season.episode_count)}
+                                                >
+                                                    All Watched
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    color="success"
+                                                    size="small"
+                                                    onClick={() => handleIncrement(series.id, season.id)}
+                                                >
+                                                    +1 Watched
+                                                </Button>
+                                            </>
+                                        )}
+                                    </Stack>
                                 </Paper>
                             ))}
                         </Stack>

@@ -8,9 +8,10 @@ import com.matkon.gamelog.data.games.GameStatus;
 import com.matkon.gamelog.data.games.GameUpdateRequest;
 import com.matkon.gamelog.data.games.ReleaseFilter;
 import com.matkon.gamelog.data.games.WishlistGameForTableDTO;
-import com.matkon.gamelog.data.games.sync.FieldChange;
-import com.matkon.gamelog.data.games.sync.GameChangeDetail;
-import com.matkon.gamelog.data.games.sync.GameSyncResultDto;
+import com.matkon.gamelog.data.sync.ChangeDetail;
+import com.matkon.gamelog.data.sync.FieldChange;
+import com.matkon.gamelog.data.sync.SyncResultDto;
+import com.matkon.gamelog.data.sync.SyncUtils;
 import com.matkon.gamelog.repos.GamesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -255,7 +256,7 @@ public class GamesService
         }
     }
 
-    public GameSyncResultDto syncLibraryGames(GameStatus status)
+    public SyncResultDto syncLibraryGames(GameStatus status)
     {
         List<Game> libraryGames = gamesRepository.findAll()
                 .stream()
@@ -263,10 +264,9 @@ public class GamesService
                 .toList();
 
         int updatedCount = 0;
-        List<GameChangeDetail> changes = new ArrayList<>();
+        List<ChangeDetail> changes = new ArrayList<>();
 
         for (Game localGame : libraryGames) {
-
             String response = webClient.get()
                     .uri(rawgApiUrl + "/games/" + localGame.getRawgId() + "?key=" + rawgApiKey)
                     .retrieve()
@@ -283,21 +283,21 @@ public class GamesService
             boolean changed = false;
 
             // Release date
-            if (areDatesDifferent(localGame.getReleaseDate(), latestData.getReleaseDate())) {
+            if (SyncUtils.areDatesDifferent(localGame.getReleaseDate(), latestData.getReleaseDate())) {
                 fieldChanges.add(new FieldChange("Release_Date", String.valueOf(localGame.getReleaseDate()), String.valueOf(latestData.getReleaseDate())));
                 localGame.setReleaseDate(latestData.getReleaseDate());
                 changed = true;
             }
 
             // Title
-            if (areStringsDifferent(localGame.getTitle(), latestData.getTitle())) {
+            if (SyncUtils.areStringsDifferent(localGame.getTitle(), latestData.getTitle())) {
                 fieldChanges.add(new FieldChange("Title", localGame.getTitle(), latestData.getTitle()));
                 localGame.setTitle(latestData.getTitle());
                 changed = true;
             }
 
             // Image url
-            if (areStringsDifferent(localGame.getImageUrl(), latestData.getImageUrl())) {
+            if (SyncUtils.areStringsDifferent(localGame.getImageUrl(), latestData.getImageUrl())) {
                 fieldChanges.add(new FieldChange("Image_Url", localGame.getImageUrl(), latestData.getImageUrl()));
                 localGame.setImageUrl(latestData.getImageUrl());
                 changed = true;
@@ -306,25 +306,10 @@ public class GamesService
             if (changed) {
                 gamesRepository.save(localGame);
                 updatedCount++;
-                changes.add(new GameChangeDetail(localGame.getId(), localGame.getTitle(), fieldChanges));
+                changes.add(new ChangeDetail(localGame.getId(), localGame.getTitle(), fieldChanges));
             }
         }
 
-        return new GameSyncResultDto(libraryGames.size(), updatedCount, changes);
+        return new SyncResultDto(libraryGames.size(), updatedCount, changes);
     }
-
-    public boolean areDatesDifferent(LocalDate oldDate, LocalDate newDate)
-    {
-        if (oldDate == null && newDate == null) return false;           // both null = no change
-        if (oldDate == null || newDate == null) return true;            // one null, one not = change
-        return !oldDate.equals(newDate);                                // both non-null compare values
-    }
-
-    public boolean areStringsDifferent(String oldStr, String newStr)
-    {
-        if (oldStr == null && newStr == null) return false;          // both null = no change
-        if (oldStr == null || newStr == null) return true;           // one null, one not = change
-        return !oldStr.equals(newStr);                               // both non-null compare values
-    }
-
 }
