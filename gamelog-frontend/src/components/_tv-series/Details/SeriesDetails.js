@@ -19,6 +19,7 @@ import { LinearProgress } from "@mui/material";
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
+import { Rating } from '@mui/material';
 
 const SeriesDetails = () => {
     const { id } = useParams();
@@ -78,6 +79,17 @@ const SeriesDetails = () => {
         }
     };
 
+    const handleRatingChange = async (seasonId, newValue) => {
+        try {
+            await tvSeriesService.rateSeason(seasonId, newValue);
+            toast.success('Rating updated');
+            await loadDetails(series.id);
+        } catch (error) {
+            toast.error('Failed to update rating');
+        }
+    };
+
+
     if (loading) return <Typography align="center" sx={{ mt: 6 }}>Loading...</Typography>;
     if (!series) return <Typography align="center" sx={{ mt: 6 }}>Series not found.</Typography>;
 
@@ -134,6 +146,20 @@ const SeriesDetails = () => {
                         <Typography variant="body2" color="#cfd8dc" sx={{ mb: 2 }}>
                             ✦ {series.last_air_date}
                         </Typography>
+
+                        {series.ratingOverall !== null && series.ratingOverall !== 0 && (
+                            <>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                    Overall Rating
+                                </Typography>
+                                <Typography component="div" variant="body2" color="#cfd8dc" sx={{ mb: 2 }}>
+                                    <Box sx={{ mr: 1, color: "white", fontWeight: 700 }}>
+                                        ✦ {series.ratingOverall}
+                                    </Box>
+                                </Typography>
+                            </>
+                        )}
+                        
                     </Box>
 
                     <Box flex={1}>
@@ -195,6 +221,23 @@ const SeriesDetails = () => {
                         <Stack spacing={3}>
                             {series.seasons.map((season, idx) => (
                                 <Paper key={season.id} elevation={2} sx={{ p: 2, bgcolor: "#313649ff" }}>
+                                    <Box sx={{ width: 200, display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                        {season.rating && (<Box sx={{ mr: 1, color: "white", fontWeight: 700 }}>{season.rating}</Box>)}
+                                        <Rating
+                                            name={`season-rating-${season.id}`}
+                                            value={season.rating || null}
+                                            max={10}
+                                            precision={1}
+                                            onChange={(event, newValue) => {
+                                                handleRatingChange(season.id, newValue);
+                                            }}
+                                            onChangeActive={(event, newHover) => {
+                                                if (newHover === 0) {
+                                                    handleRatingChange(season.id, null);
+                                                }
+                                            }}
+                                        />
+                                    </Box>
                                     <Typography sx={{ fontWeight: 600, mb: 0, color: "white" }}>
                                         {season.name || `Season ${season.seasonNumber}`} - {season.air_date}
                                     </Typography>

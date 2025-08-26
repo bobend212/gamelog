@@ -9,6 +9,7 @@ import com.matkon.gamelog.data.tvseries.SeasonDto;
 import com.matkon.gamelog.data.tvseries.TVSeries;
 import com.matkon.gamelog.data.tvseries.TVSeriesDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesListDto;
+import com.matkon.gamelog.data.tvseries.TVSeriesSaveResultDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesSearchDto;
 import com.matkon.gamelog.data.tvseries.TrackingType;
 import com.matkon.gamelog.repos.SeasonRepository;
@@ -22,6 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -74,10 +76,16 @@ public class TVSeriesService
 
     // ---- Add series ----
     @Transactional
-    public void saveSeries(Long tmdbId, TrackingType trackingType)
+    public TVSeriesSaveResultDto saveSeries(Long tmdbId, TrackingType trackingType)
     {
         Optional<TVSeries> existing = seriesRepo.findByTmdbId(tmdbId);
-        if (existing.isPresent()) return;
+        if (existing.isPresent()) {
+            return new TVSeriesSaveResultDto(
+                    existing.get().getId(),
+                    true,
+                    "TV Series already exist in the database"
+            );
+        }
 
         TMDBSeries details = webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -103,6 +111,7 @@ public class TVSeriesService
         tvSeries.setLast_air_date(details.last_air_date);
         tvSeries.setStatus(details.status);
         tvSeries.setTrackingType(trackingType);
+        tvSeries.setUpdatedAt(LocalDateTime.now());
 
         details.seasons.forEach(s -> {
             if (s.season_number == 0) return; // skip specials
@@ -116,6 +125,11 @@ public class TVSeriesService
         });
 
         seriesRepo.save(tvSeries);
+        return new TVSeriesSaveResultDto(
+                tvSeries.getId(),
+                false,
+                "TV Series added successfully"
+        );
     }
 
     // ---- Update season counts ----
@@ -127,6 +141,7 @@ public class TVSeriesService
 
         if (season.getWatchedCount() < season.getEpisode_count()) {
             season.setWatchedCount(season.getWatchedCount() + 1);
+            season.getSeries().setUpdatedAt(LocalDateTime.now());
             seasonRepo.save(season);
         }
     }
@@ -139,6 +154,7 @@ public class TVSeriesService
 
         if (watchedCount >= 0 && watchedCount <= season.getEpisode_count()) {
             season.setWatchedCount(watchedCount);
+            season.getSeries().setUpdatedAt(LocalDateTime.now());
             seasonRepo.save(season);
         }
     }
@@ -146,7 +162,7 @@ public class TVSeriesService
     // ---- Get all series ----
     public List<TVSeriesListDto> getAllSeries()
     {
-        return seriesRepo.findAll(Sort.by(Sort.Direction.ASC, "name"))
+        return seriesRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"))
                 .stream().map(TVSeriesListDto::fromEntity).toList();
     }
 
@@ -166,7 +182,7 @@ public class TVSeriesService
 
     public List<TVSeriesListDto> getAllSeriesByTrackingType(TrackingType trackingType)
     {
-        return seriesRepo.findByTrackingType(trackingType, Sort.by(Sort.Direction.ASC, "name"))
+        return seriesRepo.findByTrackingType(trackingType, Sort.by(Sort.Direction.DESC, "updatedAt"))
                 .stream().map(TVSeriesListDto::fromEntity).toList();
     }
 
@@ -177,7 +193,19 @@ public class TVSeriesService
         TVSeries series = seriesRepo.findById(seriesId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "TV series not found"));
         series.setTrackingType(trackingType);
+        series.setUpdatedAt(LocalDateTime.now());
         seriesRepo.save(series);
+    }
+
+    // ---- Update season rating ----
+    @Transactional
+    public void rateSeason(Long seasonId, Double rating)
+    {
+        Season season = seasonRepo.findById(seasonId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Season not found"));
+        season.setRating(rating);
+        season.getSeries().setUpdatedAt(LocalDateTime.now());
+        seasonRepo.save(season);
     }
 
     // ---- Delete series by Id ----
@@ -190,8 +218,32 @@ public class TVSeriesService
         seriesRepo.deleteById(seriesId);
     }
 
+    public SyncResultDto syncSeries(Long id)
+    {
+        if (id != 0) {
+            return syncLibrarySeries(id);
+        } else {
+            int totalSeries = 0;
+            int updatedCount = 0;
+            List<ChangeDetail> allChanges = new ArrayList<>();
+
+            List<Long> ids = seriesRepo.findAll().stream().map(TVSeries::getId).toList();
+            totalSeries = ids.size();
+
+            for (Long seriesId : ids) {
+                SyncResultDto result = syncLibrarySeries(seriesId);
+                if (result != null) {
+                    updatedCount += result.getUpdatedCount();
+                    allChanges.addAll(result.getChanges());
+                }
+            }
+
+            return new SyncResultDto(totalSeries, updatedCount, allChanges);
+        }
+    }
+
     @Transactional
-    public SyncResultDto syncLibrarySeries(Long id)
+    private SyncResultDto syncLibrarySeries(Long id)
     {
         TVSeriesDto localTVSeries = getSeriesById(id);
 

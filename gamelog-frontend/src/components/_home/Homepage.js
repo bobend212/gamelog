@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Grid, Paper } from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
+import Grid from '@mui/material/Grid';
 
 const Homepage = () => {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Homepage = () => {
             sx={{
                 minHeight: "100vh",
                 background: "linear-gradient(135deg, #1a1a1a 0%, #5a6152ff 100%)"
-,
+                ,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -39,7 +40,7 @@ const Homepage = () => {
 
             <Grid container spacing={4} justifyContent="center" sx={{ maxWidth: 700, mb: 4 }}>
                 {options.map(({ label, path }) => (
-                    <Grid item xs={12} sm={6} md={4} key={label}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6 }} key={label}>
                         <Paper
                             elevation={8}
                             sx={{

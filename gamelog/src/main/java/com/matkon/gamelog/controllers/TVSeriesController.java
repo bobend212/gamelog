@@ -3,6 +3,7 @@ package com.matkon.gamelog.controllers;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesListDto;
+import com.matkon.gamelog.data.tvseries.TVSeriesSaveResultDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesSearchDto;
 import com.matkon.gamelog.data.tvseries.TrackingType;
 import com.matkon.gamelog.services.TVSeriesService;
@@ -45,12 +46,16 @@ public class TVSeriesController
 
     @PostMapping("/save/{tmdbId}")
     @Operation(summary = "[TMDB API] Save to library by tmdbId")
-    public ResponseEntity<Void> add(
+    public ResponseEntity<TVSeriesSaveResultDto> add(
             @PathVariable Long tmdbId,
             @RequestParam TrackingType status)
     {
-        tvSeriesService.saveSeries(tmdbId, status);
-        return ResponseEntity.ok().build();
+        try {
+            TVSeriesSaveResultDto result = tvSeriesService.saveSeries(tmdbId, status);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PatchMapping("/seasons/{seasonId}/watched/increment")
@@ -103,6 +108,16 @@ public class TVSeriesController
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/{seasonId}/rate")
+    @Operation(summary = "Set season rating")
+    public ResponseEntity<Void> updateRating(
+            @PathVariable Long seasonId,
+            @RequestParam(required = false) Double rating)
+    {
+        tvSeriesService.rateSeason(seasonId, rating);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{seriesId}")
     @Operation(summary = "Delete TV series by ID")
     public ResponseEntity<Void> deleteSeries(@PathVariable Long seriesId)
@@ -115,7 +130,7 @@ public class TVSeriesController
     @Operation(summary = "[TMDB API]  Sync specified TVSeries")
     public ResponseEntity<SyncResultDto> syncLibrarySeries(@PathVariable Long seriesId)
     {
-        SyncResultDto result = tvSeriesService.syncLibrarySeries(seriesId);
+        SyncResultDto result = tvSeriesService.syncSeries(seriesId);
         return ResponseEntity.ok(result);
     }
 }

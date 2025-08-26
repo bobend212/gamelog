@@ -12,6 +12,7 @@ import TVSeriesDashboard from './components/_tv-series/Dashboard/TVSeriesDashboa
 import SearchSeries from './components/_tv-series/Search/SearchSeries';
 import SeriesDetails from './components/_tv-series/Details/SeriesDetails';
 import SyncLibrary from './components/_games/Sync/SyncLibrary';
+import SyncSeries from './components/_tv-series/Sync/SyncSeries';
 
 function App() {
   return (
@@ -29,12 +30,13 @@ function App() {
             <Route path="/games/sync" element={<SyncLibrary />} />
             <Route path="/games/search" element={<GameSearch />} />
 
-            {/* Future TV Series */}
+            {/* TV Series */}
             <Route path="/tv-series/dashboard" element={<TVSeriesDashboard />} />
             <Route path="/tv-series/search" element={<SearchSeries />} />
-            <Route path="/series/:id" element={<SeriesDetails />} />
+            <Route path="/tv-series/sync" element={<SyncSeries />} />
+            <Route path="/tv-series/:id" element={<SeriesDetails />} />
 
-            {/* Future Movies */}
+            {/* Movies */}
             <Route path="/movies" element={<MoviesDashboard />} />
 
           </Routes>

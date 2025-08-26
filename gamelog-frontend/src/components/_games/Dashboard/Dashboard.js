@@ -30,7 +30,6 @@ const Dashboard = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
 
-  // Function to load dashboard data (stats + last edited)
   const loadDashboardData = async () => {
     try {
       setLoading(true);

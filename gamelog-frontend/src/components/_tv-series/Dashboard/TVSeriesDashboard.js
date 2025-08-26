@@ -32,11 +32,11 @@ const TVSeriesDashboard = () => {
         loadSeries(trackingTypeFilter);
     }, [trackingTypeFilter]);
 
-    const loadSeries = async (filter = "") => {
+    const loadSeries = async (filter = "ALL") => {
         setLoading(true);
         try {
             const data =
-                filter && filter !== ""
+                filter && filter !== "ALL"
                     ? await tvSeriesService.getAllSeriesByTrackingType(filter)
                     : await tvSeriesService.getAllSeries();
             setSeriesList(data);
@@ -71,10 +71,29 @@ const TVSeriesDashboard = () => {
         }
     };
 
+    const parseDate = (isoString) => {
+        const date = new Date(isoString);
+        if (isNaN(date)) {
+            return "";
+        }
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+
+        if (isoString.includes('T')) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}-${month}-${year} ${hours}:${minutes}`;
+        } else {
+            return `${day}-${month}-${year}`;
+        }
+    };
+
     return (
         <>
             <Navbar />
-            <Box sx={{ maxWidth: 1000, mx: "auto", mt: 4, minHeight: "100vh", color: "#e0e0e0" }}>
+            <Box sx={{ maxWidth: 1500, mx: "auto", mt: 4, color: "#e0e0e0" }}>
                 <Box sx={{ display: "flex", alignItems: "center", mt: 1, mb: 2 }}>
                     <FormControl size="small" sx={{ minWidth: 160, flexGrow: 1 }}>
                         <InputLabel
@@ -127,12 +146,12 @@ const TVSeriesDashboard = () => {
                                 <MenuItem
                                     key={t.value}
                                     value={t.value}
-                                    sx={{ color: "black", bgcolor: "#34518f" }}
+                                    sx={{ color: "black", bgcolor: "#788297ff" }}
                                 >
                                     {t.label}
                                 </MenuItem>
                             ))}
-                            <MenuItem value="" sx={{ color: "black", bgcolor: "#34518f" }}>
+                            <MenuItem value="ALL" sx={{ color: "black", bgcolor: "#788297ff" }}>
                                 ALL
                             </MenuItem>
                         </Select>
@@ -160,9 +179,11 @@ const TVSeriesDashboard = () => {
                             <TableRow>
                                 <TableCell sx={{ color: "#aad6ff", fontWeight: "bold", width: 70 }}></TableCell>
                                 <TableCell sx={{ color: "#aad6ff", fontWeight: "bold" }}>Name</TableCell>
-                                <TableCell align="left" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Progress</TableCell>
-                                <TableCell sx={{ color: "#aad6ff", fontWeight: "bold" }}>Last Air Date</TableCell>
-                                <TableCell sx={{ color: "#aad6ff", fontWeight: "bold" }}>Status</TableCell>
+                                <TableCell align="center" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Rating</TableCell>
+                                <TableCell align="center" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Progress</TableCell>
+                                <TableCell align="center" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Last Air Date</TableCell>
+                                <TableCell align="center" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Status</TableCell>
+                                {/* <TableCell align="right" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Last update</TableCell> */}
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
@@ -189,7 +210,7 @@ const TVSeriesDashboard = () => {
                                                 bgcolor: "#232634",
                                                 '& td': { color: "#fff" }
                                             }}
-                                            onClick={() => navigate(`/series/${series.id}`)}
+                                            onClick={() => navigate(`/tv-series/${series.id}`)}
                                         >
                                             <TableCell>
                                                 <Avatar
@@ -219,11 +240,18 @@ const TVSeriesDashboard = () => {
                                                     </Box>
                                                 </Box>
                                             </TableCell>
-                                            <TableCell align="left">
+                                            <TableCell align="center">
+                                                {series.ratingOverall !== null && series.ratingOverall !== 0
+                                                    ? series.ratingOverall
+                                                    : '-'}
+                                            </TableCell>
+
+                                            <TableCell align="center">
                                                 {series.totalWatchedEpisodes} / {series.number_of_episodes} ({series.percentageProgress}%)
                                             </TableCell>
-                                            <TableCell>{series.last_air_date}</TableCell>
-                                            <TableCell>{series.status}</TableCell>
+                                            <TableCell align="center">{parseDate(series.last_air_date)}</TableCell>
+                                            <TableCell align="center">{series.status}</TableCell>
+                                            {/* <TableCell align="right">{parseDate(series.updatedAt)}</TableCell> */}
                                             <TableCell align="right" onClick={e => e.stopPropagation()}>
                                                 <Tooltip title="Change Tacking Type">
                                                     <IconButton onClick={() => openStatusDialog(series)} size="small">

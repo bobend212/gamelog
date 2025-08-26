@@ -18,17 +18,19 @@ import AddIcon from '@mui/icons-material/Add';
 import Navbar from "../Navigation/Navbar";
 import tvSeriesService from "../../_tv-series/services/tvSeriesService";
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const SearchSeries = ({ onSeriesAdded }) => {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSearch = async () => {
         if (!query.trim()) return;
         setLoading(true);
         try {
-            const data = await tvSeriesService.searchSeries(query); // API must return poster_path!
+            const data = await tvSeriesService.searchSeries(query);
             setResults(data);
         } catch (err) {
             console.error(err);
@@ -40,14 +42,35 @@ const SearchSeries = ({ onSeriesAdded }) => {
 
     const handleAdd = async (tmdbId, name) => {
         try {
-            await tvSeriesService.saveSeries(tmdbId);
-            if (onSeriesAdded) {
-                onSeriesAdded();
+            const result = await tvSeriesService.saveSeries(tmdbId);
+
+            if (result.alreadyExists) {
+                handleSeriesAlreadyExists();
+            } else {
+                if (onSeriesAdded) {
+                    onSeriesAdded();
+                }
+                toast.success(`"${name}" added to Library! 🟢`);
+
+                if (result && result.id) {
+                    navigate(`/tv-series/${result.id}`);
+                }
             }
-            toast.success(`"${name}" added to Library! 🟢`);
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const handleSeriesAlreadyExists = () => {
+        toast.warning(
+            `TV Series is already in the database!`,
+            {
+                icon: "⚠️",
+                autoClose: 3000,
+                position: "bottom-right",
+                theme: "dark"
+            }
+        );
     };
 
     // Helper for TMDB poster:
@@ -68,14 +91,14 @@ const SearchSeries = ({ onSeriesAdded }) => {
                     color: "#eaf1fd"
                 }}
             >
-                <Typography variant="h5" gutterBottom>
+                <Typography sx={{ textAlign: "center" }} center variant="h5" gutterBottom>
                     Search TV Series
                 </Typography>
 
                 <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                     <TextField
                         fullWidth
-                        label="Enter series title"
+                        label="TV Series Title"
                         variant="outlined"
                         size="small"
                         value={query}
@@ -84,7 +107,7 @@ const SearchSeries = ({ onSeriesAdded }) => {
                             if (e.key === "Enter") handleSearch();
                         }}
                         sx={{ backgroundColor: "#1a1d29" }}
-                        InputProps={{ style: { color: "#eaf1fd" } }}
+                        slotProps={{ inputLabel: { style: { color: "#6a6f74ff" } }, input: { style: { color: "white" } } }}
                     />
                     <Button
                         variant="contained"
@@ -135,8 +158,7 @@ const SearchSeries = ({ onSeriesAdded }) => {
                                     <ListItemText
                                         primary={res.name}
                                         secondary={res.firstAirDate || null}
-                                        primaryTypographyProps={{ color: "#eaf1fd" }}
-                                        secondaryTypographyProps={{ color: "#a0aec0" }}
+                                        slotProps={{ primary: { color: "#eaf1fd" }, secondary: { color: "#a0aec0" } }}
                                     />
                                 </ListItem>
                             ))}
@@ -148,6 +170,8 @@ const SearchSeries = ({ onSeriesAdded }) => {
                     <Typography color="grey.500">No results found.</Typography>
                 )}
             </Box>
+            <br />
+            <p className="footer" >metadata by TMDB API</p>
         </>
     );
 };

@@ -133,7 +133,7 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
                   type="date"
                   id="completedAt"
                   name="completedAt"
-                  value={formData.completedAt}
+                  value={formData.completedAt || ''}
                   onChange={handleChange}
                   className={errors.completedAt ? 'error' : ''}
                   max={new Date().toISOString().split('T')[0]} // Prevent future dates

@@ -1,15 +1,18 @@
 package com.matkon.gamelog.data.tvseries;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +33,9 @@ public class TVSeries
     private LocalDate last_air_date;
     private String status;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @Enumerated(EnumType.STRING)
     private TrackingType trackingType;
 
@@ -40,6 +46,12 @@ public class TVSeries
     {
         seasons.add(season);
         season.setSeries(this);
+    }
+
+    @PreUpdate
+    protected void onUpdate()
+    {
+        updatedAt = LocalDateTime.now();
     }
 
     public Long getId()
@@ -150,5 +162,15 @@ public class TVSeries
     public void setSeasons(List<Season> seasons)
     {
         this.seasons = seasons;
+    }
+
+    public LocalDateTime getUpdatedAt()
+    {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt)
+    {
+        this.updatedAt = updatedAt;
     }
 }

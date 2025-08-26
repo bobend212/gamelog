@@ -5,7 +5,6 @@ import EditGameModal from '../Library/EditGameModal';
 
 const SearchResultCard = ({ game, onGameAdded }) => {
   const [isAdding, setIsAdding] = useState(false);
-  const [addedStatus, setAddedStatus] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [gameData, setGameData] = useState(null);
 
@@ -26,7 +25,6 @@ const SearchResultCard = ({ game, onGameAdded }) => {
         handleGameAlreadyExists(result.game);
       } else {
         setIsAdding(true);
-        setAddedStatus('library');
         openEditModalFor(result);
       }
     } catch (error) {
@@ -44,7 +42,6 @@ const SearchResultCard = ({ game, onGameAdded }) => {
         handleGameAlreadyExists(result.game);
       } else {
         setIsAdding(true);
-        setAddedStatus('wishlist');
         onGameAdded();
         toast.success(`"${game.title}" added to Wishlist! 🟣`);
       }
@@ -101,20 +98,13 @@ const SearchResultCard = ({ game, onGameAdded }) => {
           ) : (
             <div className="no-image">🎮</div>
           )}
-
-          {/* Status Badge */}
-          {addedStatus && (
-            <div className={`status-badge-search ${addedStatus}`}>
-              {addedStatus === 'library' ? '📚 In Library' : '★ In Wishlist'}
-            </div>
-          )}
         </div>
 
         <div className="game-content">
           <h3 className="game-title">{game.title}</h3>
 
           <div className="game-meta">
-            <p className="release-date">Released: {formatDate(game.releaseDate)}</p>
+            <p className="release-date">{formatDate(game.releaseDate)}</p>
             {game.rating && (
               <div className="rating">
                 ⭐ {game.rating.toFixed(1)}
@@ -125,20 +115,18 @@ const SearchResultCard = ({ game, onGameAdded }) => {
           <div className="action-buttons">
             <button
               onClick={handleAddToLibrary}
-              disabled={isAdding || addedStatus === 'library'}
+              disabled={isAdding}
               className="btn btn-primary btn-sm"
             >
-              {addedStatus === 'library' ? 'In Library' :
-                isAdding ? 'Adding...' : 'Log'}
+              {'Library'}
             </button>
 
             <button
               onClick={handleAddToWishlist}
-              disabled={isAdding || addedStatus === 'wishlist'}
+              disabled={isAdding}
               className="btn btn-secondary btn-sm"
             >
-              {addedStatus === 'wishlist' ? 'In Wishlist' :
-                isAdding ? 'Adding...' : 'Wishlist'}
+              {'Wishlist'}
             </button>
           </div>
         </div>

@@ -24,6 +24,7 @@ public class Season
     private int episode_count;
 
     private int watchedCount;
+    private Double rating;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "series_id")
@@ -97,5 +98,15 @@ public class Season
     public void setSeries(TVSeries series)
     {
         this.series = series;
+    }
+
+    public Double getRating()
+    {
+        return rating;
+    }
+
+    public void setRating(Double rating)
+    {
+        this.rating = rating;
     }
 }

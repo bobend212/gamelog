@@ -3,7 +3,7 @@ package com.matkon.gamelog.data.games;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class WishlistGameForTableDTO
+public class WishlistGameForTableDto
 {
     private Long id;
     private String title;
@@ -12,9 +12,9 @@ public class WishlistGameForTableDTO
     private Long daysToRelease;
     private boolean isReleased;
 
-    public static WishlistGameForTableDTO fromEntity(Game game)
+    public static WishlistGameForTableDto fromEntity(Game game)
     {
-        WishlistGameForTableDTO dto = new WishlistGameForTableDTO();
+        WishlistGameForTableDto dto = new WishlistGameForTableDto();
         dto.id = game.getId();
         dto.title = game.getTitle();
         dto.releaseDate = game.getReleaseDate();

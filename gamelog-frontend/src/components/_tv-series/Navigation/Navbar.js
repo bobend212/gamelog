@@ -17,7 +17,7 @@ const Navbar = () => {
         </div>
         <div className="nav-links">
           <Link to="/" className={isActive('/')}>
-            Home
+            ⾕ Home
           </Link>
           <hr />
           <Link to="/tv-series/dashboard" className={isActive('/tv-series/dashboard')}>

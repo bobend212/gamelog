@@ -3,11 +3,12 @@ package com.matkon.gamelog.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.data.games.Game;
-import com.matkon.gamelog.data.games.GameSaveResult;
+import com.matkon.gamelog.data.games.GameSaveResultDto;
+import com.matkon.gamelog.data.games.GameSearchDto;
 import com.matkon.gamelog.data.games.GameStatus;
 import com.matkon.gamelog.data.games.GameUpdateRequest;
 import com.matkon.gamelog.data.games.ReleaseFilter;
-import com.matkon.gamelog.data.games.WishlistGameForTableDTO;
+import com.matkon.gamelog.data.games.WishlistGameForTableDto;
 import com.matkon.gamelog.data.sync.ChangeDetail;
 import com.matkon.gamelog.data.sync.FieldChange;
 import com.matkon.gamelog.data.sync.SyncResultDto;
@@ -61,7 +62,7 @@ public class GamesService
         return gamesRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
     }
 
-    public Page<WishlistGameForTableDTO> getWishlistGamesDashboard(int page, int size, String sort, ReleaseFilter releaseFilter)
+    public Page<WishlistGameForTableDto> getWishlistGamesDashboard(int page, int size, String sort, ReleaseFilter releaseFilter)
     {
         String[] sortParts = sort.split(",");
         String field = sortParts[0].trim();
@@ -80,7 +81,7 @@ public class GamesService
             default -> gamesRepository.findByStatus(GameStatus.WISHLIST, pageable);
         };
 
-        return games.map(WishlistGameForTableDTO::fromEntity);
+        return games.map(WishlistGameForTableDto::fromEntity);
     }
 
 
@@ -104,27 +105,31 @@ public class GamesService
         return gamesRepository.findLibraryGames(dbStatus, dbSearchTerm, pageable);
     }
 
-    public List<Game> searchGames(String query)
+    public List<GameSearchDto> searchGames(String query)
     {
-        try {
-            String response = webClient.get()
-                    .uri(rawgApiUrl + "/games?key=" + rawgApiKey + "&search=" + query + "&page_size=8")
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+        RAWGSearchResponse response = webClient.get()
+                .uri(rawgApiUrl + "/games?key=" + rawgApiKey + "&search=" + query + "&page_size=8")
+                .retrieve()
+                .bodyToMono(RAWGSearchResponse.class)
+                .block();
 
-            return parseGamesFromResponse(response);
-        } catch (Exception e) {
-            System.err.println("Error searching games: " + e.getMessage());
-            return new ArrayList<>();
-        }
+        if (response == null || response.results == null) return List.of();
+
+        return response.results.stream()
+                .map(game -> new GameSearchDto(game.id, game.name, game.background_image, parseDate(game.released)))
+                .toList();
     }
 
-    public GameSaveResult saveGameToDatabase(Long rawgId, GameStatus gameStatus)
+    private LocalDate parseDate(String date)
+    {
+        return (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
+    }
+
+    public GameSaveResultDto saveGameToDatabase(Long rawgId, GameStatus gameStatus)
     {
         Optional<Game> existingGame = gamesRepository.findByRawgId(rawgId);
         if (existingGame.isPresent()) {
-            return new GameSaveResult(
+            return new GameSaveResultDto(
                     existingGame.get(),
                     true,
                     "Game already exists in the library"
@@ -143,7 +148,7 @@ public class GamesService
                 if (game != null) {
                     game.setStatus(gameStatus);
                     Game savedGame = gamesRepository.save(game);
-                    return new GameSaveResult(
+                    return new GameSaveResultDto(
                             savedGame,
                             false,
                             "Game added successfully"
@@ -311,5 +316,18 @@ public class GamesService
         }
 
         return new SyncResultDto(libraryGames.size(), updatedCount, changes);
+    }
+
+    private static class RAWGSearchResponse
+    {
+        public List<RAWGSearchResult> results;
+    }
+
+    private static class RAWGSearchResult
+    {
+        public Long id;
+        public String name;
+        public String background_image;
+        public String released;
     }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import gameService from '../services/gameService';
 import SearchResultCard from './SearchResultCard';
 import LoadingSpinner from '../Common/LoadingSpinner';
@@ -13,9 +13,8 @@ const GameSearch = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
 
-  const handleSearch = async (query = searchQuery, page = 1) => {
+  const handleSearch = async (query = searchQuery) => {
     if (!query.trim()) {
       setError('Please enter a search term');
       return;
@@ -24,22 +23,11 @@ const GameSearch = () => {
     try {
       setLoading(true);
       setError(null);
-
-      const results = await gameService.searchGames(query.trim(), page);
-
-      if (page === 1) {
-        setSearchResults(results);
-      } else {
-        setSearchResults(prev => [...prev, ...results]);
-      }
-
-      setCurrentPage(page);
+      const results = await gameService.searchGames(query.trim());
+      setSearchResults(results);
       setHasSearched(true);
     } catch (err) {
       setError(err.message);
-      if (page === 1) {
-        setSearchResults([]);
-      }
     } finally {
       setLoading(false);
     }
@@ -47,15 +35,16 @@ const GameSearch = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setCurrentPage(1);
-    handleSearch(searchQuery, 1);
+    handleSearch(searchQuery);
   };
 
   const handleQuickSearch = (query) => {
     setSearchQuery(query);
-    setCurrentPage(1);
-    handleSearch(query, 1);
+    handleSearch(query);
   };
+
+  useEffect(() => {
+  }, [searchResults]);
 
   return (
     <>
@@ -123,7 +112,7 @@ const GameSearch = () => {
                   <div className="results-grid">
                     {searchResults.map((game) => (
                       <SearchResultCard
-                        key={game.id}
+                        key={game.rawgId}
                         game={game}
                         onGameAdded={() => {
                           setSearchQuery('');
@@ -136,16 +125,16 @@ const GameSearch = () => {
               ) : (
                 !loading && (
                   <div className="no-results">
-                    <h3>No games found</h3>
-                    <p>Try searching with different keywords or check your spelling.</p>
+                    <h3>No games found.</h3>
                   </div>
                 )
-              )}
+              )
+              }
             </div>
           )}
           <p className="footer" >metadata by RAWG API</p>
           {/* Loading Spinner */}
-          {loading && currentPage === 1 && <LoadingSpinner />}
+          {loading && <LoadingSpinner />}
         </div>
       </div>
     </>

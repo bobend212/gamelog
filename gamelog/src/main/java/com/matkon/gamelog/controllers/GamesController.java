@@ -1,11 +1,12 @@
 package com.matkon.gamelog.controllers;
 
 import com.matkon.gamelog.data.games.Game;
-import com.matkon.gamelog.data.games.GameSaveResult;
+import com.matkon.gamelog.data.games.GameSaveResultDto;
+import com.matkon.gamelog.data.games.GameSearchDto;
 import com.matkon.gamelog.data.games.GameStatus;
 import com.matkon.gamelog.data.games.GameUpdateRequest;
 import com.matkon.gamelog.data.games.ReleaseFilter;
-import com.matkon.gamelog.data.games.WishlistGameForTableDTO;
+import com.matkon.gamelog.data.games.WishlistGameForTableDto;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.services.GamesService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/games")
@@ -61,35 +64,30 @@ public class GamesController
 
     @GetMapping("/wishlist/dashboard")
     @Operation(summary = "Get WISHLIST games -> DASHBOARD TABLE")
-    public ResponseEntity<Page<WishlistGameForTableDTO>> getWishlistGamesDashboard(
+    public ResponseEntity<Page<WishlistGameForTableDto>> getWishlistGamesDashboard(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "releaseDate,asc") String sort,
             @RequestParam(defaultValue = "ALL") ReleaseFilter release
     )
     {
-        Page<WishlistGameForTableDTO> games = gamesService.getWishlistGamesDashboard(page, size, sort, release);
+        Page<WishlistGameForTableDto> games = gamesService.getWishlistGamesDashboard(page, size, sort, release);
         return ResponseEntity.ok(games);
     }
 
     @GetMapping("/search")
     @Operation(summary = "[RAWG API] Search games by query")
-    public ResponseEntity<?> searchGames(@RequestParam String query)
+    public ResponseEntity<List<GameSearchDto>> searchGames(@RequestParam String query)
     {
-        try {
-            return ResponseEntity.ok(gamesService.searchGames(query));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("Error searching external games: " + e.getMessage());
-        }
+        return ResponseEntity.ok(gamesService.searchGames(query));
     }
 
     @PostMapping("/add-library/{rawgId}")
     @Operation(summary = "[RAWG API] Save to LIBRARY by rawgId")
-    public ResponseEntity<GameSaveResult> addGameToLibrary(@PathVariable Long rawgId)
+    public ResponseEntity<GameSaveResultDto> addGameToLibrary(@PathVariable Long rawgId)
     {
         try {
-            GameSaveResult result = gamesService.saveGameToDatabase(rawgId, GameStatus.BACKLOG);
+            GameSaveResultDto result = gamesService.saveGameToDatabase(rawgId, GameStatus.BACKLOG);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -98,10 +96,10 @@ public class GamesController
 
     @PostMapping("/add-wishlist/{rawgId}")
     @Operation(summary = "[RAWG API] Save to WISHLIST by rawgId")
-    public ResponseEntity<GameSaveResult> addToWishlist(@PathVariable Long rawgId)
+    public ResponseEntity<GameSaveResultDto> addToWishlist(@PathVariable Long rawgId)
     {
         try {
-            GameSaveResult result = gamesService.saveGameToDatabase(rawgId, GameStatus.WISHLIST);
+            GameSaveResultDto result = gamesService.saveGameToDatabase(rawgId, GameStatus.WISHLIST);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

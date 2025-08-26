@@ -1,6 +1,7 @@
 package com.matkon.gamelog.data.tvseries;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class TVSeriesListDto
 {
@@ -16,6 +17,8 @@ public class TVSeriesListDto
     private TrackingType trackingType;
     private int totalWatchedEpisodes;
     private int percentageProgress;
+    private Double ratingOverall;
+    private LocalDateTime updatedAt;
 
     public static TVSeriesListDto fromEntity(TVSeries tvSeries)
     {
@@ -30,6 +33,7 @@ public class TVSeriesListDto
         dto.last_air_date = tvSeries.getLast_air_date();
         dto.status = tvSeries.getStatus();
         dto.trackingType = tvSeries.getTrackingType();
+        dto.updatedAt = tvSeries.getUpdatedAt();
 
         int totalWatched = 0;
         if (tvSeries.getSeasons() != null) {
@@ -43,6 +47,18 @@ public class TVSeriesListDto
             dto.percentageProgress = (int) Math.round((totalWatched * 100.0) / dto.number_of_episodes);
         } else {
             dto.percentageProgress = 0;
+        }
+
+        if (tvSeries.getSeasons() != null && !tvSeries.getSeasons().isEmpty()) {
+            double avgRating = tvSeries.getSeasons().stream()
+                    .filter(s -> s.getRating() != null)
+                    .mapToDouble(Season::getRating)
+                    .average()
+                    .orElse(0.0);
+            double roundedAvg = Math.round(avgRating * 10) / 10.0;  // rounds to 1 decimal place
+            dto.setRatingOverall(roundedAvg);
+        } else {
+            dto.setRatingOverall(null);
         }
 
         return dto;
@@ -166,5 +182,25 @@ public class TVSeriesListDto
     public void setPercentageProgress(int percentageProgress)
     {
         this.percentageProgress = percentageProgress;
+    }
+
+    public Double getRatingOverall()
+    {
+        return ratingOverall;
+    }
+
+    public void setRatingOverall(Double ratingOverall)
+    {
+        this.ratingOverall = ratingOverall;
+    }
+
+    public LocalDateTime getUpdatedAt()
+    {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt)
+    {
+        this.updatedAt = updatedAt;
     }
 }

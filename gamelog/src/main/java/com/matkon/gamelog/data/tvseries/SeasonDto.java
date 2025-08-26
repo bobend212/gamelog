@@ -10,6 +10,7 @@ public class SeasonDto
     private LocalDate air_date;
     private int episode_count;
     private int watchedCount;
+    private Double rating;
 
     public static SeasonDto fromEntity(Season season)
     {
@@ -20,20 +21,21 @@ public class SeasonDto
         dto.air_date = season.getAir_date();
         dto.episode_count = season.getEpisode_count();
         dto.watchedCount = season.getWatchedCount();
+        dto.rating = season.getRating();
         return dto;
     }
 
     public static Season toEntity(SeasonDto dto)
     {
-        Season entity = new Season();
-        entity.setId(dto.getId());
-        entity.setName(dto.getName());
-        entity.setSeason_number(dto.getSeason_number());
-        entity.setAir_date(dto.getAir_date());
-        entity.setEpisode_count(dto.getEpisode_count());
-        entity.setWatchedCount(dto.getWatchedCount());
-
-        return entity;
+        Season season = new Season();
+        season.setId(dto.getId());
+        season.setName(dto.getName());
+        season.setSeason_number(dto.getSeason_number());
+        season.setAir_date(dto.getAir_date());
+        season.setEpisode_count(dto.getEpisode_count());
+        season.setWatchedCount(dto.getWatchedCount());
+        season.setRating(dto.getRating());
+        return season;
     }
 
     public Long getId()
@@ -94,5 +96,15 @@ public class SeasonDto
     public void setWatchedCount(int watchedCount)
     {
         this.watchedCount = watchedCount;
+    }
+
+    public Double getRating()
+    {
+        return rating;
+    }
+
+    public void setRating(Double rating)
+    {
+        this.rating = rating;
     }
 }

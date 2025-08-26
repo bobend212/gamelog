@@ -5,7 +5,8 @@ const API_BASE = "http://localhost:8080/api/tv-series";
 const tvSeriesService = {
     saveSeries: async (tmdbId, status = "WATCHING") => {
         try {
-            await axios.post(`${API_BASE}/save/${tmdbId}?status=${status}`);
+            const response = await axios.post(`${API_BASE}/save/${tmdbId}?status=${status}`);
+            return response.data;
         } catch (error) {
             throw new Error("Failed to add series");
         }
@@ -18,6 +19,19 @@ const tvSeriesService = {
             throw new Error("Failed to update series status");
         }
     },
+
+    rateSeason: async (seasonId, rating) => {
+        try {
+            let url = `${API_BASE}/${seasonId}/rate`;
+            if (rating !== null && rating !== undefined) {
+                url += `?rating=${rating}`;
+            }
+            await axios.patch(url);
+        } catch (error) {
+            throw new Error("Failed to set rating for season");
+        }
+    },
+
 
     incrementWatchedCount: async (seasonId, count) => {
         try {
@@ -81,7 +95,8 @@ const tvSeriesService = {
 
     syncSeries: async (seriesId) => {
         try {
-            await axios.patch(`${API_BASE}/sync-library/${seriesId}`);
+            const response = await axios.patch(`${API_BASE}/sync-library/${seriesId}`);
+            return response.data;
         } catch (error) {
             throw new Error("Failed to sync library");
         }
