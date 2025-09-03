@@ -25,10 +25,9 @@ const Dashboard = () => {
   const [lastEditedGames, setLastEditedGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [games, setGames] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [totalRows, setTotalRows] = useState(0);
+  const [gamesNotReleased, setGamesNotReleased] = useState([]);
+  const [gamesReleased, setGamesReleased] = useState([]);
+  const [gamesTBA, setGameTBA] = useState([]);
 
   const loadDashboardData = async () => {
     try {
@@ -63,17 +62,31 @@ const Dashboard = () => {
     }
   };
 
-  const fetchWishlistGames = async () => {
+  const populateWishlistTables = async (pageNo, rowsPerPage) => {
     try {
-      const response = await gameService.getWishlistGamesDashboard(
-        page,
+      const notReleasedRes = await gameService.getWishlistGamesDashboard(
+        pageNo,
         rowsPerPage,
-        'releaseDate,asc', // default sort
+        'releaseDate,asc',
         'NOT_RELEASED_ONLY'
       );
+      setGamesNotReleased(notReleasedRes.content);
 
-      setGames(response.content);
-      setTotalRows(response.totalElements);
+      const tbaRes = await gameService.getWishlistGamesDashboard(
+        pageNo,
+        rowsPerPage,
+        'title,asc',
+        'TBA'
+      );
+      setGameTBA(tbaRes.content);
+
+      const releasedRes = await gameService.getWishlistGamesDashboard(
+        pageNo,
+        100,
+        'releaseDate,desc',
+        'RELEASED_ONLY'
+      );
+      setGamesReleased(releasedRes.content);
     } catch (err) {
       console.error('Failed to fetch wishlist games:', err);
     }
@@ -81,8 +94,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-    fetchWishlistGames();
+    populateWishlistTables(0, 20);
   }, []);
+
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
@@ -166,7 +180,7 @@ const Dashboard = () => {
             )}
           </div>
           <div className="last-edited-section">
-            <h2>Wishlist Games (not released)</h2>
+            <h2>Wishlist (not released) [{gamesNotReleased.length}]</h2>
             <ThemeProvider theme={darkTheme}>
               <Paper sx={{ width: '100%', overflow: 'hidden' }}>
                 <TableContainer component={Paper} >
@@ -180,12 +194,88 @@ const Dashboard = () => {
                     </TableHead>
 
                     <TableBody>
-                      {games.length > 0 ? (
-                        games.map((game) => (
+                      {gamesNotReleased.length > 0 ? (
+                        gamesNotReleased.map((game) => (
                           <TableRow key={game.id}>
                             <TableCell>{game.title}</TableCell>
                             <TableCell>{game.releaseDate || 'TBA'}</TableCell>
                             <TableCell>{game.daysToRelease != null ? `${game.daysToRelease} days` : '-'}</TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={8}>
+                            <Typography align="center" variant="body2" color="textSecondary">
+                              No wishlist games found.
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </ThemeProvider>
+          </div>
+          <br />
+          <hr />
+          <div className="last-edited-section">
+            <h2>Wishlist (TBA) [{gamesTBA.length}]</h2>
+            <ThemeProvider theme={darkTheme}>
+              <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+                <TableContainer component={Paper} >
+                  <Table size="small" aria-label="wishlist table" color="secondary">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Title</TableCell>
+                        <TableCell>Release Date</TableCell>
+                      </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                      {gamesTBA.length > 0 ? (
+                        gamesTBA.map((game) => (
+                          <TableRow key={game.id}>
+                            <TableCell>{game.title}</TableCell>
+                            <TableCell>{game.releaseDate || 'TBA'}</TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={8}>
+                            <Typography align="center" variant="body2" color="textSecondary">
+                              No wishlist games found.
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </ThemeProvider>
+          </div>
+          <br />
+          <hr />
+          <div className="last-edited-section">
+            <h2>Wishlist (released) [{gamesReleased.length}]</h2>
+            <ThemeProvider theme={darkTheme}>
+              <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+                <TableContainer component={Paper} >
+                  <Table size="small" aria-label="wishlist table" color="secondary">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Title</TableCell>
+                        <TableCell>Release Date</TableCell>
+                      </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                      {gamesReleased.length > 0 ? (
+                        gamesReleased.map((game) => (
+                          <TableRow key={game.id}>
+                            <TableCell>{game.title}</TableCell>
+                            <TableCell>{game.releaseDate || 'TBA'}</TableCell>
                           </TableRow>
                         ))
                       ) : (

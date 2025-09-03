@@ -78,6 +78,7 @@ public class GamesService
                     gamesRepository.findByStatusAndReleaseDateLessThanEqual(GameStatus.WISHLIST, today, pageable);
             case NOT_RELEASED_ONLY ->
                     gamesRepository.findByStatusAndReleaseDateAfter(GameStatus.WISHLIST, today, pageable);
+            case TBA -> gamesRepository.findByStatusAndReleaseDateIsNull(GameStatus.WISHLIST, pageable);
             default -> gamesRepository.findByStatus(GameStatus.WISHLIST, pageable);
         };
 

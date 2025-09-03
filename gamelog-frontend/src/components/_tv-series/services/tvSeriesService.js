@@ -3,7 +3,7 @@ import axios from "axios";
 const API_BASE = "http://localhost:8080/api/tv-series";
 
 const tvSeriesService = {
-    saveSeries: async (tmdbId, status = "WATCHING") => {
+    saveSeries: async (tmdbId, status) => {
         try {
             const response = await axios.post(`${API_BASE}/save/${tmdbId}?status=${status}`);
             return response.data;

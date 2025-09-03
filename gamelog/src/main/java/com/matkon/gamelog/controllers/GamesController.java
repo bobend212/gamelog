@@ -66,7 +66,7 @@ public class GamesController
     @Operation(summary = "Get WISHLIST games -> DASHBOARD TABLE")
     public ResponseEntity<Page<WishlistGameForTableDto>> getWishlistGamesDashboard(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "50") int size,
             @RequestParam(defaultValue = "releaseDate,asc") String sort,
             @RequestParam(defaultValue = "ALL") ReleaseFilter release
     )

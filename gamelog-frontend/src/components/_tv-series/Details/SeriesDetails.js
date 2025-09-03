@@ -7,23 +7,22 @@ import {
     Stack,
     CardMedia,
     Paper,
-    Divider
+    Divider,
+    Avatar
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import tvSeriesService from "../../_tv-series/services/tvSeriesService";
 import StatusDialog from "../Common/StatusDialog";
 import Navbar from "../Navigation/Navbar";
-import { TRACKING_TYPES } from "../utils/constants";
 import { LinearProgress } from "@mui/material";
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
 import { Rating } from '@mui/material';
+import { parseDate, VOD_PROVIDER_PATH_BASE_W45, POSTER_PATH_BASE_W200, TRACKING_TYPES } from '../utils/tvSeriesUtil';
 
 const SeriesDetails = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
     const [series, setSeries] = useState(null);
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -89,12 +88,10 @@ const SeriesDetails = () => {
         }
     };
 
-
     if (loading) return <Typography align="center" sx={{ mt: 6 }}>Loading...</Typography>;
     if (!series) return <Typography align="center" sx={{ mt: 6 }}>Series not found.</Typography>;
 
-    const info = TRACKING_TYPES[series.trackingType];
-    const imgUrl = "https://image.tmdb.org/t/p/w200" + series.poster_path;
+    const trackingType = TRACKING_TYPES[series.trackingType];
 
     return (
         <>
@@ -110,20 +107,12 @@ const SeriesDetails = () => {
                     color: "#e0e0e0"
                 }}
             >
-                <Button
-                    variant="outlined"
-                    startIcon={<ArrowBackIcon />}
-                    sx={{ mb: 2 }}
-                    onClick={() => navigate(-1)}
-                >
-                    Back to Dashboard
-                </Button>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems="flex-start">
 
                     <Box sx={{ minWidth: 200 }}>
                         <CardMedia
                             component="img"
-                            image={imgUrl}
+                            image={POSTER_PATH_BASE_W200 + series.poster_path}
                             alt={series.name}
                             sx={{ height: 280, width: 200, objectFit: "cover", borderRadius: 2, boxShadow: 3, mb: 2 }}
                         />
@@ -144,7 +133,7 @@ const SeriesDetails = () => {
                             Last Episode Air Date
                         </Typography>
                         <Typography variant="body2" color="#cfd8dc" sx={{ mb: 2 }}>
-                            ✦ {series.last_air_date}
+                            ✦ {parseDate(series.last_air_date)}
                         </Typography>
 
                         {series.ratingOverall !== null && series.ratingOverall !== 0 && (
@@ -159,18 +148,44 @@ const SeriesDetails = () => {
                                 </Typography>
                             </>
                         )}
-                        
+
+                        {series.nextEpisode !== null && (
+                            <>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                    Next Episode
+                                </Typography>
+                                <Typography variant="body2" color="#cfd8dc" sx={{ mb: 2 }}>
+                                    ✦ {series.nextEpisode}
+                                </Typography>
+                            </>
+                        )}
+
+                        <Typography variant="caption" sx={{ textAlign: 'left' }}>
+                            <p>Last Modified</p>
+                            <p>{parseDate(series.updatedAt)}</p>
+                        </Typography>
                     </Box>
 
                     <Box flex={1}>
                         <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
                             {series.name}
                         </Typography>
+                        <Stack direction="row" spacing={1} justifyContent="left" flexWrap="wrap" mb={1} >
+                            {series.vodProviders.map((provider) => (
+                                <Avatar
+                                    key={provider}
+                                    alt={provider}
+                                    src={`${VOD_PROVIDER_PATH_BASE_W45}${provider.split(';')[0]}`}
+                                    sx={{ width: 45, height: 45 }}
+                                    variant="circular"
+                                />
+                            ))}
+                        </Stack>
                         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
                             <Chip
-                                icon={info.icon}
-                                label={info.label}
-                                color={info.color}
+                                icon={trackingType.icon}
+                                label={trackingType.label}
+                                color={trackingType.color}
                                 size="medium"
                                 sx={{ fontWeight: 700, fontSize: 15, px: 2 }}
                             />
@@ -207,8 +222,7 @@ const SeriesDetails = () => {
                                     backgroundColor: '#eee',
                                     '& .MuiLinearProgress-bar': {
                                         borderRadius: 2,
-                                        backgroundColor: series.percentageProgress === 100 ? 'green' : '#689B8A',
-                                        // transition: 'width 0.5s ease-in-out',
+                                        backgroundColor: series.percentageProgress === 100 ? 'green' : '#689B8A'
                                     }
                                 }}
                             />
@@ -216,13 +230,31 @@ const SeriesDetails = () => {
 
                         <Divider sx={{ my: 1, bgcolor: "#334" }} />
                         <Typography variant="h6" sx={{ mb: 1 }}>
-                            Seasons ({series.number_of_seasons})
+                            Seasons ({series.seasons.length})
                         </Typography>
                         <Stack spacing={3}>
-                            {series.seasons.map((season, idx) => (
+                            {series.seasons.map((season) => (
                                 <Paper key={season.id} elevation={2} sx={{ p: 2, bgcolor: "#313649ff" }}>
                                     <Box sx={{ width: 200, display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                        {season.rating && (<Box sx={{ mr: 1, color: "white", fontWeight: 700 }}>{season.rating}</Box>)}
+                                        {season.rating !== null && season.rating !== undefined && (
+                                            <Box
+                                                sx={{
+                                                    mr: 1,
+                                                    px: 1.2,
+                                                    py: 0.3,
+                                                    bgcolor: 'goldenrod',
+                                                    borderRadius: 2,
+                                                    color: 'black',
+                                                    fontWeight: 600,
+                                                    textAlign: 'center',
+                                                    userSelect: 'none',
+                                                    fontSize: '0.9rem',
+                                                }}
+                                                aria-label={`Current rating: ${season.rating}`}
+                                            >
+                                                {season.rating}
+                                            </Box>
+                                        )}
                                         <Rating
                                             name={`season-rating-${season.id}`}
                                             value={season.rating || null}
@@ -236,10 +268,14 @@ const SeriesDetails = () => {
                                                     handleRatingChange(season.id, null);
                                                 }
                                             }}
+                                            sx={{ flexGrow: 1 }}
+                                            size="medium"
+                                            aria-label={`Set rating for season ${season.seasonNumber}`}
                                         />
                                     </Box>
+
                                     <Typography sx={{ fontWeight: 600, mb: 0, color: "white" }}>
-                                        {season.name || `Season ${season.seasonNumber}`} - {season.air_date}
+                                        {season.name || `Season ${season.seasonNumber}`} | {parseDate(season.air_date)}
                                     </Typography>
                                     <Typography variant="body2" color="#aad6ff">
                                         {season.watchedCount} / {season.episode_count} episodes watched
@@ -261,7 +297,7 @@ const SeriesDetails = () => {
                                                     size="small"
                                                     onClick={() => handleAllWatched(series.id, season.id, season.episode_count)}
                                                 >
-                                                    All Watched
+                                                    All
                                                 </Button>
                                                 <Button
                                                     variant="contained"
@@ -269,7 +305,7 @@ const SeriesDetails = () => {
                                                     size="small"
                                                     onClick={() => handleIncrement(series.id, season.id)}
                                                 >
-                                                    +1 Watched
+                                                    +1
                                                 </Button>
                                             </>
                                         )}

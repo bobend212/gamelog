@@ -46,4 +46,6 @@ public interface GamesRepository extends JpaRepository<Game, Long>
     Page<Game> findByStatusAndReleaseDateLessThanEqual(GameStatus status, LocalDate date, Pageable pageable);
 
     Page<Game> findByStatusAndReleaseDateAfter(GameStatus status, LocalDate date, Pageable pageable);
+
+    Page<Game> findByStatusAndReleaseDateIsNull(GameStatus status, Pageable pageable);
 }

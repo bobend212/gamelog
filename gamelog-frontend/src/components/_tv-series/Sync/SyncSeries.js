@@ -40,8 +40,12 @@ const SyncSeries = ({ onSyncComplete }) => {
                     color: "#eaf1fd"
                 }}
             >
-                <Typography sx={{ textAlign: "center" }} center variant="h5" gutterBottom>
+                <Typography sx={{ textAlign: "center" }} variant="h5" gutterBottom>
                     Sync TV Series
+                </Typography>
+
+                <Typography sx={{ textAlign: "center" }} variant="body2" gutterBottom>
+                    Excluded: WISHLIST, DROPPED, COMPLETED
                 </Typography>
 
                 <Button
@@ -51,7 +55,7 @@ const SyncSeries = ({ onSyncComplete }) => {
                     disabled={syncLoading}
                     fullWidth
                 >
-                    {syncLoading ? 'Syncing...' : 'Sync All'}
+                    {syncLoading ? 'Syncing...' : 'Sync'}
                 </Button>
 
                 {syncSummary && (

@@ -22,6 +22,8 @@ public class TVSeriesDto
     private int percentageProgress;
     private Double ratingOverall;
     private LocalDateTime updatedAt;
+    private String nextEpisode;
+    private List<String> vodProviders = new ArrayList<>();
 
     public static TVSeriesDto fromEntity(TVSeries tvSeries)
     {
@@ -65,6 +67,21 @@ public class TVSeriesDto
             dto.setRatingOverall(null);
         }
 
+        String nextEp = null;
+        if (tvSeries.getSeasons() != null) {
+            for (Season season : tvSeries.getSeasons()) {
+                int watched = season.getWatchedCount();
+                int totalEps = season.getEpisode_count();
+                if (watched < totalEps) {
+                    nextEp = String.format("S%02d:E%02d", season.getSeason_number(), watched + 1);
+                    break;
+                }
+            }
+        }
+        dto.setNextEpisode(nextEp);
+
+        dto.setVodProviders(tvSeries.getVodProviders());
+
         return dto;
     }
 
@@ -94,6 +111,8 @@ public class TVSeriesDto
             }
             entity.setSeasons(seasonEntities);
         }
+
+        entity.setVodProviders(dto.getVodProviders());
 
         return entity;
     }
@@ -246,5 +265,25 @@ public class TVSeriesDto
     public void setUpdatedAt(LocalDateTime updatedAt)
     {
         this.updatedAt = updatedAt;
+    }
+
+    public String getNextEpisode()
+    {
+        return nextEpisode;
+    }
+
+    public void setNextEpisode(String nextEpisode)
+    {
+        this.nextEpisode = nextEpisode;
+    }
+
+    public List<String> getVodProviders()
+    {
+        return vodProviders;
+    }
+
+    public void setVodProviders(List<String> vodProviders)
+    {
+        this.vodProviders = vodProviders;
     }
 }

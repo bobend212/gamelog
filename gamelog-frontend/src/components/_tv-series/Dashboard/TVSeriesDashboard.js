@@ -1,9 +1,7 @@
-// src/components/TVSeriesDashboard.jsx
-
 import { useEffect, useState } from "react";
 import {
     Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Paper, IconButton, Tooltip, Avatar
+    Paper, IconButton, Tooltip, Avatar, Stack, TextField, Chip
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -11,13 +9,11 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../Navigation/Navbar";
 import StatusDialog from "../Common/StatusDialog";
 import tvSeriesService from "../../_tv-series/services/tvSeriesService";
-import { TRACKING_TYPES } from "../utils/constants";
 import { Badge } from "@mui/material";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-
-// Helper for TMDB poster:
-const getPosterUrl = (poster_path) => `https://image.tmdb.org/t/p/w92${poster_path}`;
+import { parseDate, POSTER_PATH_BASE_W92, VOD_PROVIDER_PATH_BASE_W45, TRACKING_TYPES } from '../utils/tvSeriesUtil';
+import TablePagination from '@mui/material/TablePagination';
 
 const TVSeriesDashboard = () => {
     const [seriesList, setSeriesList] = useState([]);
@@ -25,36 +21,49 @@ const TVSeriesDashboard = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedSeries, setSelectedSeries] = useState(null);
     const [trackingTypeFilter, setTrackingTypeFilter] = useState(TRACKING_TYPES.WATCHING.value);
-
+    const [seriesCount, setSeriesCount] = useState([])
+    const [totalSeriesCount, setTotalSeriesCount] = useState([])
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(12);
+    const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
         loadSeries(trackingTypeFilter);
     }, [trackingTypeFilter]);
 
-    const loadSeries = async (filter = "ALL") => {
+    const setFilter = async (value) => {
+        setTrackingTypeFilter(value);
+        setPage(0);
+    };
+
+    const loadSeries = async (filter = "ALL TV SERIES") => {
         setLoading(true);
         try {
             const data =
-                filter && filter !== "ALL"
+                filter && filter !== "ALL TV SERIES"
                     ? await tvSeriesService.getAllSeriesByTrackingType(filter)
                     : await tvSeriesService.getAllSeries();
             setSeriesList(data);
+            setSeriesCount(data.length)
+
+            const totalSeriesCount = await tvSeriesService.getAllSeries();
+            setTotalSeriesCount(totalSeriesCount.length);
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (seriesId) => {
-        // if (window.confirm("Are you sure you want to delete this series?")) {
-        try {
-            await tvSeriesService.deleteSeries(seriesId);
-            await loadSeries(trackingTypeFilter);
-        } catch (error) {
-            alert("Failed to delete the series.");
-            console.error(error);
+        if (window.confirm("Are you sure you want to delete this series?")) {
+            try {
+                await tvSeriesService.deleteSeries(seriesId);
+                await loadSeries(trackingTypeFilter);
+            } catch (error) {
+                alert("Failed to delete the series.");
+                console.error(error);
+            }
         }
-        // }
     };
 
     const openStatusDialog = (series) => {
@@ -71,95 +80,101 @@ const TVSeriesDashboard = () => {
         }
     };
 
-    const parseDate = (isoString) => {
-        const date = new Date(isoString);
-        if (isNaN(date)) {
-            return "";
-        }
-
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-
-        if (isoString.includes('T')) {
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}-${month}-${year} ${hours}:${minutes}`;
-        } else {
-            return `${day}-${month}-${year}`;
-        }
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
     };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);  // reset to first page when page size changes
+    };
+
+    const filteredSeries = seriesList.filter(series => {
+        const q = searchQuery.toLowerCase();
+
+        // Check if name matches
+        const nameMatch = series.name.toLowerCase().includes(q);
+
+        // Check if any VOD provider matches the query
+        const vodMatch = series.vodProviders?.some(provider =>
+            provider.split(';')[1].toLowerCase().includes(q)
+        ) || false;
+
+        return nameMatch || vodMatch;
+    });
+
+
 
     return (
         <>
             <Navbar />
-            <Box sx={{ maxWidth: 1500, mx: "auto", mt: 4, color: "#e0e0e0" }}>
+            <Box sx={{ maxWidth: 1500, mx: "auto", mt: 2, color: "#e0e0e0" }}>
+                <Box display="flex" alignItems="center" mb={2} gap={1}>
+                    <TextField
+                        fullWidth
+                        variant="outlined"
+                        label="Search..."
+                        size="small"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        sx={{ backgroundColor: "#374579ff", borderRadius: 2 }}
+                        slotProps={{ inputLabel: { style: { color: "white" } }, input: { style: { color: "white" } } }}
+                    />
+                    {searchQuery && (
+                        <IconButton
+                            aria-label="clear search"
+                            onClick={() => setSearchQuery('')}
+                            size="small"
+                            sx={{
+                                ml: 1,
+                                bgcolor: "#27417c",
+                                "&:hover": { bgcolor: "#34518f" },
+                                color: "white",
+                            }}
+                        >
+                            <CloseIcon fontSize="small" />
+                        </IconButton>
+                    )}
+                </Box>
+
                 <Box sx={{ display: "flex", alignItems: "center", mt: 1, mb: 2 }}>
+
                     <FormControl size="small" sx={{ minWidth: 160, flexGrow: 1 }}>
                         <InputLabel
                             id="tracking-filter-label"
                             sx={{ color: "#cfd8dc" }}
                         >
-                            Filter
+                            Status
                         </InputLabel>
                         <Select
                             labelId="tracking-filter-label"
                             label="Tracking Type"
                             value={trackingTypeFilter}
-                            onChange={(e) => setTrackingTypeFilter(e.target.value)}
+                            onChange={(e) => setFilter(e.target.value)}
                             sx={{
                                 bgcolor: "#374579ff",
                                 color: "white",
-                                borderRadius: 1,
-                                "& .MuiSelect-select": {
-                                    py: 1,
-                                    px: 2,
-                                },
-                                "& .MuiSvgIcon-root": {
-                                    color: "white",
-                                },
-                                "&:hover": {
-                                    bgcolor: "#435a8b",
-                                },
-                                "& .MuiPaper-root": {
-                                    bgcolor: "#2a3b63",
-                                    color: "white",
-                                },
-                                "& .MuiMenuItem-root": {
-                                    "&:hover": {
-                                        bgcolor: "#4a69ad",
-                                    },
-                                    "&.Mui-selected": {
-                                        bgcolor: "#1f314c",
-                                    },
-                                },
-                                "& .MuiMenuItem-root.Mui-selected": {
-                                    backgroundColor: "#1f314c",
-                                    color: "red",
-                                    "&:hover": {
-                                        backgroundColor: "#34518f",
-                                    },
-                                },
+                                borderRadius: 2
                             }}
                         >
                             {Object.values(TRACKING_TYPES).map((t) => (
                                 <MenuItem
                                     key={t.value}
                                     value={t.value}
-                                    sx={{ color: "black", bgcolor: "#788297ff" }}
+                                    sx={{ color: "black", fontWeight: "bold" }}
                                 >
                                     {t.label}
                                 </MenuItem>
                             ))}
-                            <MenuItem value="ALL" sx={{ color: "black", bgcolor: "#788297ff" }}>
-                                ALL
+                            <MenuItem value="ALL TV SERIES" sx={{ color: "black", fontWeight: "bold" }}>
+                                ALL TV SERIES
                             </MenuItem>
                         </Select>
                     </FormControl>
 
                     <IconButton
                         aria-label="clear filter"
-                        onClick={() => setTrackingTypeFilter(TRACKING_TYPES.WATCHING.value)}
+                        onClick={() => setFilter(TRACKING_TYPES.WATCHING.value)}
                         sx={{
                             ml: 1,
                             bgcolor: "#27417c",
@@ -172,18 +187,16 @@ const TVSeriesDashboard = () => {
                     </IconButton>
                 </Box>
 
-
                 <TableContainer component={Paper} sx={{ bgcolor: "#232634" }}>
-                    <Table>
+                    <Table size="small">
                         <TableHead>
                             <TableRow>
                                 <TableCell sx={{ color: "#aad6ff", fontWeight: "bold", width: 70 }}></TableCell>
                                 <TableCell sx={{ color: "#aad6ff", fontWeight: "bold" }}>Name</TableCell>
-                                <TableCell align="center" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Rating</TableCell>
-                                <TableCell align="center" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Progress</TableCell>
-                                <TableCell align="center" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Last Air Date</TableCell>
-                                <TableCell align="center" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Status</TableCell>
-                                {/* <TableCell align="right" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Last update</TableCell> */}
+                                <TableCell align="left" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Progress</TableCell>
+                                <TableCell align="left" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Last Ep. Air</TableCell>
+                                <TableCell align="left" sx={{ color: "#aad6ff", fontWeight: "bold" }}>Next Ep.</TableCell>
+                                <TableCell align="right" sx={{ color: "#aad6ff", fontWeight: "bold" }}>VOD</TableCell>
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
@@ -199,77 +212,114 @@ const TVSeriesDashboard = () => {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                seriesList.map(series => {
-                                    const info = TRACKING_TYPES[series.trackingType];
-                                    return (
-                                        <TableRow
-                                            hover
-                                            key={series.id}
-                                            sx={{
-                                                cursor: "pointer",
-                                                bgcolor: "#232634",
-                                                '& td': { color: "#fff" }
-                                            }}
-                                            onClick={() => navigate(`/tv-series/${series.id}`)}
-                                        >
-                                            <TableCell>
-                                                <Avatar
-                                                    variant="rounded"
-                                                    src={getPosterUrl(series.poster_path)}
-                                                    alt={series.name}
-                                                    sx={{ width: 40, height: 60, bgcolor: "#222" }}
-                                                />
-                                            </TableCell>
-                                            <TableCell sx={{ fontWeight: 600, verticalAlign: 'top' }}>
-                                                <Box display="flex" flexDirection="column" gap={0.5} alignItems="flex-start">
-                                                    <Typography variant="body1" component="div" sx={{ fontWeight: 600 }}>
-                                                        {series.name}
-                                                    </Typography>
-                                                    <Box display="flex" alignItems="center" gap={0.5}>
-                                                        <Badge
-                                                            color={info.color}
-                                                            variant="standard"
-                                                            overlap="circular"
-                                                            badgeContent={null}
-                                                        >
-                                                            {info.icon}
-                                                        </Badge>
-                                                        <Typography variant="body2" sx={{ fontWeight: 600, color: (theme) => theme.palette[info.color]?.main || 'inherit' }}>
-                                                            {info.label}
-                                                        </Typography>
+                                filteredSeries
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map(series => {
+                                        const trackingType = TRACKING_TYPES[series.trackingType];
+                                        return (
+                                            <TableRow
+                                                hover
+                                                key={series.id}
+                                                sx={{
+                                                    cursor: "pointer",
+                                                    bgcolor: "#232634",
+                                                    '& td': { color: "#fff" }
+                                                }}
+                                                onClick={() => navigate(`/tv-series/${series.id}`)}
+                                            >
+                                                <TableCell>
+                                                    <Avatar
+                                                        variant="rounded"
+                                                        src={POSTER_PATH_BASE_W92 + series.poster_path}
+                                                        alt={series.name}
+                                                        sx={{ width: 40, height: 60, bgcolor: "#222" }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell sx={{ fontWeight: 600, verticalAlign: 'center' }}>
+                                                    <Box display="flex" gap={0.5}>
+                                                        <Box display="flex" flexDirection={"column"} gap={0.5} mr={1}>
+                                                            <Typography variant="body1" component="div" sx={{ fontWeight: 600 }}>
+                                                                {series.name}
+                                                            </Typography>
+                                                            <Badge
+                                                                color={trackingType.color}
+                                                                variant="standard"
+                                                                overlap="circular"
+                                                                badgeContent={null}
+                                                            >
+                                                                {trackingType.icon}
+                                                                <Typography variant="body2" sx={{ ml: 0.5, fontWeight: 600, color: (theme) => theme.palette[trackingType.color]?.main || 'inherit' }}>
+                                                                    {trackingType.label}
+                                                                    <Chip label={series.status} size="small" sx={{ ml: 1, bgcolor: 'primary.dark' }} />
+                                                                </Typography>
+                                                            </Badge>
+                                                        </Box>
                                                     </Box>
-                                                </Box>
-                                            </TableCell>
-                                            <TableCell align="center">
-                                                {series.ratingOverall !== null && series.ratingOverall !== 0
-                                                    ? series.ratingOverall
-                                                    : '-'}
-                                            </TableCell>
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    {series.totalWatchedEpisodes} / {series.number_of_episodes} ({series.percentageProgress}%)
+                                                </TableCell>
+                                                <TableCell align="left">{parseDate(series.last_air_date)}</TableCell>
+                                                <TableCell align="left">{series.nextEpisode}</TableCell>
 
-                                            <TableCell align="center">
-                                                {series.totalWatchedEpisodes} / {series.number_of_episodes} ({series.percentageProgress}%)
-                                            </TableCell>
-                                            <TableCell align="center">{parseDate(series.last_air_date)}</TableCell>
-                                            <TableCell align="center">{series.status}</TableCell>
-                                            {/* <TableCell align="right">{parseDate(series.updatedAt)}</TableCell> */}
-                                            <TableCell align="right" onClick={e => e.stopPropagation()}>
-                                                <Tooltip title="Change Tacking Type">
-                                                    <IconButton onClick={() => openStatusDialog(series)} size="small">
-                                                        <EditIcon sx={{ color: "white" }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Delete">
-                                                    <IconButton onClick={() => handleDelete(series.id)} size="small">
-                                                        <DeleteForeverIcon sx={{ color: "red" }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })
+                                                <TableCell align="right" sx={{ whiteSpace: 'pre-line' }}>
+                                                    <Stack direction="row" justifyContent="right" spacing={1} flexWrap="wrap" mb={1}>
+                                                        {series.vodProviders?.map((provider) => (
+                                                            <Avatar
+                                                                key={provider}
+                                                                alt={provider}
+                                                                src={`${VOD_PROVIDER_PATH_BASE_W45}${provider.split(';')[0]}`}
+                                                                sx={{ width: 45, height: 45 }}
+                                                                variant="circular"
+                                                            />
+                                                        ))}
+                                                    </Stack>
+                                                </TableCell>
+                                                <TableCell align="right" onClick={e => e.stopPropagation()}>
+                                                    <Tooltip title="Change Tacking Type">
+                                                        <IconButton onClick={() => openStatusDialog(series)} size="small">
+                                                            <EditIcon sx={{ color: "white" }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Delete">
+                                                        <IconButton onClick={() => handleDelete(series.id)} size="small">
+                                                            <DeleteForeverIcon sx={{ color: "red" }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })
                             )}
                         </TableBody>
                     </Table>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                        <TablePagination
+                            component="div"
+                            count={filteredSeries.length}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            rowsPerPageOptions={[5, 12, 25, 50, 100]}
+                            sx={{
+                                color: 'white',
+                                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                                    color: 'white',
+                                },
+                                '& .MuiTablePagination-select, & .MuiInputBase-root': {
+                                    color: 'white',
+                                },
+                                '& .MuiSvgIcon-root': {
+                                    color: 'white',
+                                },
+                                '& .Mui-disabled': {
+                                    color: '#666', // or any "disabled" color you prefer
+                                    opacity: 0.2
+                                }
+                            }}
+                        />
+                    </Box>
                 </TableContainer>
                 <StatusDialog
                     open={dialogOpen}

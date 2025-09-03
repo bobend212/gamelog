@@ -1,42 +1,9 @@
-// src/Common/StatusDialog.jsx
 import React, { useState, useEffect } from "react";
 import {
     Dialog, DialogTitle, DialogContent, DialogActions,
-    Button, MenuItem, Select, InputLabel, FormControl, Stack, Chip, Box
+    Button, MenuItem, Select, FormControl, Stack, Chip, Box
 } from "@mui/material";
-import MovieFilterIcon from "@mui/icons-material/MovieFilter";
-import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
-import CancelIcon from "@mui/icons-material/Cancel";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
-import { TRACKING_TYPES } from "../utils/constants";
-
-// All status options
-const statusOptions = [
-    {
-        value: "WATCHING",
-        label: "Watching",
-        color: "info",
-        icon: <MovieFilterIcon fontSize="small" />
-    },
-    {
-        value: "COMPLETED",
-        label: "Completed",
-        color: "success",
-        icon: <PlaylistAddCheckIcon fontSize="small" />
-    },
-    {
-        value: "DROPPED",
-        label: "Dropped",
-        color: "error",
-        icon: <CancelIcon fontSize="small" />
-    },
-    {
-        value: "WISHLIST",
-        label: "Wishlist",
-        color: "warning",
-        icon: <StarOutlineIcon fontSize="small" />
-    }
-];
+import { TRACKING_TYPES } from '../utils/tvSeriesUtil';
 
 const StatusDialog = ({ open, currentStatus, onSave, onClose }) => {
     const [status, setStatus] = useState(currentStatus || "WATCHING");
@@ -49,7 +16,7 @@ const StatusDialog = ({ open, currentStatus, onSave, onClose }) => {
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Edit Tracking Type</DialogTitle>
+            <DialogTitle>Change Status</DialogTitle>
             <DialogContent sx={{ minWidth: 320, mt: 2 }}>
                 <FormControl fullWidth>
                     <Select

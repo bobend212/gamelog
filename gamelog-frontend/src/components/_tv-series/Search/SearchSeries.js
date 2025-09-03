@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     Box,
     Button,
@@ -15,10 +15,12 @@ import {
     ListItemAvatar,
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
+import WatchLaterIcon from '@mui/icons-material/WatchLater';
 import Navbar from "../Navigation/Navbar";
 import tvSeriesService from "../../_tv-series/services/tvSeriesService";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { POSTER_PATH_BASE_W92 } from '../utils/tvSeriesUtil';
 
 const SearchSeries = ({ onSeriesAdded }) => {
     const [query, setQuery] = useState("");
@@ -40,9 +42,9 @@ const SearchSeries = ({ onSeriesAdded }) => {
         }
     };
 
-    const handleAdd = async (tmdbId, name) => {
+    const handleAdd = async (tmdbId, name, status) => {
         try {
-            const result = await tvSeriesService.saveSeries(tmdbId);
+            const result = await tvSeriesService.saveSeries(tmdbId, status);
 
             if (result.alreadyExists) {
                 handleSeriesAlreadyExists();
@@ -73,9 +75,6 @@ const SearchSeries = ({ onSeriesAdded }) => {
         );
     };
 
-    // Helper for TMDB poster:
-    const getPosterUrl = (poster_path) => `https://image.tmdb.org/t/p/w92${poster_path}`;
-
     return (
         <>
             <Navbar />
@@ -98,7 +97,7 @@ const SearchSeries = ({ onSeriesAdded }) => {
                 <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                     <TextField
                         fullWidth
-                        label="TV Series Title"
+                        label="Title..."
                         variant="outlined"
                         size="small"
                         value={query}
@@ -127,15 +126,26 @@ const SearchSeries = ({ onSeriesAdded }) => {
                                 <ListItem
                                     key={res.tmdbId}
                                     secondaryAction={
-                                        <IconButton
-                                            edge="end"
-                                            aria-label="add"
-                                            onClick={() => handleAdd(res.tmdbId, res.name)}
-                                            size="small"
-                                            color="success"
-                                        >
-                                            <AddIcon />
-                                        </IconButton>
+                                        <>
+                                            <IconButton
+                                                edge="start"
+                                                aria-label="add-wishlist"
+                                                onClick={() => handleAdd(res.tmdbId, res.name, 'WISHLIST')}
+                                                size="small"
+                                                color="warning"
+                                            >
+                                                <WatchLaterIcon />
+                                            </IconButton>
+                                            <IconButton
+                                                edge="end"
+                                                aria-label="add-watching"
+                                                onClick={() => handleAdd(res.tmdbId, res.name, 'WATCHING')}
+                                                size="small"
+                                                color="success"
+                                            >
+                                                <AddIcon />
+                                            </IconButton>
+                                        </>
                                     }
                                     sx={{
                                         borderBottom: "1px solid #334",
@@ -145,7 +155,7 @@ const SearchSeries = ({ onSeriesAdded }) => {
                                     <ListItemAvatar>
                                         <Avatar
                                             variant="rounded"
-                                            src={getPosterUrl(res.poster_path)}
+                                            src={POSTER_PATH_BASE_W92 + res.poster_path}
                                             alt={res.name}
                                             sx={{
                                                 width: 54,

@@ -1,12 +1,16 @@
 package com.matkon.gamelog.data.tvseries;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -41,6 +45,11 @@ public class TVSeries
 
     @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Season> seasons = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER) // or LAZY
+    @CollectionTable(name = "tvseries_vod_providers", joinColumns = @JoinColumn(name = "tvseries_id"))
+    @Column(name = "provider_name")
+    private List<String> vodProviders = new ArrayList<>();
 
     public void addSeason(Season season)
     {
@@ -172,5 +181,15 @@ public class TVSeries
     public void setUpdatedAt(LocalDateTime updatedAt)
     {
         this.updatedAt = updatedAt;
+    }
+
+    public List<String> getVodProviders()
+    {
+        return vodProviders;
+    }
+
+    public void setVodProviders(List<String> vodProviders)
+    {
+        this.vodProviders = vodProviders;
     }
 }

@@ -1,5 +1,6 @@
 package com.matkon.gamelog.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesListDto;
@@ -132,5 +133,12 @@ public class TVSeriesController
     {
         SyncResultDto result = tvSeriesService.syncSeries(seriesId);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/test/{seriesId}")
+    @Operation(summary = "test")
+    public ResponseEntity<List<String>> test(@PathVariable Long seriesId) throws Exception
+    {
+        return ResponseEntity.ok(tvSeriesService.test(seriesId));
     }
 }

@@ -1,5 +1,7 @@
 package com.matkon.gamelog.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.data.sync.ChangeDetail;
 import com.matkon.gamelog.data.sync.FieldChange;
 import com.matkon.gamelog.data.sync.SyncResultDto;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -113,16 +116,26 @@ public class TVSeriesService
         tvSeries.setTrackingType(trackingType);
         tvSeries.setUpdatedAt(LocalDateTime.now());
 
-        details.seasons.forEach(s -> {
-            if (s.season_number == 0) return; // skip specials
-            Season season = new Season();
-            season.setName(s.name);
-            season.setSeason_number(s.season_number);
-            season.setAir_date(s.air_date);
-            season.setEpisode_count(s.episode_count);
-            season.setWatchedCount(0);
-            tvSeries.addSeason(season);
-        });
+        if (tvSeries.getTrackingType() != TrackingType.WISHLIST) {
+            details.seasons.forEach(s -> {
+                if (s.season_number == 0 || s.episode_count == 0) {
+                    return; // skip specials or no episodes provided
+                }
+                Season season = new Season();
+                season.setName(s.name);
+                season.setSeason_number(s.season_number);
+                season.setAir_date(s.air_date);
+                season.setEpisode_count(s.episode_count);
+                season.setWatchedCount(0);
+                tvSeries.addSeason(season);
+            });
+        }
+
+        try {
+            tvSeries.setVodProviders(getVodProviders(webClient, tmdbApiKey, tmdbId));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         seriesRepo.save(tvSeries);
         return new TVSeriesSaveResultDto(
@@ -227,7 +240,12 @@ public class TVSeriesService
             int updatedCount = 0;
             List<ChangeDetail> allChanges = new ArrayList<>();
 
-            List<Long> ids = seriesRepo.findAll().stream().map(TVSeries::getId).toList();
+            List<Long> ids = seriesRepo.findAll().stream()
+                    .filter(series -> series.getTrackingType() != TrackingType.WISHLIST
+                            && series.getTrackingType() != TrackingType.DROPPED
+                            && series.getTrackingType() != TrackingType.COMPLETED)
+                    .map(TVSeries::getId)
+                    .toList();
             totalSeries = ids.size();
 
             for (Long seriesId : ids) {
@@ -339,6 +357,9 @@ public class TVSeriesService
         List<SeasonDto> updatedSeasons = new ArrayList<>();
         for (TMDBSeason tmdbSeason : seriesToUpdate.seasons.stream().filter(season -> season.season_number != 0).toList()) {
             SeasonDto localSeason = localSeasonMap.get(tmdbSeason.season_number);
+            if (tmdbSeason.season_number == 0 || tmdbSeason.episode_count == 0) {
+                continue; // skip specials or no episodes provided
+            }
             if (localSeason == null) {
                 // New season
                 SeasonDto newSeason = new SeasonDto();
@@ -387,6 +408,21 @@ public class TVSeriesService
             }
         }
         localTVSeries.setSeasons(updatedSeasons);
+
+        // VOD Providers
+        try {
+            seriesToUpdate.vodProviders = getVodProviders(webClient, tmdbApiKey, localTVSeries.getTmdbId());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        if (SyncUtils.areStringListsDifferent(localTVSeries.getVodProviders(), seriesToUpdate.vodProviders)) {
+            fieldChanges.add(new FieldChange("VOD_Providers",
+                    String.valueOf(localTVSeries.getVodProviders()),
+                    String.valueOf(seriesToUpdate.vodProviders)));
+            localTVSeries.setVodProviders(seriesToUpdate.vodProviders);
+            changed = true;
+        }
 
         TVSeries seriesToSave = TVSeriesDto.toEntity(localTVSeries);
 
@@ -442,6 +478,7 @@ public class TVSeriesService
         public String status;
         public String poster_path;
         public List<TMDBSeason> seasons;
+        public List<String> vodProviders;
     }
 
     private static class TMDBSeason
@@ -451,4 +488,53 @@ public class TVSeriesService
         public LocalDate air_date;
         public int episode_count;
     }
+
+    public List<String> test(Long seriesId) throws Exception
+    {
+//        String response = webClient.get()
+//                .uri(uriBuilder -> uriBuilder
+//                        .path("/tv/1920/watch/providers")
+//                        .queryParam("api_key", tmdbApiKey)
+//                        .queryParam("language", "en-US")
+//                        .queryParam("region", "PL")
+//                        .build())
+//                .retrieve()
+//                .bodyToMono(String.class)
+//                .block();
+        List<String> vodProviders = getVodProviders(webClient, tmdbApiKey, seriesId);
+
+        return vodProviders;
+    }
+
+    public List<String> getVodProviders(WebClient webClient, String tmdbApiKey, long tvSeriesId) throws Exception
+    {
+        String response = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/tv/" + tvSeriesId + "/watch/providers")
+                        .queryParam("api_key", tmdbApiKey)
+                        .build())
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readTree(response);
+        JsonNode providersForCountry = root.path("results").path("PL");
+
+        List<String> providerNames = new ArrayList<>();
+        if (providersForCountry != null && providersForCountry.has("flatrate")) {
+            JsonNode flatrateArray = providersForCountry.get("flatrate");
+            if (flatrateArray.isArray()) {
+                for (JsonNode provider : flatrateArray) {
+                    String name = provider.path("provider_name").asText();
+                    String logoPath = provider.path("logo_path").asText();
+                    if (!name.isEmpty() && !logoPath.isEmpty()) {
+                        providerNames.add(MessageFormat.format("{0};{1}", logoPath, name));
+                    }
+                }
+            }
+        }
+        return providerNames;
+    }
+
 }

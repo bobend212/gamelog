@@ -1,6 +1,8 @@
 package com.matkon.gamelog.data.sync;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 
 public class SyncUtils
 {
@@ -25,4 +27,11 @@ public class SyncUtils
         return !oldInt.equals(newInt);                             // both non-null compare values
     }
 
+    public static boolean areStringListsDifferent(List<String> oldList, List<String> newList)
+    {
+        if (oldList == null && newList == null) return false;            // both null = no change
+        if (oldList == null || newList == null) return true;             // one null, one not = change
+        if (oldList.size() != newList.size()) return true;               // different size = change
+        return !new HashSet<>(oldList).containsAll(newList) || !new HashSet<>(newList).containsAll(oldList); // differ
+    }
 }
