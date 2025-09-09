@@ -241,9 +241,10 @@ public class TVSeriesService
             List<ChangeDetail> allChanges = new ArrayList<>();
 
             List<Long> ids = seriesRepo.findAll().stream()
-                    .filter(series -> series.getTrackingType() != TrackingType.WISHLIST
+                    .filter(series -> series.getTrackingType() != TrackingType.COMPLETED
+                            && series.getTrackingType() != TrackingType.ON_HOLD
                             && series.getTrackingType() != TrackingType.DROPPED
-                            && series.getTrackingType() != TrackingType.COMPLETED)
+                            && series.getTrackingType() != TrackingType.WISHLIST)
                     .map(TVSeries::getId)
                     .toList();
             totalSeries = ids.size();

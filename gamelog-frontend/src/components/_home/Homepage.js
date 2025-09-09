@@ -8,7 +8,7 @@ const Homepage = () => {
 
     const options = [
         { label: "TV Series", path: "/tv-series/dashboard" },
-        { label: "Movies", path: "/movies" },
+        { label: "Movies (to watch)", path: "/movies/dashboard" },
         { label: "Games", path: "/games/dashboard" },
     ];
 

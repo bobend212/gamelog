@@ -9,19 +9,19 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
   const handleDelete = async () => {
-    // if (window.confirm(`Are you want to remove "${game.title}" from the Library?`)) {
-    try {
-      setIsUpdating(true);
-      await gameService.deleteGame(game.id);
-      onUpdate();
-      toast.info(`"${game.title}" removed from database! 🟣`);
-    } catch (error) {
-      console.error('Failed to delete game:', error);
-      alert('Failed to delete game. Please try again.');
-    } finally {
-      setIsUpdating(false);
+    if (window.confirm(`Are you want to remove "${game.title}" from the Library?`)) {
+      try {
+        setIsUpdating(true);
+        await gameService.deleteGame(game.id);
+        onUpdate();
+        toast.info(`"${game.title}" removed from database! 🟣`);
+      } catch (error) {
+        console.error('Failed to delete game:', error);
+        alert('Failed to delete game. Please try again.');
+      } finally {
+        setIsUpdating(false);
+      }
     }
-    // }
   };
 
   const handleEdit = () => {

@@ -119,7 +119,6 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
                 max="5"
                 step="0.5"
                 className={errors.rating ? 'error' : ''}
-                placeholder="4.5"
               />
               {errors.rating && <span className="error-text">{errors.rating}</span>}
             </div>

@@ -45,7 +45,7 @@ const SyncSeries = ({ onSyncComplete }) => {
                 </Typography>
 
                 <Typography sx={{ textAlign: "center" }} variant="body2" gutterBottom>
-                    Excluded: WISHLIST, DROPPED, COMPLETED
+                    Excluded: COMPLETED, ON HOLD, DROPPED, WISHLIST
                 </Typography>
 
                 <Button

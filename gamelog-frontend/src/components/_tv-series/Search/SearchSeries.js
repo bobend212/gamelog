@@ -90,7 +90,7 @@ const SearchSeries = ({ onSeriesAdded }) => {
                     color: "#eaf1fd"
                 }}
             >
-                <Typography sx={{ textAlign: "center" }} center variant="h5" gutterBottom>
+                <Typography sx={{ textAlign: "center" }} variant="h5" gutterBottom>
                     Search TV Series
                 </Typography>
 

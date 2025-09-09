@@ -86,16 +86,12 @@ const TVSeriesDashboard = () => {
 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);  // reset to first page when page size changes
+        setPage(0);
     };
 
     const filteredSeries = seriesList.filter(series => {
         const q = searchQuery.toLowerCase();
-
-        // Check if name matches
         const nameMatch = series.name.toLowerCase().includes(q);
-
-        // Check if any VOD provider matches the query
         const vodMatch = series.vodProviders?.some(provider =>
             provider.split(';')[1].toLowerCase().includes(q)
         ) || false;
@@ -236,8 +232,8 @@ const TVSeriesDashboard = () => {
                                                     />
                                                 </TableCell>
                                                 <TableCell sx={{ fontWeight: 600, verticalAlign: 'center' }}>
-                                                    <Box display="flex" gap={0.5}>
-                                                        <Box display="flex" flexDirection={"column"} gap={0.5} mr={1}>
+                                                    <Box display="flex">
+                                                        <Box display="flex" flexDirection={"column"} mr={1}>
                                                             <Typography variant="body1" component="div" sx={{ fontWeight: 600 }}>
                                                                 {series.name}
                                                             </Typography>
@@ -247,12 +243,25 @@ const TVSeriesDashboard = () => {
                                                                 overlap="circular"
                                                                 badgeContent={null}
                                                             >
-                                                                {trackingType.icon}
-                                                                <Typography variant="body2" sx={{ ml: 0.5, fontWeight: 600, color: (theme) => theme.palette[trackingType.color]?.main || 'inherit' }}>
-                                                                    {trackingType.label}
-                                                                    <Chip label={series.status} size="small" sx={{ ml: 1, bgcolor: 'primary.dark' }} />
-                                                                </Typography>
+                                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                                    {trackingType.icon}
+                                                                    <Typography
+                                                                        component="span"
+                                                                        variant="body2"
+                                                                        sx={{
+                                                                            ml: 0.5,
+                                                                            fontWeight: 600,
+                                                                            color: (theme) => theme.palette[trackingType.color]?.main || 'inherit',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center'
+                                                                        }}
+                                                                    >
+                                                                        {trackingType.label}
+                                                                        <Chip label={series.status} size="small" sx={{ ml: 1, bgcolor: 'primary.dark' }} />
+                                                                    </Typography>
+                                                                </Box>
                                                             </Badge>
+
                                                         </Box>
                                                     </Box>
                                                 </TableCell>
@@ -314,7 +323,7 @@ const TVSeriesDashboard = () => {
                                     color: 'white',
                                 },
                                 '& .Mui-disabled': {
-                                    color: '#666', // or any "disabled" color you prefer
+                                    color: '#666',
                                     opacity: 0.2
                                 }
                             }}

@@ -7,12 +7,14 @@ import './App.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Homepage from './components/_home/Homepage';
-import MoviesDashboard from './components/_placeholders/MoviesDashboard';
+import MoviesDashboard from './components/_movies/Dashboard/MoviesDashboard';
 import TVSeriesDashboard from './components/_tv-series/Dashboard/TVSeriesDashboard';
 import SearchSeries from './components/_tv-series/Search/SearchSeries';
 import SeriesDetails from './components/_tv-series/Details/SeriesDetails';
 import SyncLibrary from './components/_games/Sync/SyncLibrary';
 import SyncSeries from './components/_tv-series/Sync/SyncSeries';
+import MovieDetails from './components/_movies/Details/MovieDetails';
+import MovieSearch from './components/_movies/Search/MovieSearch';
 
 function App() {
   return (
@@ -37,7 +39,9 @@ function App() {
             <Route path="/tv-series/:id" element={<SeriesDetails />} />
 
             {/* Movies */}
-            <Route path="/movies" element={<MoviesDashboard />} />
+            <Route path="/movies/dashboard" element={<MoviesDashboard />} />
+            <Route path="/movies/search" element={<MovieSearch />} />
+            <Route path="/movies/:id" element={<MovieDetails />} />
 
           </Routes>
         </main>

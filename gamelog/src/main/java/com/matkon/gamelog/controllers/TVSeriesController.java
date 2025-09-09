@@ -1,6 +1,5 @@
 package com.matkon.gamelog.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesDto;
 import com.matkon.gamelog.data.tvseries.TVSeriesListDto;

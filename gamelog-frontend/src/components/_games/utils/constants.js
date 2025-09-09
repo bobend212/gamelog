@@ -1,4 +1,3 @@
-// No Results Messages
 export const NO_RESULTS_MESSAGES = {
     SEARCH: {
         title: "🎮 No games found",
