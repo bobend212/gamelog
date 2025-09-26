@@ -20,19 +20,21 @@ const TVSeriesDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedSeries, setSelectedSeries] = useState(null);
-    const [trackingTypeFilter, setTrackingTypeFilter] = useState(TRACKING_TYPES.WATCHING.value);
+    const [trackingTypeFilter, setTrackingTypeFilter] = useState(localStorage.getItem('series_status_filter') || TRACKING_TYPES.WATCHING.value);
     const [seriesCount, setSeriesCount] = useState([])
     const [totalSeriesCount, setTotalSeriesCount] = useState([])
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(12);
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
+    const [name, setName] = useState('');
 
     useEffect(() => {
-        loadSeries(trackingTypeFilter);
-    }, [trackingTypeFilter]);
+        loadSeries(localStorage.getItem('series_status_filter') || TRACKING_TYPES.WATCHING.value);
+    }, [localStorage.getItem('series_status_filter') || TRACKING_TYPES.WATCHING.value]);
 
     const setFilter = async (value) => {
+        localStorage.setItem('series_status_filter', value);
         setTrackingTypeFilter(value);
         setPage(0);
     };
@@ -98,8 +100,6 @@ const TVSeriesDashboard = () => {
 
         return nameMatch || vodMatch;
     });
-
-
 
     return (
         <>

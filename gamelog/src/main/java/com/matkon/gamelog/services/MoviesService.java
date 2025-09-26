@@ -1,6 +1,7 @@
 
 package com.matkon.gamelog.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.data.movies.Movie;
@@ -8,6 +9,10 @@ import com.matkon.gamelog.data.movies.MovieDto;
 import com.matkon.gamelog.data.movies.MovieListDto;
 import com.matkon.gamelog.data.movies.MovieSaveResultDto;
 import com.matkon.gamelog.data.movies.MovieSearchDto;
+import com.matkon.gamelog.data.sync.ChangeDetail;
+import com.matkon.gamelog.data.sync.FieldChange;
+import com.matkon.gamelog.data.sync.SyncResultDto;
+import com.matkon.gamelog.data.sync.SyncUtils;
 import com.matkon.gamelog.repos.MoviesRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -22,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,14 +81,14 @@ public class MoviesService
             );
         }
 
-        TMDBMovie details = webClient.get()
+        TMDBMovieSaveDto details = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/{id}")
                         .queryParam("api_key", tmdbApiKey)
                         .queryParam("language", "pl-PL")
                         .build(tmdbId))
                 .retrieve()
-                .bodyToMono(TMDBMovie.class)
+                .bodyToMono(TMDBMovieSaveDto.class)
                 .block();
 
         if (details == null) {
@@ -91,6 +97,23 @@ public class MoviesService
 
         Movie movie = new Movie();
         movie.setTmdbId(details.id);
+        movie.setTitle(details.title);
+        movie.setOriginalTitle(details.original_title);
+        movie.setReleaseDate(details.release_date);
+        movie.setStatus(details.status);
+        movie.setPoster(details.poster_path);
+
+        List<String> genresToSave = new ArrayList<>();
+        details.genres.forEach(g -> {
+            genresToSave.add(g.name);
+        });
+        movie.setGenres(genresToSave);
+
+        try {
+            movie.setVodProviders(getVodProviders(tmdbId));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         moviesRepository.save(movie);
         return new MovieSaveResultDto(
@@ -102,29 +125,14 @@ public class MoviesService
 
     public List<MovieListDto> getAllMovies() throws Exception
     {
-        List<Movie> dbMovies = moviesRepository.findAll();
-        List<MovieListDto> movieDtos = new ArrayList<>();
-
-        for (Movie dbMovie : dbMovies) {
-            MovieListDto movieDetails = getMovieListDetails(dbMovie);
-            movieDtos.add(movieDetails);
-        }
-
-        return movieDtos;
+        return moviesRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
+                .stream().map(MovieListDto::fromEntity).toList();
     }
 
     public Page<MovieListDto> getAllMoviesWithPagination(int page, int size)
     {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Movie> dbMovies = moviesRepository.findAll(pageable);
-
-        return dbMovies.map(movie -> {
-            try {
-                return getMovieListDetails(movie);
-            } catch (Exception e) {
-                throw new RuntimeException("Movie details fetch failed", e);
-            }
-        });
+        return moviesRepository.findAll(pageable).map(MovieListDto::fromEntity);
     }
 
     public MovieDto getMovieById(Long id) throws Exception
@@ -136,6 +144,40 @@ public class MoviesService
         return getMovieDetails(movie);
     }
 
+    private MovieDto getMovieDetails(Movie dbMovie) throws Exception
+    {
+        TMDBMovieDetailsDto responseJson = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/movie/" + dbMovie.getTmdbId())
+                        .queryParam("api_key", tmdbApiKey)
+                        .queryParam("language", "pl-PL")
+                        .build())
+                .retrieve()
+                .bodyToMono(TMDBMovieDetailsDto.class)
+                .block();
+
+        if (responseJson == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found in TMDB API");
+        }
+
+        MovieDto dto = new MovieDto();
+        dto.setId(dbMovie.getId());
+        dto.setTmdbId(dbMovie.getTmdbId());
+        dto.setTitle(dbMovie.getTitle());
+        dto.setOriginalTitle(dbMovie.getOriginalTitle());
+        dto.setOverview(responseJson.overview);
+        dto.setReleaseDate(dbMovie.getReleaseDate());
+        dto.setReleaseDatePL(getReleaseDatePL(dbMovie.getTmdbId()));
+        dto.setRuntime(responseJson.runtime);
+        dto.setStatus(dbMovie.getStatus());
+        dto.setPoster(dbMovie.getPoster());
+        dto.setCreatedAt(dbMovie.getCreatedAt());
+        dto.setGenres(dbMovie.getGenres());
+        dto.setVodProviders(dbMovie.getVodProviders());
+
+        return dto;
+    }
+
     @Transactional
     public void deleteMovie(Long movieId)
     {
@@ -145,91 +187,45 @@ public class MoviesService
         moviesRepository.deleteById(movieId);
     }
 
-    private MovieDto getMovieDetails(Movie dbMovie) throws Exception
-    {
-        String responseJson = webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/movie/" + dbMovie.getTmdbId())
-                        .queryParam("api_key", tmdbApiKey)
-                        .queryParam("language", "pl-PL")
-                        .build())
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(responseJson);
-
-        MovieDto dto = new MovieDto();
-        dto.setId(dbMovie.getId());
-        dto.setTmdbId(dbMovie.getTmdbId());
-        dto.setTitle(root.path("title").asText());
-        dto.setOriginalTitle(root.path("original_title").asText());
-        dto.setOverview(root.path("overview").asText());
-        dto.setReleaseDate(root.path("release_date").asText());
-        dto.setReleaseDatePL(getReleaseDate(dbMovie.getTmdbId()));
-        dto.setRuntime(root.path("runtime").asInt());
-        dto.setStatus(root.path("status").asText());
-        dto.setPoster(root.path("poster_path").asText());
-        dto.setCreatedAt(dbMovie.getCreatedAt());
-
-        List<String> genres = new ArrayList<>();
-        for (JsonNode genre : root.path("genres")) {
-            genres.add(genre.path("name").asText());
-        }
-        dto.setGenres(genres);
-
-        dto.setVodProviders(getVodProviders(dbMovie.getTmdbId()));
-
-        return dto;
-    }
-
-    private MovieListDto getMovieListDetails(Movie dbMovie) throws Exception
-    {
-        String responseJson = webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/movie/" + dbMovie.getTmdbId())
-                        .queryParam("api_key", tmdbApiKey)
-                        .queryParam("language", "pl-PL")
-                        .build())
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(responseJson);
-
-        MovieListDto dto = new MovieListDto();
-        dto.setId(dbMovie.getId());
-        dto.setTitle(root.path("title").asText());
-        dto.setOriginalTitle(root.path("original_title").asText());
-        dto.setReleaseDate(root.path("release_date").asText());
-        dto.setStatus(root.path("status").asText());
-        dto.setPoster(root.path("poster_path").asText());
-
-        List<String> genres = new ArrayList<>();
-        for (JsonNode genre : root.path("genres")) {
-            genres.add(genre.path("name").asText());
-        }
-        dto.setGenres(genres);
-
-        dto.setVodProviders(getVodProviders(dbMovie.getTmdbId()));
-
-        return dto;
-    }
-
     // ---- TMDb DTOs ----
     private static class TMDBMovieSearchResponse
     {
         public List<MovieSearchDto> results;
     }
 
-    private static class TMDBMovie
+    private static class TMDBMovieSaveDto
     {
         public Long id;
+        public String title;
+        public String original_title;
+        public String poster_path;
+        public String status;
+        public LocalDate release_date;
+        public List<TMDBMovieGenre> genres;
     }
 
-    private LocalDate getReleaseDate(long tmdbId) throws Exception
+    private static class TMDBMovieDetailsDto
+    {
+        public String overview;
+        public int runtime;
+    }
+
+    private static class TMDBMovieToUpdateDto
+    {
+        public String title;
+        public String original_title;
+        public LocalDate release_date;
+        public String status;
+        public String poster_path;
+        public List<String> vodProviders;
+    }
+
+    private static class TMDBMovieGenre
+    {
+        public String name;
+    }
+
+    private LocalDate getReleaseDatePL(long tmdbId) throws Exception
     {
         String response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -246,7 +242,6 @@ public class MoviesService
         JsonNode results = root.path("results");
         if (results.isMissingNode() || !results.isArray()) {
             return null;
-//            throw new IllegalStateException("Missing or invalid 'results' field in response");
         }
 
         JsonNode plNode = null;
@@ -259,7 +254,6 @@ public class MoviesService
 
         if (plNode == null) {
             return null;
-//            throw new IllegalStateException("No release info found for country code 'PL'");
         }
 
         JsonNode releaseDates = plNode.path("release_dates");
@@ -275,13 +269,11 @@ public class MoviesService
 
         if (releaseDateNode == null) {
             return null;
-//            throw new IllegalStateException("No release date of type 3 found for 'PL'");
         }
 
         String releaseDateStr = releaseDateNode.path("release_date").asText(null);
         if (releaseDateStr == null) {
             return null;
-//            throw new IllegalStateException("No release date string found");
         }
 
         return OffsetDateTime.parse(releaseDateStr).toLocalDate();
@@ -317,6 +309,183 @@ public class MoviesService
         }
 
         return providerNames;
+    }
+
+    public SyncResultDto syncMovies(Long id) throws Exception
+    {
+        if (id != 0) {
+            return syncMovie(id);
+        } else {
+            int total = 0;
+            int updatedCount = 0;
+            List<ChangeDetail> allChanges = new ArrayList<>();
+
+            List<Long> ids = moviesRepository.findAll().stream()
+                    .map(Movie::getId)
+                    .toList();
+            total = ids.size();
+
+            for (Long seriesId : ids) {
+                SyncResultDto result = syncMovie(seriesId);
+                if (result != null) {
+                    updatedCount += result.getUpdatedCount();
+                    allChanges.addAll(result.getChanges());
+                }
+            }
+
+            return new SyncResultDto(total, updatedCount, allChanges);
+        }
+    }
+
+    @Transactional
+    private SyncResultDto syncMovie(Long id) throws Exception
+    {
+        Optional<Movie> movieOpt = moviesRepository.findById(id);
+        MovieDto dbMovie = getMovieDetails(movieOpt.orElseThrow());
+
+        int updatedCount = 0;
+        List<ChangeDetail> changes = new ArrayList<>();
+
+        TMDBMovieToUpdateDto movieToUpdate = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/movie/" + dbMovie.getTmdbId())
+                        .queryParam("api_key", tmdbApiKey)
+                        .queryParam("language", "pl-PL")
+                        .build())
+                .retrieve()
+                .bodyToMono(TMDBMovieToUpdateDto.class)
+                .block();
+
+        if (movieToUpdate == null) return null;
+
+        List<FieldChange> fieldChanges = new ArrayList<>();
+        boolean changed = false;
+
+        // Title
+        if (SyncUtils.areStringsDifferent(dbMovie.getTitle(), movieToUpdate.title)) {
+            fieldChanges.add(new FieldChange("Title",
+                    String.valueOf(dbMovie.getTitle()),
+                    String.valueOf(movieToUpdate.title)));
+            dbMovie.setTitle(movieToUpdate.title);
+            changed = true;
+        }
+
+        // Original Title
+        if (SyncUtils.areStringsDifferent(dbMovie.getOriginalTitle(), movieToUpdate.original_title)) {
+            fieldChanges.add(new FieldChange("Original Title",
+                    String.valueOf(dbMovie.getOriginalTitle()),
+                    String.valueOf(movieToUpdate.original_title)));
+            dbMovie.setOriginalTitle(movieToUpdate.original_title);
+            changed = true;
+        }
+
+        // Release Date
+        if (SyncUtils.areDatesDifferent(dbMovie.getReleaseDate(), movieToUpdate.release_date)) {
+            fieldChanges.add(new FieldChange("Release Date",
+                    String.valueOf(dbMovie.getReleaseDate()),
+                    String.valueOf(movieToUpdate.release_date)));
+            dbMovie.setReleaseDate(movieToUpdate.release_date);
+            changed = true;
+        }
+
+        // Status
+        if (SyncUtils.areStringsDifferent(dbMovie.getStatus(), movieToUpdate.status)) {
+            fieldChanges.add(new FieldChange("Status",
+                    String.valueOf(dbMovie.getStatus()),
+                    String.valueOf(movieToUpdate.status)));
+            dbMovie.setStatus(movieToUpdate.status);
+            changed = true;
+        }
+
+        // Poster
+        if (SyncUtils.areStringsDifferent(dbMovie.getPoster(), movieToUpdate.poster_path)) {
+            fieldChanges.add(new FieldChange("Poster",
+                    String.valueOf(dbMovie.getPoster()),
+                    String.valueOf(movieToUpdate.poster_path)));
+            dbMovie.setPoster(movieToUpdate.poster_path);
+            changed = true;
+        }
+
+        // VOD Providers
+        try {
+            movieToUpdate.vodProviders = getVodProviders(dbMovie.getTmdbId());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        if (SyncUtils.areStringListsDifferent(dbMovie.getVodProviders(), movieToUpdate.vodProviders)) {
+
+            List<String> oldProviders = dbMovie.getVodProviders().stream()
+                    .map(s -> {
+                        String[] parts = s.split(";", 2);
+                        return parts.length > 1 ? parts[1] : parts[0];
+                    }).toList();
+
+            List<String> newProviders = movieToUpdate.vodProviders.stream()
+                    .map(s -> {
+                        String[] parts = s.split(";", 2);
+                        return parts.length > 1 ? parts[1] : parts[0];
+                    }).toList();
+
+            fieldChanges.add(new FieldChange("VOD_Providers",
+                    String.valueOf(oldProviders),
+                    String.valueOf(newProviders)));
+            dbMovie.setVodProviders(movieToUpdate.vodProviders);
+            changed = true;
+        }
+
+        Movie movieToSave = MovieDto.toEntity(dbMovie);
+
+        if (changed) {
+            moviesRepository.save(movieToSave);
+            updatedCount++;
+            changes.add(new ChangeDetail(movieToSave.getId(), movieToSave.getTitle(), fieldChanges));
+        }
+
+        return new SyncResultDto(1, updatedCount, changes);
+    }
+
+
+    public void test() throws JsonProcessingException
+    {
+        List<Movie> dbMovies = moviesRepository.findAll();
+
+        for (Movie dbMovie : dbMovies) {
+            Long tmdbId = dbMovie.getTmdbId();
+
+            String responseJson = webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/movie/" + tmdbId)
+                            .queryParam("api_key", tmdbApiKey)
+                            .queryParam("language", "pl-PL")
+                            .build())
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+//
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(responseJson);
+
+//            dbMovie.setOriginalTitle(root.path("original_title").asText());
+            dbMovie.setReleaseDate(parseDate(root.path("release_date").asText()));
+//            dbMovie.setStatus(root.path("status").asText());
+//            dbMovie.setPoster(root.path("poster_path").asText());
+
+//            try {
+//                List<String> vodProviders = getVodProviders(tmdbId);
+//                dbMovie.setVodProviders(vodProviders);
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+
+        }
+
+        moviesRepository.saveAll(dbMovies);
+    }
+
+    private LocalDate parseDate(String date)
+    {
+        return (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
     }
 
 }

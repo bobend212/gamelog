@@ -60,6 +60,15 @@ const moviesService = {
             throw new Error("Failed to search movies");
         }
     },
+
+    syncMovies: async (movieId) => {
+        try {
+            const response = await axios.patch(`${API_BASE}/sync-library/${movieId}`);
+            return response.data;
+        } catch (error) {
+            throw new Error("Failed to sync library");
+        }
+    },
 };
 
 export default moviesService;

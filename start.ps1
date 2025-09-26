@@ -1,3 +1,5 @@
+Write-Host "Note: JDK 17 is required."
+
 # Start Spring Boot backend as a background job
 $backendJob = Start-Job -ScriptBlock {
     cd "C:\Users\mkonopka\Desktop\code\gamelog\gamelog"

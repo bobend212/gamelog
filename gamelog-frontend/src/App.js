@@ -15,6 +15,7 @@ import SyncLibrary from './components/_games/Sync/SyncLibrary';
 import SyncSeries from './components/_tv-series/Sync/SyncSeries';
 import MovieDetails from './components/_movies/Details/MovieDetails';
 import MovieSearch from './components/_movies/Search/MovieSearch';
+import SyncMovies from './components/_movies/Sync/SyncMovies';
 
 function App() {
   return (
@@ -42,19 +43,18 @@ function App() {
             <Route path="/movies/dashboard" element={<MoviesDashboard />} />
             <Route path="/movies/search" element={<MovieSearch />} />
             <Route path="/movies/:id" element={<MovieDetails />} />
+            <Route path="/movies/sync" element={<SyncMovies />} />
 
           </Routes>
         </main>
 
         <ToastContainer
           position="bottom-right"
-          autoClose={3000}
           theme="dark"
-          hideProgressBar={true}
+          hideProgressBar={false}
           newestOnTop={true}
           closeOnClick
           pauseOnHover
-          draggable
         />
       </div>
     </Router>

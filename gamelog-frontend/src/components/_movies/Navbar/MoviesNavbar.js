@@ -23,6 +23,9 @@ const MoviesNavbar = () => {
                     <Link to="/movies/dashboard" className={isActive('/movies/dashboard')}>
                         Dashboard
                     </Link>
+                    <Link to="/movies/sync" className={isActive('/movies/sync')}>
+                        Sync
+                    </Link>
                     <Link to="/movies/search" className={isActive('/movies/search')}>
                         Search
                     </Link>

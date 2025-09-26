@@ -4,6 +4,7 @@ import com.matkon.gamelog.data.movies.MovieDto;
 import com.matkon.gamelog.data.movies.MovieListDto;
 import com.matkon.gamelog.data.movies.MovieSaveResultDto;
 import com.matkon.gamelog.data.movies.MovieSearchDto;
+import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.services.MoviesService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -95,6 +97,22 @@ public class MoviesController
     public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId)
     {
         moviesService.deleteMovie(movieId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/sync-library/{movieId}")
+    @Operation(summary = "[TMDB API]  Sync movies")
+    public ResponseEntity<SyncResultDto> syncLibrarySeries(@PathVariable Long movieId) throws Exception
+    {
+        SyncResultDto result = moviesService.syncMovies(movieId);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/test-endpoint/")
+    @Operation(summary = "test endpoint")
+    public ResponseEntity<Void> test() throws Exception
+    {
+        moviesService.test();
         return ResponseEntity.noContent().build();
     }
 }

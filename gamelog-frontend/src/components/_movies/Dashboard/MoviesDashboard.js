@@ -10,6 +10,7 @@ import moviesService from "../services/moviesService";
 import { POSTER_PATH_BASE_W92, VOD_PROVIDER_PATH_BASE_W45 } from "../../_tv-series/utils/tvSeriesUtil";
 import MoviesNavbar from "../Navbar/MoviesNavbar";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 const MoviesDashboard = () => {
     const [moviesList, setMoviesList] = useState([]);
@@ -23,17 +24,7 @@ const MoviesDashboard = () => {
 
     useEffect(() => {
         loadMovies(page, rowsPerPage);
-        loadAllMovies();
     }, []);
-
-    const loadAllMovies = async () => {
-        try {
-            const data = await moviesService.getAllMovies();
-            setAllMovies(data);
-        } catch (error) {
-            console.error("Failed to load all movies", error);
-        }
-    };
 
     const loadMovies = async (pageParam, sizeParam) => {
         setLoading(true);
@@ -41,6 +32,9 @@ const MoviesDashboard = () => {
             const data = await moviesService.getAllMoviesWithPagination(pageParam, sizeParam);
             setMoviesList(data.content);
             setMoviesPage(data);
+
+            const allMovies = await moviesService.getAllMovies();
+            setAllMovies(allMovies);
         } finally {
             setLoading(false);
         }
@@ -51,7 +45,7 @@ const MoviesDashboard = () => {
             try {
                 await moviesService.deleteMovie(movieId);
                 await loadMovies(page, rowsPerPage);
-                await loadAllMovies();
+                toast.success('Movie deleted.', { autoClose: 2000 });
             } catch (error) {
                 alert("Failed to delete the movie.");
                 console.error(error);
@@ -81,7 +75,7 @@ const MoviesDashboard = () => {
 
         const q = searchQuery.toLowerCase();
         const titleMatch = movie.title.toLowerCase().includes(q);
-        const originalTitleMatch = movie.title.toLowerCase().includes(q);
+        const originalTitleMatch = movie.originalTitle.toLowerCase().includes(q);
         const vodMatch = movie.vodProviders?.some(provider =>
             provider.split(';')[1].toLowerCase().includes(q)
         ) || false;
@@ -177,8 +171,8 @@ const MoviesDashboard = () => {
                                                 <TableCell sx={{ fontWeight: 600, verticalAlign: 'center' }}>
                                                     <Box display="flex" flexDirection={"column"} gap={0.5}>
                                                         <Typography variant="body1" component="div" sx={{ fontWeight: 600 }}>
-                                                            {movie.title} ({movie.releaseDate.split("-")[0]})
-                                                            <Chip label={movie.status} size="small" sx={{ bgcolor: 'primary.light', ml: 1 }} />
+                                                            {movie.title} {movie.releaseDate && `(${movie.releaseDate.split("-")[0]})`}
+                                                            {/* <Chip label={movie.status} size="small" sx={{ bgcolor: 'primary.light', ml: 1 }} /> */}
                                                         </Typography>
                                                         {movie.title !== movie.originalTitle &&
                                                             <Typography variant="subtitle2" component="div" sx={{ fontWeight: 600 }}>

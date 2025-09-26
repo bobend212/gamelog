@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import {
     Box,
     Typography,
+    Button,
     Paper,
     Chip,
     Stack,
@@ -15,27 +16,31 @@ import {
 import moviesService from "../services/moviesService";
 import MoviesNavbar from "../Navbar/MoviesNavbar";
 import { POSTER_PATH_BASE_W200, VOD_PROVIDER_PATH_BASE_W45 } from "../../_tv-series/utils/tvSeriesUtil";
+import { toast } from 'react-toastify';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
 
 const MovieDetails = () => {
     const { id } = useParams();
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
     const theme = useTheme();
+    const [syncSummary, setSyncSummary] = useState(null);
 
     useEffect(() => {
-        async function fetchMovie() {
-            setLoading(true);
-            try {
-                const data = await moviesService.getMovieById(id);
-                setMovie(data);
-            } catch (err) {
-                console.error("Failed to load movie details", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchMovie();
+        fetchMovie(id);
     }, [id]);
+
+    const fetchMovie = async (id) => {
+        setLoading(true);
+        try {
+            const data = await moviesService.getMovieById(id);
+            setMovie(data);
+        } catch (err) {
+            console.error("Failed to load movie details", err);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     if (loading)
         return (
@@ -73,6 +78,30 @@ const MovieDetails = () => {
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
 
+    const handleSync = async (movieId) => {
+        try {
+            const result = await moviesService.syncMovies(movieId);
+            setSyncSummary(result);
+
+            await fetchMovie(movieId);
+
+            if (result?.changes?.length > 0) {
+                const allChangedFields = result.changes.flatMap(change =>
+                    change.fieldChanges.map(field => field.fieldName)
+                );
+
+                const uniqueFields = [...new Set(allChangedFields)];
+                const fieldsString = uniqueFields.join(', ');
+
+                toast.success(`Sync completed: Updated fields - ${fieldsString}`, { autoClose: 6000 });
+            } else {
+                toast.success('Sync completed: Up to date', { autoClose: 2000 });
+            }
+        } catch (error) {
+            console.error("Sync failed", error);
+            toast.error('Sync failed.');
+        }
+    };
 
     return (
         <>
@@ -192,26 +221,41 @@ const MovieDetails = () => {
                         </Stack>
 
                         {/* VOD Providers */}
-                        {movie.vodProviders?.length !== 0 ? (
-                            <>
-                                <Stack direction="row" spacing={1} flexWrap="wrap">
-                                    {movie.vodProviders?.map((provider) => (
-                                        <Avatar
-                                            key={provider}
-                                            alt={provider}
-                                            src={`${VOD_PROVIDER_PATH_BASE_W45}${provider.split(';')[0]}`}
-                                            sx={{ width: 45, height: 45 }}
-                                            variant="circular"
-                                        />
-                                    ))}
-                                </Stack>
-                            </>
-                        ) : (
-                            <Typography variant="body1" mb={1} sx={{ color: theme.palette.grey[900], fontWeight: 600, fontStyle: "italic" }}>
-                                Unavailable on VOD
-                            </Typography>
-                        )
-                        }
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'end',
+                            justifyContent: 'space-between'
+                        }}>
+                            {movie.vodProviders?.length !== 0 ? (
+                                <>
+                                    <Stack direction="row" spacing={1} flexWrap="wrap">
+                                        {movie.vodProviders?.map((provider) => (
+                                            <Avatar
+                                                key={provider}
+                                                alt={provider}
+                                                src={`${VOD_PROVIDER_PATH_BASE_W45}${provider.split(';')[0]}`}
+                                                sx={{ width: 45, height: 45 }}
+                                                variant="circular"
+                                            />
+                                        ))}
+                                    </Stack>
+                                </>
+                            ) : (
+                                <Typography variant="body1" sx={{ color: theme.palette.grey[900], fontWeight: 600, fontStyle: "italic" }}>
+                                    Unavailable on VOD
+                                </Typography>
+                            )
+                            }
+                            <Button
+                                variant="contained"
+                                onClick={() => handleSync(movie.id)}
+                                sx={{ textTransform: "none" }}
+                                color="success"
+                                endIcon={<CloudSyncIcon />}
+                            >
+                                SYNC
+                            </Button>
+                        </Box>
                     </Box>
                 </Stack>
             </Paper>

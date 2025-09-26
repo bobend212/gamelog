@@ -1,5 +1,6 @@
 package com.matkon.gamelog.data.movies;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class MovieListDto
@@ -7,11 +8,27 @@ public class MovieListDto
     private Long id;
     private String title;
     private String originalTitle;
-    private String releaseDate;
+    private LocalDate releaseDate;
     private String status;
     private String poster;
     private List<String> genres;
     private List<String> vodProviders;
+
+    public static MovieListDto fromEntity(Movie movie)
+    {
+        MovieListDto dto = new MovieListDto();
+        dto.id = movie.getId();
+        dto.title = movie.getTitle();
+        dto.originalTitle = movie.getOriginalTitle();
+        dto.releaseDate = movie.getReleaseDate();
+        dto.status = movie.getStatus();
+        dto.poster = movie.getPoster();
+        dto.genres = movie.getGenres();
+        dto.vodProviders = movie.getVodProviders();
+
+        return dto;
+    }
+
 
     public Long getId()
     {
@@ -43,12 +60,12 @@ public class MovieListDto
         this.originalTitle = originalTitle;
     }
 
-    public String getReleaseDate()
+    public LocalDate getReleaseDate()
     {
         return releaseDate;
     }
 
-    public void setReleaseDate(String releaseDate)
+    public void setReleaseDate(LocalDate releaseDate)
     {
         this.releaseDate = releaseDate;
     }
