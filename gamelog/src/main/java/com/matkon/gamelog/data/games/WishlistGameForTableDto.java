@@ -11,6 +11,7 @@ public class WishlistGameForTableDto
     private boolean tba;
     private Long daysToRelease;
     private boolean isReleased;
+    private String imageUrl;
 
     public static WishlistGameForTableDto fromEntity(Game game)
     {
@@ -33,6 +34,7 @@ public class WishlistGameForTableDto
         }
 
         dto.isReleased = dto.releaseDate != null && !dto.releaseDate.isAfter(LocalDate.now());
+        dto.imageUrl = game.getImageUrl();
 
         return dto;
     }
@@ -95,5 +97,15 @@ public class WishlistGameForTableDto
     public void setReleased(boolean released)
     {
         isReleased = released;
+    }
+
+    public String getImageUrl()
+    {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl)
+    {
+        this.imageUrl = imageUrl;
     }
 }
