@@ -36,3 +36,4 @@ build/
 /db
 application.properties
 notes.txt
+.env
