@@ -13,6 +13,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: List directory contents
+        run: ls -R
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -28,5 +31,5 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run tests
-        working-directory: gamelog/gamelog
+        working-directory: gamelog
         run: mvn clean test
