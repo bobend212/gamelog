@@ -37,8 +37,7 @@ import java.util.Optional;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
-public class TVSeriesService
-{
+public class TVSeriesService {
 
     private final TVSeriesRepository seriesRepo;
     private final SeasonRepository seasonRepo;
@@ -47,8 +46,7 @@ public class TVSeriesService
 
     public TVSeriesService(TVSeriesRepository seriesRepo,
                            SeasonRepository seasonRepo,
-                           @Value("${tmdb.api.key}") String tmdbApiKey)
-    {
+                           @Value("${tmdb.api.key}") String tmdbApiKey) {
         this.seriesRepo = seriesRepo;
         this.seasonRepo = seasonRepo;
         this.tmdbApiKey = tmdbApiKey;
@@ -56,8 +54,7 @@ public class TVSeriesService
     }
 
     // ---- Search ----
-    public List<TVSeriesSearchDto> searchByQuery(String query, String lang, int page)
-    {
+    public List<TVSeriesSearchDto> searchByQuery(String query, String lang, int page) {
         TMDBSearchResponse response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/search/tv")
@@ -79,8 +76,7 @@ public class TVSeriesService
 
     // ---- Add series ----
     @Transactional
-    public TVSeriesSaveResultDto saveSeries(Long tmdbId, TrackingType trackingType)
-    {
+    public TVSeriesSaveResultDto saveSeries(Long tmdbId, TrackingType trackingType) {
         Optional<TVSeries> existing = seriesRepo.findByTmdbId(tmdbId);
         if (existing.isPresent()) {
             return new TVSeriesSaveResultDto(
@@ -147,8 +143,7 @@ public class TVSeriesService
 
     // ---- Update season counts ----
     @Transactional
-    public void incrementWatchedCount(Long seasonId)
-    {
+    public void incrementWatchedCount(Long seasonId) {
         Season season = seasonRepo.findById(seasonId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Season not found"));
 
@@ -160,8 +155,7 @@ public class TVSeriesService
     }
 
     @Transactional
-    public void updateWatchedCount(Long seasonId, int watchedCount)
-    {
+    public void updateWatchedCount(Long seasonId, int watchedCount) {
         Season season = seasonRepo.findById(seasonId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Season not found"));
 
@@ -173,15 +167,13 @@ public class TVSeriesService
     }
 
     // ---- Get all series ----
-    public List<TVSeriesListDto> getAllSeries()
-    {
+    public List<TVSeriesListDto> getAllSeries() {
         return seriesRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"))
                 .stream().map(TVSeriesListDto::fromEntity).toList();
     }
 
     // ---- Get series by id ----
-    public TVSeriesDto getSeriesById(Long id)
-    {
+    public TVSeriesDto getSeriesById(Long id) {
         Optional<TVSeries> seriesOpt = seriesRepo.findById(id);
         TVSeries series = seriesOpt.orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "TV series not found"));
@@ -193,16 +185,14 @@ public class TVSeriesService
         return TVSeriesDto.fromEntity(series);
     }
 
-    public List<TVSeriesListDto> getAllSeriesByTrackingType(TrackingType trackingType)
-    {
+    public List<TVSeriesListDto> getAllSeriesByTrackingType(TrackingType trackingType) {
         return seriesRepo.findByTrackingType(trackingType, Sort.by(Sort.Direction.DESC, "updatedAt"))
                 .stream().map(TVSeriesListDto::fromEntity).toList();
     }
 
     // ---- Update trackingType ----
     @Transactional
-    public void updateTrackingType(Long seriesId, TrackingType trackingType)
-    {
+    public void updateTrackingType(Long seriesId, TrackingType trackingType) {
         TVSeries series = seriesRepo.findById(seriesId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "TV series not found"));
         series.setTrackingType(trackingType);
@@ -212,8 +202,7 @@ public class TVSeriesService
 
     // ---- Update season rating ----
     @Transactional
-    public void rateSeason(Long seasonId, Double rating)
-    {
+    public void rateSeason(Long seasonId, Double rating) {
         Season season = seasonRepo.findById(seasonId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Season not found"));
         season.setRating(rating);
@@ -223,16 +212,14 @@ public class TVSeriesService
 
     // ---- Delete series by Id ----
     @Transactional
-    public void deleteSeries(Long seriesId)
-    {
+    public void deleteSeries(Long seriesId) {
         if (!seriesRepo.existsById(seriesId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "TV series not found");
         }
         seriesRepo.deleteById(seriesId);
     }
 
-    public SyncResultDto syncSeries(Long id)
-    {
+    public SyncResultDto syncSeries(Long id) {
         if (id != 0) {
             return syncLibrarySeries(id);
         } else {
@@ -262,8 +249,7 @@ public class TVSeriesService
     }
 
     @Transactional
-    private SyncResultDto syncLibrarySeries(Long id)
-    {
+    private SyncResultDto syncLibrarySeries(Long id) {
         TVSeriesDto localTVSeries = getSeriesById(id);
 
         int updatedCount = 0;
@@ -437,27 +423,23 @@ public class TVSeriesService
     }
 
     // ---- Utility Mappers ----
-    private LocalDate parseDate(String date)
-    {
+    private LocalDate parseDate(String date) {
         return (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
     }
 
     // ---- TMDb DTOs ----
-    private static class TMDBSearchResponse
-    {
+    private static class TMDBSearchResponse {
         public List<TMDBSearchResult> results;
     }
 
-    private static class TMDBSearchResult
-    {
+    private static class TMDBSearchResult {
         public Long id;
         public String name;
         public String poster_path;
         public String first_air_date;
     }
 
-    private static class TMDBSeries
-    {
+    private static class TMDBSeries {
         public Long id;
         public String name;
         public String poster_path;
@@ -469,8 +451,7 @@ public class TVSeriesService
         public LocalDate last_air_date;
     }
 
-    private static class TMDBSeriesToUpdate
-    {
+    private static class TMDBSeriesToUpdate {
         public String name;
         public int number_of_episodes;
         public int number_of_seasons;
@@ -482,16 +463,14 @@ public class TVSeriesService
         public List<String> vodProviders;
     }
 
-    private static class TMDBSeason
-    {
+    private static class TMDBSeason {
         public String name;
         public int season_number;
         public LocalDate air_date;
         public int episode_count;
     }
 
-    public List<String> test(Long seriesId) throws Exception
-    {
+    public List<String> test(Long seriesId) throws Exception {
 //        String response = webClient.get()
 //                .uri(uriBuilder -> uriBuilder
 //                        .path("/tv/1920/watch/providers")
@@ -507,8 +486,7 @@ public class TVSeriesService
         return vodProviders;
     }
 
-    public List<String> getVodProviders(WebClient webClient, String tmdbApiKey, long tvSeriesId) throws Exception
-    {
+    public List<String> getVodProviders(WebClient webClient, String tmdbApiKey, long tvSeriesId) throws Exception {
         String response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/tv/" + tvSeriesId + "/watch/providers")

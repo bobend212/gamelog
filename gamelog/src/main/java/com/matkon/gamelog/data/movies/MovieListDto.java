@@ -3,8 +3,7 @@ package com.matkon.gamelog.data.movies;
 import java.time.LocalDate;
 import java.util.List;
 
-public class MovieListDto
-{
+public class MovieListDto {
     private Long id;
     private String title;
     private String originalTitle;
@@ -14,8 +13,7 @@ public class MovieListDto
     private List<String> genres;
     private List<String> vodProviders;
 
-    public static MovieListDto fromEntity(Movie movie)
-    {
+    public static MovieListDto fromEntity(Movie movie) {
         MovieListDto dto = new MovieListDto();
         dto.id = movie.getId();
         dto.title = movie.getTitle();
@@ -29,84 +27,67 @@ public class MovieListDto
         return dto;
     }
 
-
-    public Long getId()
-    {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Long id)
-    {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public String getOriginalTitle()
-    {
+    public String getOriginalTitle() {
         return originalTitle;
     }
 
-    public void setOriginalTitle(String originalTitle)
-    {
+    public void setOriginalTitle(String originalTitle) {
         this.originalTitle = originalTitle;
     }
 
-    public LocalDate getReleaseDate()
-    {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(LocalDate releaseDate)
-    {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 
-    public String getStatus()
-    {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status)
-    {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public String getPoster()
-    {
+    public String getPoster() {
         return poster;
     }
 
-    public void setPoster(String poster)
-    {
+    public void setPoster(String poster) {
         this.poster = poster;
     }
 
-    public List<String> getGenres()
-    {
+    public List<String> getGenres() {
         return genres;
     }
 
-    public void setGenres(List<String> genres)
-    {
+    public void setGenres(List<String> genres) {
         this.genres = genres;
     }
 
-    public List<String> getVodProviders()
-    {
+    public List<String> getVodProviders() {
         return vodProviders;
     }
 
-    public void setVodProviders(List<String> vodProviders)
-    {
+    public void setVodProviders(List<String> vodProviders) {
         this.vodProviders = vodProviders;
     }
 }

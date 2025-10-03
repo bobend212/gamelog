@@ -1,7 +1,6 @@
 package com.matkon.gamelog.data.games;
 
-public enum GameStatus
-{
+public enum GameStatus {
     WISHLIST,   // Games you want to play
     BACKLOG,    // Games you own but haven't started
     PLAYING,    // Currently playing

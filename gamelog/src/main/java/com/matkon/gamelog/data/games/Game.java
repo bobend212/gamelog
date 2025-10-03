@@ -17,8 +17,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "games")
-public class Game
-{
+public class Game {
     // CUSTOM DATA
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,20 +62,17 @@ public class Game
     // ---
 
     @PrePersist
-    protected void onCreate()
-    {
+    protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    protected void onUpdate()
-    {
+    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
 
-    public boolean isFavourite()
-    {
+    public boolean isFavourite() {
         return favourite;
     }
 
@@ -106,8 +102,7 @@ public class Game
 
     public void setPlatform(String platform) {this.platform = platform;}
 
-    public void setFavourite(boolean favourite)
-    {
+    public void setFavourite(boolean favourite) {
         this.favourite = favourite;
     }
 

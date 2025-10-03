@@ -2,8 +2,7 @@ package com.matkon.gamelog.data.games;
 
 import java.time.LocalDate;
 
-public class GameUpdateRequest
-{
+public class GameUpdateRequest {
     private String platform;
     private GameStatus status;
     private Double rating;
@@ -13,8 +12,7 @@ public class GameUpdateRequest
 
     public GameUpdateRequest() {}
 
-    public GameUpdateRequest(String platform, GameStatus status, Double rating, String notes, LocalDate completedAt, boolean favourite)
-    {
+    public GameUpdateRequest(String platform, GameStatus status, Double rating, String notes, LocalDate completedAt, boolean favourite) {
         this.platform = platform;
         this.status = status;
         this.rating = rating;

@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
@@ -20,8 +19,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "movies")
-public class Movie
-{
+public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -46,108 +44,87 @@ public class Movie
     private LocalDateTime createdAt;
 
     @PrePersist
-    protected void onCreate()
-    {
+    protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
-    public Long getId()
-    {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Long id)
-    {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Long getTmdbId()
-    {
+    public Long getTmdbId() {
         return tmdbId;
     }
 
-    public void setTmdbId(Long tmdbId)
-    {
+    public void setTmdbId(Long tmdbId) {
         this.tmdbId = tmdbId;
     }
 
-    public LocalDateTime getCreatedAt()
-    {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt)
-    {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public String getOriginalTitle()
-    {
+    public String getOriginalTitle() {
         return originalTitle;
     }
 
-    public void setOriginalTitle(String originalTitle)
-    {
+    public void setOriginalTitle(String originalTitle) {
         this.originalTitle = originalTitle;
     }
 
-    public LocalDate getReleaseDate()
-    {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(LocalDate releaseDate)
-    {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 
-    public String getStatus()
-    {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status)
-    {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public String getPoster()
-    {
+    public String getPoster() {
         return poster;
     }
 
-    public void setPoster(String poster)
-    {
+    public void setPoster(String poster) {
         this.poster = poster;
     }
 
-    public List<String> getGenres()
-    {
+    public List<String> getGenres() {
         return genres;
     }
 
-    public void setGenres(List<String> genres)
-    {
+    public void setGenres(List<String> genres) {
         this.genres = genres;
     }
 
-    public List<String> getVodProviders()
-    {
+    public List<String> getVodProviders() {
         return vodProviders;
     }
 
-    public void setVodProviders(List<String> vodProviders)
-    {
+    public void setVodProviders(List<String> vodProviders) {
         this.vodProviders = vodProviders;
     }
 }

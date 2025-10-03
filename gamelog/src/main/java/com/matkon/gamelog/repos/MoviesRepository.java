@@ -9,10 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MoviesRepository extends JpaRepository<Movie, Long>
-{
+public interface MoviesRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByTmdbId(Long tmdbId);
 
     Page<Movie> findAll(Pageable pageable);
-
 }

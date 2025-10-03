@@ -29,12 +29,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/games")
 @CrossOrigin(origins = "*")
-public class GamesController
-{
+public class GamesController {
     private final GamesService gamesService;
 
-    public GamesController(GamesService gamesService)
-    {
+    public GamesController(GamesService gamesService) {
         this.gamesService = gamesService;
     }
 
@@ -44,8 +42,7 @@ public class GamesController
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
             @RequestParam(defaultValue = "ALL") String status,
-            @RequestParam(defaultValue = "") String search)
-    {
+            @RequestParam(defaultValue = "") String search) {
         Page<Game> games = gamesService.getLibraryGames(page, size, status, search);
         return ResponseEntity.ok(games);
     }
@@ -56,8 +53,7 @@ public class GamesController
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
             @RequestParam(defaultValue = "") String search
-    )
-    {
+    ) {
         Page<Game> wishlistGames = gamesService.getWishlistGames(page, size, search);
         return ResponseEntity.ok(wishlistGames);
     }
@@ -69,23 +65,20 @@ public class GamesController
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(defaultValue = "releaseDate,asc") String sort,
             @RequestParam(defaultValue = "ALL") ReleaseFilter release
-    )
-    {
+    ) {
         Page<WishlistGameForTableDto> games = gamesService.getWishlistGamesDashboard(page, size, sort, release);
         return ResponseEntity.ok(games);
     }
 
     @GetMapping("/search")
     @Operation(summary = "[RAWG API] Search games by query")
-    public ResponseEntity<List<GameSearchDto>> searchGames(@RequestParam String query)
-    {
+    public ResponseEntity<List<GameSearchDto>> searchGames(@RequestParam String query) {
         return ResponseEntity.ok(gamesService.searchGames(query));
     }
 
     @PostMapping("/add-library/{rawgId}")
     @Operation(summary = "[RAWG API] Save to LIBRARY by rawgId")
-    public ResponseEntity<GameSaveResultDto> addGameToLibrary(@PathVariable Long rawgId)
-    {
+    public ResponseEntity<GameSaveResultDto> addGameToLibrary(@PathVariable Long rawgId) {
         try {
             GameSaveResultDto result = gamesService.saveGameToDatabase(rawgId, GameStatus.BACKLOG);
             return ResponseEntity.ok(result);
@@ -96,8 +89,7 @@ public class GamesController
 
     @PostMapping("/add-wishlist/{rawgId}")
     @Operation(summary = "[RAWG API] Save to WISHLIST by rawgId")
-    public ResponseEntity<GameSaveResultDto> addToWishlist(@PathVariable Long rawgId)
-    {
+    public ResponseEntity<GameSaveResultDto> addToWishlist(@PathVariable Long rawgId) {
         try {
             GameSaveResultDto result = gamesService.saveGameToDatabase(rawgId, GameStatus.WISHLIST);
             return ResponseEntity.ok(result);
@@ -108,16 +100,14 @@ public class GamesController
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete game from database by id")
-    public ResponseEntity<Void> deleteGame(@PathVariable Long id)
-    {
+    public ResponseEntity<Void> deleteGame(@PathVariable Long id) {
         gamesService.deleteGame(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update game in database by id")
-    public ResponseEntity<Game> updateGame(@PathVariable Long id, @RequestBody GameUpdateRequest gameUpdate)
-    {
+    public ResponseEntity<Game> updateGame(@PathVariable Long id, @RequestBody GameUpdateRequest gameUpdate) {
         try {
             Game updatedGame = gamesService.updateGame(id, gameUpdate);
             return ResponseEntity.ok(updatedGame);
@@ -128,8 +118,7 @@ public class GamesController
 
     @PatchMapping("/sync-library")
     @Operation(summary = "[RAWG API]  Sync library")
-    public ResponseEntity<SyncResultDto> syncLibraryGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status)
-    {
+    public ResponseEntity<SyncResultDto> syncLibraryGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status) {
         SyncResultDto result = gamesService.syncLibraryGames(status);
         return ResponseEntity.ok(result);
     }

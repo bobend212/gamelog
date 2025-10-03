@@ -3,8 +3,7 @@ package com.matkon.gamelog.data.games;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class WishlistGameForTableDto
-{
+public class WishlistGameForTableDto {
     private Long id;
     private String title;
     private LocalDate releaseDate;
@@ -13,8 +12,7 @@ public class WishlistGameForTableDto
     private boolean isReleased;
     private String imageUrl;
 
-    public static WishlistGameForTableDto fromEntity(Game game)
-    {
+    public static WishlistGameForTableDto fromEntity(Game game) {
         WishlistGameForTableDto dto = new WishlistGameForTableDto();
         dto.id = game.getId();
         dto.title = game.getTitle();
@@ -39,73 +37,59 @@ public class WishlistGameForTableDto
         return dto;
     }
 
-    public Long getId()
-    {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Long id)
-    {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public LocalDate getReleaseDate()
-    {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(LocalDate releaseDate)
-    {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 
-    public boolean isTba()
-    {
+    public boolean isTba() {
         return tba;
     }
 
-    public void setTba(boolean tba)
-    {
+    public void setTba(boolean tba) {
         this.tba = tba;
     }
 
-    public Long getDaysToRelease()
-    {
+    public Long getDaysToRelease() {
         return daysToRelease;
     }
 
-    public void setDaysToRelease(Long daysToRelease)
-    {
+    public void setDaysToRelease(Long daysToRelease) {
         this.daysToRelease = daysToRelease;
     }
 
-    public boolean isReleased()
-    {
+    public boolean isReleased() {
         return isReleased;
     }
 
-    public void setReleased(boolean released)
-    {
+    public void setReleased(boolean released) {
         isReleased = released;
     }
 
-    public String getImageUrl()
-    {
+    public String getImageUrl() {
         return imageUrl;
     }
 
-    public void setImageUrl(String imageUrl)
-    {
+    public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 }

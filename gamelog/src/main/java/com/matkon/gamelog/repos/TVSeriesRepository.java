@@ -10,10 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TVSeriesRepository extends JpaRepository<TVSeries, Long>
-{
+public interface TVSeriesRepository extends JpaRepository<TVSeries, Long> {
     Optional<TVSeries> findByTmdbId(Long tmdbId);
 
     List<TVSeries> findByTrackingType(TrackingType trackingType, Sort sort);
-
 }

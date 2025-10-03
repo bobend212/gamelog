@@ -13,8 +13,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface GamesRepository extends JpaRepository<Game, Long>
-{
+public interface GamesRepository extends JpaRepository<Game, Long> {
     // Find game by RAWG ID
     Optional<Game> findByRawgId(Long rawgId);
 

@@ -31,8 +31,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GamesService
-{
+public class GamesService {
     @Autowired
     private GamesRepository gamesRepository;
 
@@ -45,14 +44,12 @@ public class GamesService
     @Value("${rawg.api.key}")
     private String rawgApiKey;
 
-    public GamesService()
-    {
+    public GamesService() {
         this.webClient = WebClient.builder().build();
         this.objectMapper = new ObjectMapper();
     }
 
-    public Page<Game> getWishlistGames(int page, int size, String searchTerm)
-    {
+    public Page<Game> getWishlistGames(int page, int size, String searchTerm) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
 
         if (searchTerm != null && !searchTerm.isBlank()) {
@@ -62,8 +59,7 @@ public class GamesService
         return gamesRepository.findWishlistGames(GameStatus.WISHLIST, searchTerm, pageable);
     }
 
-    public Page<WishlistGameForTableDto> getWishlistGamesDashboard(int page, int size, String sort, ReleaseFilter releaseFilter)
-    {
+    public Page<WishlistGameForTableDto> getWishlistGamesDashboard(int page, int size, String sort, ReleaseFilter releaseFilter) {
         String[] sortParts = sort.split(",");
         String field = sortParts[0].trim();
         Sort.Direction direction = (sortParts.length > 1 && "desc".equalsIgnoreCase(sortParts[1]))
@@ -86,8 +82,7 @@ public class GamesService
     }
 
 
-    public Page<Game> getLibraryGames(int page, int size, String status, String searchTerm)
-    {
+    public Page<Game> getLibraryGames(int page, int size, String status, String searchTerm) {
         Pageable pageable = PageRequest.of(page, size);
 
         GameStatus dbStatus;
@@ -106,8 +101,7 @@ public class GamesService
         return gamesRepository.findLibraryGames(dbStatus, dbSearchTerm, pageable);
     }
 
-    public List<GameSearchDto> searchGames(String query)
-    {
+    public List<GameSearchDto> searchGames(String query) {
         RAWGSearchResponse response = webClient.get()
                 .uri(rawgApiUrl + "/games?key=" + rawgApiKey + "&search=" + query + "&page_size=8")
                 .retrieve()
@@ -121,13 +115,11 @@ public class GamesService
                 .toList();
     }
 
-    private LocalDate parseDate(String date)
-    {
+    private LocalDate parseDate(String date) {
         return (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
     }
 
-    public GameSaveResultDto saveGameToDatabase(Long rawgId, GameStatus gameStatus)
-    {
+    public GameSaveResultDto saveGameToDatabase(Long rawgId, GameStatus gameStatus) {
         Optional<Game> existingGame = gamesRepository.findByRawgId(rawgId);
         if (existingGame.isPresent()) {
             return new GameSaveResultDto(
@@ -165,13 +157,11 @@ public class GamesService
     }
 
 
-    public void deleteGame(Long gameId)
-    {
+    public void deleteGame(Long gameId) {
         gamesRepository.deleteById(gameId);
     }
 
-    public Game updateGame(Long id, GameUpdateRequest updateRequest)
-    {
+    public Game updateGame(Long id, GameUpdateRequest updateRequest) {
         Game existingGame = gamesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + id));
 
@@ -188,8 +178,7 @@ public class GamesService
 
     // -- RAWG Helpers
 
-    private Game parseGameFromRawg(String response, Long rawgId)
-    {
+    private Game parseGameFromRawg(String response, Long rawgId) {
         try {
             JsonNode gameNode = objectMapper.readTree(response);
             Game game = createGameFromRAWGResponse(gameNode);
@@ -203,8 +192,7 @@ public class GamesService
         }
     }
 
-    private List<Game> parseGamesFromResponse(String response)
-    {
+    private List<Game> parseGamesFromResponse(String response) {
         List<Game> games = new ArrayList<>();
         try {
             JsonNode root = objectMapper.readTree(response);
@@ -224,8 +212,7 @@ public class GamesService
         return games;
     }
 
-    private Game createGameFromRAWGResponse(JsonNode gameNode)
-    {
+    private Game createGameFromRAWGResponse(JsonNode gameNode) {
         try {
             Game game = new Game();
 
@@ -262,8 +249,7 @@ public class GamesService
         }
     }
 
-    public SyncResultDto syncLibraryGames(GameStatus status)
-    {
+    public SyncResultDto syncLibraryGames(GameStatus status) {
         List<Game> libraryGames = gamesRepository.findAll()
                 .stream()
                 .filter(game -> game.getStatus() == status)
@@ -319,13 +305,11 @@ public class GamesService
         return new SyncResultDto(libraryGames.size(), updatedCount, changes);
     }
 
-    private static class RAWGSearchResponse
-    {
+    private static class RAWGSearchResponse {
         public List<RAWGSearchResult> results;
     }
 
-    private static class RAWGSearchResult
-    {
+    private static class RAWGSearchResult {
         public Long id;
         public String name;
         public String background_image;

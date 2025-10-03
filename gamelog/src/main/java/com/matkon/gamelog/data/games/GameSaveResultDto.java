@@ -1,13 +1,11 @@
 package com.matkon.gamelog.data.games;
 
-public class GameSaveResultDto
-{
+public class GameSaveResultDto {
     private Game game;
     private boolean alreadyExists;
     private String message;
 
-    public GameSaveResultDto(Game game, boolean alreadyExists, String message)
-    {
+    public GameSaveResultDto(Game game, boolean alreadyExists, String message) {
         this.game = game;
         this.alreadyExists = alreadyExists;
         this.message = message;

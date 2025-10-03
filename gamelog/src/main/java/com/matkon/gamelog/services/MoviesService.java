@@ -27,28 +27,24 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class MoviesService
-{
+public class MoviesService {
     private final MoviesRepository moviesRepository;
     private final WebClient webClient;
     private final String tmdbApiKey;
 
-    public MoviesService(MoviesRepository moviesRepository, @Value("${tmdb.api.key}") String tmdbApiKey)
-    {
+    public MoviesService(MoviesRepository moviesRepository, @Value("${tmdb.api.key}") String tmdbApiKey) {
         this.moviesRepository = moviesRepository;
         this.tmdbApiKey = tmdbApiKey;
         this.webClient = WebClient.create("https://api.themoviedb.org/3");
     }
 
-    public List<MovieSearchDto> searchByQuery(String query, String lang, int page)
-    {
+    public List<MovieSearchDto> searchByQuery(String query, String lang, int page) {
         TMDBMovieSearchResponse response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/search/movie")
@@ -70,8 +66,7 @@ public class MoviesService
     }
 
     @Transactional
-    public MovieSaveResultDto saveMovie(Long tmdbId) throws Exception
-    {
+    public MovieSaveResultDto saveMovie(Long tmdbId) throws Exception {
         Optional<Movie> existing = moviesRepository.findByTmdbId(tmdbId);
         if (existing.isPresent()) {
             return new MovieSaveResultDto(
@@ -123,20 +118,17 @@ public class MoviesService
         );
     }
 
-    public List<MovieListDto> getAllMovies() throws Exception
-    {
+    public List<MovieListDto> getAllMovies() throws Exception {
         return moviesRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
                 .stream().map(MovieListDto::fromEntity).toList();
     }
 
-    public Page<MovieListDto> getAllMoviesWithPagination(int page, int size)
-    {
+    public Page<MovieListDto> getAllMoviesWithPagination(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return moviesRepository.findAll(pageable).map(MovieListDto::fromEntity);
     }
 
-    public MovieDto getMovieById(Long id) throws Exception
-    {
+    public MovieDto getMovieById(Long id) throws Exception {
         Optional<Movie> movieOpt = moviesRepository.findById(id);
         Movie movie = movieOpt.orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
@@ -144,8 +136,7 @@ public class MoviesService
         return getMovieDetails(movie);
     }
 
-    private MovieDto getMovieDetails(Movie dbMovie) throws Exception
-    {
+    private MovieDto getMovieDetails(Movie dbMovie) throws Exception {
         TMDBMovieDetailsDto responseJson = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + dbMovie.getTmdbId())
@@ -179,8 +170,7 @@ public class MoviesService
     }
 
     @Transactional
-    public void deleteMovie(Long movieId)
-    {
+    public void deleteMovie(Long movieId) {
         if (!moviesRepository.existsById(movieId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found");
         }
@@ -188,13 +178,11 @@ public class MoviesService
     }
 
     // ---- TMDb DTOs ----
-    private static class TMDBMovieSearchResponse
-    {
+    private static class TMDBMovieSearchResponse {
         public List<MovieSearchDto> results;
     }
 
-    private static class TMDBMovieSaveDto
-    {
+    private static class TMDBMovieSaveDto {
         public Long id;
         public String title;
         public String original_title;
@@ -204,14 +192,12 @@ public class MoviesService
         public List<TMDBMovieGenre> genres;
     }
 
-    private static class TMDBMovieDetailsDto
-    {
+    private static class TMDBMovieDetailsDto {
         public String overview;
         public int runtime;
     }
 
-    private static class TMDBMovieToUpdateDto
-    {
+    private static class TMDBMovieToUpdateDto {
         public String title;
         public String original_title;
         public LocalDate release_date;
@@ -220,13 +206,11 @@ public class MoviesService
         public List<String> vodProviders;
     }
 
-    private static class TMDBMovieGenre
-    {
+    private static class TMDBMovieGenre {
         public String name;
     }
 
-    private LocalDate getReleaseDatePL(long tmdbId) throws Exception
-    {
+    private LocalDate getReleaseDatePL(long tmdbId) throws Exception {
         String response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + tmdbId + "/release_dates")
@@ -279,8 +263,7 @@ public class MoviesService
         return OffsetDateTime.parse(releaseDateStr).toLocalDate();
     }
 
-    private List<String> getVodProviders(long tmdbId) throws Exception
-    {
+    private List<String> getVodProviders(long tmdbId) throws Exception {
         String response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + tmdbId + "/watch/providers")
@@ -311,8 +294,7 @@ public class MoviesService
         return providerNames;
     }
 
-    public SyncResultDto syncMovies(Long id) throws Exception
-    {
+    public SyncResultDto syncMovies(Long id) throws Exception {
         if (id != 0) {
             return syncMovie(id);
         } else {
@@ -338,8 +320,7 @@ public class MoviesService
     }
 
     @Transactional
-    private SyncResultDto syncMovie(Long id) throws Exception
-    {
+    private SyncResultDto syncMovie(Long id) throws Exception {
         Optional<Movie> movieOpt = moviesRepository.findById(id);
         MovieDto dbMovie = getMovieDetails(movieOpt.orElseThrow());
 
@@ -446,8 +427,7 @@ public class MoviesService
     }
 
 
-    public void test() throws JsonProcessingException
-    {
+    public void test() throws JsonProcessingException {
         List<Movie> dbMovies = moviesRepository.findAll();
 
         for (Movie dbMovie : dbMovies) {
@@ -483,8 +463,7 @@ public class MoviesService
         moviesRepository.saveAll(dbMovies);
     }
 
-    private LocalDate parseDate(String date)
-    {
+    private LocalDate parseDate(String date) {
         return (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
     }
 

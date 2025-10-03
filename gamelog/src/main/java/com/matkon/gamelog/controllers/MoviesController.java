@@ -24,13 +24,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/movies")
 @CrossOrigin(origins = "*")
-public class MoviesController
-{
+public class MoviesController {
 
     private final MoviesService moviesService;
 
-    public MoviesController(MoviesService moviesService)
-    {
+    public MoviesController(MoviesService moviesService) {
         this.moviesService = moviesService;
     }
 
@@ -39,15 +37,13 @@ public class MoviesController
     public ResponseEntity<List<MovieSearchDto>> search(
             @RequestParam String query,
             @RequestParam(defaultValue = "pl-PL") String language,
-            @RequestParam(defaultValue = "1") int page)
-    {
+            @RequestParam(defaultValue = "1") int page) {
         return ResponseEntity.ok(moviesService.searchByQuery(query, language, page));
     }
 
     @PostMapping("/save/{tmdbId}")
     @Operation(summary = "[TMDB API] Save to library by tmdbId")
-    public ResponseEntity<MovieSaveResultDto> add(@PathVariable Long tmdbId)
-    {
+    public ResponseEntity<MovieSaveResultDto> add(@PathVariable Long tmdbId) {
         try {
             MovieSaveResultDto result = moviesService.saveMovie(tmdbId);
             return ResponseEntity.ok(result);
@@ -60,8 +56,7 @@ public class MoviesController
 
     @GetMapping
     @Operation(summary = "[TMDB API] Get all movies")
-    public ResponseEntity<List<MovieListDto>> getAllMovies()
-    {
+    public ResponseEntity<List<MovieListDto>> getAllMovies() {
         try {
             return ResponseEntity.ok(moviesService.getAllMovies());
         } catch (Exception e) {
@@ -72,8 +67,7 @@ public class MoviesController
     @GetMapping("/pageable")
     @Operation(summary = "[TMDB API] Get all movies with pagination")
     public ResponseEntity<Page<MovieListDto>> getAllMoviesWithPagination(@RequestParam(defaultValue = "0") int page,
-                                                                         @RequestParam(defaultValue = "10") int size)
-    {
+                                                                         @RequestParam(defaultValue = "10") int size) {
         try {
             return ResponseEntity.ok(moviesService.getAllMoviesWithPagination(page, size));
         } catch (Exception e) {
@@ -83,8 +77,7 @@ public class MoviesController
 
     @GetMapping("/{movieId}")
     @Operation(summary = "[TMDB API] Get Movie by ID")
-    public ResponseEntity<MovieDto> getMovieById(@PathVariable Long movieId)
-    {
+    public ResponseEntity<MovieDto> getMovieById(@PathVariable Long movieId) {
         try {
             return ResponseEntity.ok(moviesService.getMovieById(movieId));
         } catch (Exception e) {
@@ -94,24 +87,21 @@ public class MoviesController
 
     @DeleteMapping("/{movieId}")
     @Operation(summary = "Delete Movie by ID")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId)
-    {
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId) {
         moviesService.deleteMovie(movieId);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/sync-library/{movieId}")
     @Operation(summary = "[TMDB API]  Sync movies")
-    public ResponseEntity<SyncResultDto> syncLibrarySeries(@PathVariable Long movieId) throws Exception
-    {
+    public ResponseEntity<SyncResultDto> syncLibrarySeries(@PathVariable Long movieId) throws Exception {
         SyncResultDto result = moviesService.syncMovies(movieId);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/test-endpoint/")
     @Operation(summary = "test endpoint")
-    public ResponseEntity<Void> test() throws Exception
-    {
+    public ResponseEntity<Void> test() throws Exception {
         moviesService.test();
         return ResponseEntity.noContent().build();
     }

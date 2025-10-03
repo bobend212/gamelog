@@ -4,8 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class MovieDto
-{
+public class MovieDto {
     private Long id;
     private Long tmdbId;
     private String title;
@@ -20,8 +19,7 @@ public class MovieDto
     private List<String> vodProviders;
     private LocalDateTime createdAt;
 
-    public static Movie toEntity(MovieDto dto)
-    {
+    public static Movie toEntity(MovieDto dto) {
         Movie entity = new Movie();
         entity.setId(dto.getId());
         entity.setTmdbId(dto.getTmdbId());
@@ -37,133 +35,107 @@ public class MovieDto
         return entity;
     }
 
-    public Long getId()
-    {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Long id)
-    {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Long getTmdbId()
-    {
+    public Long getTmdbId() {
         return tmdbId;
     }
 
-    public void setTmdbId(Long tmdbId)
-    {
+    public void setTmdbId(Long tmdbId) {
         this.tmdbId = tmdbId;
     }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public String getOverview()
-    {
+    public String getOverview() {
         return overview;
     }
 
-    public void setOverview(String overview)
-    {
+    public void setOverview(String overview) {
         this.overview = overview;
     }
 
-    public LocalDate getReleaseDate()
-    {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(LocalDate releaseDate)
-    {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 
-    public int getRuntime()
-    {
+    public int getRuntime() {
         return runtime;
     }
 
-    public void setRuntime(int runtime)
-    {
+    public void setRuntime(int runtime) {
         this.runtime = runtime;
     }
 
-    public String getStatus()
-    {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status)
-    {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public String getPoster()
-    {
+    public String getPoster() {
         return poster;
     }
 
-    public void setPoster(String poster)
-    {
+    public void setPoster(String poster) {
         this.poster = poster;
     }
 
-    public List<String> getGenres()
-    {
+    public List<String> getGenres() {
         return genres;
     }
 
-    public void setGenres(List<String> genres)
-    {
+    public void setGenres(List<String> genres) {
         this.genres = genres;
     }
 
-    public List<String> getVodProviders()
-    {
+    public List<String> getVodProviders() {
         return vodProviders;
     }
 
-    public void setVodProviders(List<String> vodProviders)
-    {
+    public void setVodProviders(List<String> vodProviders) {
         this.vodProviders = vodProviders;
     }
 
-    public LocalDate getReleaseDatePL()
-    {
+    public LocalDate getReleaseDatePL() {
         return releaseDatePL;
     }
 
-    public void setReleaseDatePL(LocalDate releaseDatePL)
-    {
+    public void setReleaseDatePL(LocalDate releaseDatePL) {
         this.releaseDatePL = releaseDatePL;
     }
 
-    public LocalDateTime getCreatedAt()
-    {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt)
-    {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getOriginalTitle()
-    {
+    public String getOriginalTitle() {
         return originalTitle;
     }
 
-    public void setOriginalTitle(String originalTitle)
-    {
+    public void setOriginalTitle(String originalTitle) {
         this.originalTitle = originalTitle;
     }
 }
