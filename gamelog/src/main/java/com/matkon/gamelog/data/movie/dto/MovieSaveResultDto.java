@@ -1,4 +1,4 @@
-package com.matkon.gamelog.data.sync;
+package com.matkon.gamelog.data.movie.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class FieldChange {
-    private String fieldName;
-    private String oldValue;
-    private String newValue;
+public class MovieSaveResultDto {
+    private Long id;
+    private boolean alreadyExists;
+    private String message;
 }
