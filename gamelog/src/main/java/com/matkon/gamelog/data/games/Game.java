@@ -82,11 +82,6 @@ public class Game
 
     public Game() {}
 
-    public Game(String title)
-    {
-        this.title = title;
-    }
-
     public Long getId() {return id;}
 
     public void setId(Long id) {this.id = id;}

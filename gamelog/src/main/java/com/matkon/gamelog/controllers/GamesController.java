@@ -121,8 +121,6 @@ public class GamesController
         try {
             Game updatedGame = gamesService.updateGame(id, gameUpdate);
             return ResponseEntity.ok(updatedGame);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
