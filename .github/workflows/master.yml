@@ -28,4 +28,5 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run tests
+        working-directory: gamelog/gamelog
         run: mvn clean test
