@@ -14,7 +14,6 @@ import com.matkon.gamelog.data.sync.FieldChange;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.data.sync.SyncUtils;
 import com.matkon.gamelog.repos.MovieRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +33,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class MovieService {
     private final MovieRepository movieRepository;
     private final WebClient webClient;

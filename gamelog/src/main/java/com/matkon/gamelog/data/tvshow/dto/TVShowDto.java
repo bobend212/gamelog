@@ -1,7 +1,7 @@
 package com.matkon.gamelog.data.tvshow.dto;
 
 import com.matkon.gamelog.data.tvshow.TVShow;
-import com.matkon.gamelog.data.tvshow.TVShowTrackingType;
+import com.matkon.gamelog.data.tvshow.TrackingType;
 import com.matkon.gamelog.data.tvshow.season.Season;
 import com.matkon.gamelog.data.tvshow.season.dto.SeasonDto;
 import lombok.AllArgsConstructor;
@@ -28,7 +28,7 @@ public class TVShowDto {
     private String poster_path;
     private LocalDate last_air_date;
     private String status;
-    private TVShowTrackingType TVShowTrackingType;
+    private TrackingType trackingType;
     private List<SeasonDto> seasons = new ArrayList<>();
     private int totalWatchedEpisodes;
     private int percentageProgress;
@@ -48,7 +48,7 @@ public class TVShowDto {
         dto.poster_path = tvShow.getPoster_path();
         dto.last_air_date = tvShow.getLast_air_date();
         dto.status = tvShow.getStatus();
-        dto.TVShowTrackingType = tvShow.getTVShowTrackingType();
+        dto.trackingType = tvShow.getTrackingType();
         dto.updatedAt = tvShow.getUpdatedAt();
 
         int totalWatched = 0;
@@ -107,7 +107,7 @@ public class TVShowDto {
         entity.setPoster_path(dto.getPoster_path());
         entity.setLast_air_date(dto.getLast_air_date());
         entity.setStatus(dto.getStatus());
-        entity.setTVShowTrackingType(dto.getTVShowTrackingType());
+        entity.setTrackingType(dto.getTrackingType());
         entity.setUpdatedAt(dto.getUpdatedAt());
 
         if (dto.getSeasons() != null) {

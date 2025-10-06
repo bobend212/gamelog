@@ -3,18 +3,17 @@ package com.matkon.gamelog.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.data.game.Game;
+import com.matkon.gamelog.data.game.GameReleaseFilter;
+import com.matkon.gamelog.data.game.GameStatus;
+import com.matkon.gamelog.data.game.dto.GameForWishlistDto;
 import com.matkon.gamelog.data.game.dto.GameSaveResultDto;
 import com.matkon.gamelog.data.game.dto.GameSearchResultDto;
-import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.dto.GameUpdateRequestDto;
-import com.matkon.gamelog.data.game.GameReleaseFilter;
-import com.matkon.gamelog.data.game.dto.GameForWishlistDto;
 import com.matkon.gamelog.data.sync.ChangeDetail;
 import com.matkon.gamelog.data.sync.FieldChange;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.data.sync.SyncUtils;
 import com.matkon.gamelog.repos.GameRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class GameService {
     @Autowired
     private GameRepository gameRepository;

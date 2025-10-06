@@ -92,7 +92,7 @@ public class MovieController {
 
     @PatchMapping("/sync-library/{movieId}")
     @Operation(summary = "[TMDB API]  Sync movies")
-    public ResponseEntity<SyncResultDto> syncLibrarySeries(@PathVariable Long movieId) throws Exception {
+    public ResponseEntity<SyncResultDto> syncMovies(@PathVariable Long movieId) throws Exception {
         SyncResultDto result = movieService.syncMovies(movieId);
         return ResponseEntity.ok(result);
     }

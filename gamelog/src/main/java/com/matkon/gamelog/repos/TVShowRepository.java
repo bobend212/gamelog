@@ -1,7 +1,7 @@
 package com.matkon.gamelog.repos;
 
 import com.matkon.gamelog.data.tvshow.TVShow;
-import com.matkon.gamelog.data.tvshow.TVShowTrackingType;
+import com.matkon.gamelog.data.tvshow.TrackingType;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,5 +13,5 @@ import java.util.Optional;
 public interface TVShowRepository extends JpaRepository<TVShow, Long> {
     Optional<TVShow> findByTmdbId(Long tmdbId);
 
-    List<TVShow> findByTrackingType(TVShowTrackingType TVShowTrackingType, Sort sort);
+    List<TVShow> findByTrackingType(TrackingType trackingType, Sort sort);
 }

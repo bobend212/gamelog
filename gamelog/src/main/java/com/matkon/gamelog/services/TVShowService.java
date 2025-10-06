@@ -6,17 +6,16 @@ import com.matkon.gamelog.data.sync.ChangeDetail;
 import com.matkon.gamelog.data.sync.FieldChange;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.data.sync.SyncUtils;
-import com.matkon.gamelog.data.tvshow.season.Season;
-import com.matkon.gamelog.data.tvshow.season.dto.SeasonDto;
 import com.matkon.gamelog.data.tvshow.TVShow;
+import com.matkon.gamelog.data.tvshow.TrackingType;
 import com.matkon.gamelog.data.tvshow.dto.TVShowDto;
 import com.matkon.gamelog.data.tvshow.dto.TVShowListDto;
 import com.matkon.gamelog.data.tvshow.dto.TVShowSaveResultDto;
 import com.matkon.gamelog.data.tvshow.dto.TVShowSearchResultDto;
-import com.matkon.gamelog.data.tvshow.TVShowTrackingType;
+import com.matkon.gamelog.data.tvshow.season.Season;
+import com.matkon.gamelog.data.tvshow.season.dto.SeasonDto;
 import com.matkon.gamelog.repos.SeasonRepository;
 import com.matkon.gamelog.repos.TVShowRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -38,7 +37,6 @@ import java.util.Optional;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
-@AllArgsConstructor
 public class TVShowService {
 
     private final TVShowRepository seriesRepo;
@@ -78,7 +76,7 @@ public class TVShowService {
 
     // ---- Add series ----
     @Transactional
-    public TVShowSaveResultDto saveSeries(Long tmdbId, TVShowTrackingType TVShowTrackingType) {
+    public TVShowSaveResultDto saveSeries(Long tmdbId, TrackingType TrackingType) {
         Optional<TVShow> existing = seriesRepo.findByTmdbId(tmdbId);
         if (existing.isPresent()) {
             return new TVShowSaveResultDto(
@@ -111,10 +109,10 @@ public class TVShowService {
         tvShow.setPoster_path(details.poster_path);
         tvShow.setLast_air_date(details.last_air_date);
         tvShow.setStatus(details.status);
-        tvShow.setTVShowTrackingType(TVShowTrackingType);
+        tvShow.setTrackingType(TrackingType);
         tvShow.setUpdatedAt(LocalDateTime.now());
 
-        if (tvShow.getTVShowTrackingType() != TVShowTrackingType.WISHLIST) {
+        if (tvShow.getTrackingType() != TrackingType.WISHLIST) {
             details.seasons.forEach(s -> {
                 if (s.season_number == 0 || s.episode_count == 0) {
                     return; // skip specials or no episodes provided
@@ -187,17 +185,17 @@ public class TVShowService {
         return TVShowDto.fromEntity(series);
     }
 
-    public List<TVShowListDto> getAllSeriesByTrackingType(TVShowTrackingType TVShowTrackingType) {
-        return seriesRepo.findByTrackingType(TVShowTrackingType, Sort.by(Sort.Direction.DESC, "updatedAt"))
+    public List<TVShowListDto> getAllSeriesByTrackingType(TrackingType TrackingType) {
+        return seriesRepo.findByTrackingType(TrackingType, Sort.by(Sort.Direction.DESC, "updatedAt"))
                 .stream().map(TVShowListDto::fromEntity).toList();
     }
 
     // ---- Update trackingType ----
     @Transactional
-    public void updateTrackingType(Long seriesId, TVShowTrackingType TVShowTrackingType) {
+    public void updateTrackingType(Long seriesId, TrackingType TrackingType) {
         TVShow series = seriesRepo.findById(seriesId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "TV series not found"));
-        series.setTVShowTrackingType(TVShowTrackingType);
+        series.setTrackingType(TrackingType);
         series.setUpdatedAt(LocalDateTime.now());
         seriesRepo.save(series);
     }
@@ -230,10 +228,10 @@ public class TVShowService {
             List<ChangeDetail> allChanges = new ArrayList<>();
 
             List<Long> ids = seriesRepo.findAll().stream()
-                    .filter(series -> series.getTVShowTrackingType() != TVShowTrackingType.COMPLETED
-                            && series.getTVShowTrackingType() != TVShowTrackingType.ON_HOLD
-                            && series.getTVShowTrackingType() != TVShowTrackingType.DROPPED
-                            && series.getTVShowTrackingType() != TVShowTrackingType.WISHLIST)
+                    .filter(series -> series.getTrackingType() != TrackingType.COMPLETED
+                            && series.getTrackingType() != TrackingType.ON_HOLD
+                            && series.getTrackingType() != TrackingType.DROPPED
+                            && series.getTrackingType() != TrackingType.WISHLIST)
                     .map(TVShow::getId)
                     .toList();
             totalSeries = ids.size();

@@ -49,7 +49,7 @@ public class TVShow {
     private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
-    private TVShowTrackingType TVShowTrackingType;
+    private TrackingType trackingType;
 
     @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Season> seasons = new ArrayList<>();

@@ -1,7 +1,7 @@
 package com.matkon.gamelog.data.tvshow.dto;
 
 import com.matkon.gamelog.data.tvshow.TVShow;
-import com.matkon.gamelog.data.tvshow.TVShowTrackingType;
+import com.matkon.gamelog.data.tvshow.TrackingType;
 import com.matkon.gamelog.data.tvshow.season.Season;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +27,7 @@ public class TVShowListDto {
     private String poster_path;
     private LocalDate last_air_date;
     private String status;
-    private TVShowTrackingType TVShowTrackingType;
+    private TrackingType trackingType;
     private int totalWatchedEpisodes;
     private int percentageProgress;
     private Double ratingOverall;
@@ -46,7 +46,7 @@ public class TVShowListDto {
         dto.poster_path = tvShow.getPoster_path();
         dto.last_air_date = tvShow.getLast_air_date();
         dto.status = tvShow.getStatus();
-        dto.TVShowTrackingType = tvShow.getTVShowTrackingType();
+        dto.trackingType = tvShow.getTrackingType();
         dto.updatedAt = tvShow.getUpdatedAt();
 
         int totalWatched = 0;

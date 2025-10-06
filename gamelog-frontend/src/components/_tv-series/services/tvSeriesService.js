@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8080/api/tv-series";
+const API_BASE = "http://localhost:8080/api/tv-show";
 
 const tvSeriesService = {
     saveSeries: async (tmdbId, status) => {

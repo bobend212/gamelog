@@ -1,11 +1,11 @@
 package com.matkon.gamelog.controllers;
 
 import com.matkon.gamelog.data.sync.SyncResultDto;
+import com.matkon.gamelog.data.tvshow.TrackingType;
 import com.matkon.gamelog.data.tvshow.dto.TVShowDto;
 import com.matkon.gamelog.data.tvshow.dto.TVShowListDto;
 import com.matkon.gamelog.data.tvshow.dto.TVShowSaveResultDto;
 import com.matkon.gamelog.data.tvshow.dto.TVShowSearchResultDto;
-import com.matkon.gamelog.data.tvshow.TVShowTrackingType;
 import com.matkon.gamelog.services.TVShowService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -24,14 +24,14 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/tv-series")
+@RequestMapping("/api/tv-show")
 @CrossOrigin(origins = "*")
 public class TVShowController {
 
     private final TVShowService tvShowService;
 
     @GetMapping("/search")
-    @Operation(summary = "[TMDB API] Search series by query")
+    @Operation(summary = "[TMDB API] Search TV Shows by query")
     public ResponseEntity<List<TVShowSearchResultDto>> search(
             @RequestParam String query,
             @RequestParam(defaultValue = "en-US") String language,
@@ -43,7 +43,7 @@ public class TVShowController {
     @Operation(summary = "[TMDB API] Save to library by tmdbId")
     public ResponseEntity<TVShowSaveResultDto> add(
             @PathVariable Long tmdbId,
-            @RequestParam TVShowTrackingType status) {
+            @RequestParam TrackingType status) {
         try {
             TVShowSaveResultDto result = tvShowService.saveSeries(tmdbId, status);
             return ResponseEntity.ok(result);
@@ -83,16 +83,16 @@ public class TVShowController {
 
     @GetMapping("/filter")
     @Operation(summary = "Get all series filtered by trackingType")
-    public ResponseEntity<List<TVShowListDto>> getSeriesByTrackingType(@RequestParam(defaultValue = "WATCHING") TVShowTrackingType TVShowTrackingType) {
-        return ResponseEntity.ok(tvShowService.getAllSeriesByTrackingType(TVShowTrackingType));
+    public ResponseEntity<List<TVShowListDto>> getAllSeriesByTrackingType(@RequestParam(defaultValue = "WATCHING") TrackingType trackingType) {
+        return ResponseEntity.ok(tvShowService.getAllSeriesByTrackingType(trackingType));
     }
 
     @PatchMapping("/{seriesId}/trackingType")
     @Operation(summary = "Change tracking type")
     public ResponseEntity<Void> updateTrackingType(
             @PathVariable Long seriesId,
-            @RequestParam TVShowTrackingType TVShowTrackingType) {
-        tvShowService.updateTrackingType(seriesId, TVShowTrackingType);
+            @RequestParam TrackingType trackingType) {
+        tvShowService.updateTrackingType(seriesId, trackingType);
         return ResponseEntity.ok().build();
     }
 
