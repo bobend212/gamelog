@@ -1,0 +1,16 @@
+{
+  "content": [
+    {
+      "status": "COMPLETED",
+      "title": "The Witcher 3",
+      "rating": 9.5,
+      "favourite": true,
+      "platform": "PC",
+      "releaseDate": "2015-05-19"
+    }
+  ],
+  "totalElements": 1,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0
+}

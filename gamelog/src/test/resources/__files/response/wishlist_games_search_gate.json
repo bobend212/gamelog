@@ -1,0 +1,11 @@
+{
+  "content": [
+    {
+      "status": "WISHLIST",
+      "title": "Baldur's Gate 3",
+      "favourite": false,
+      "platform": "PC"
+    }
+  ],
+  "totalElements": 1
+}

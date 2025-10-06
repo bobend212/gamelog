@@ -1,12 +1,3 @@
---
--- PostgreSQL database dump
---
-
-\restrict hTL4YqT4RMy7nlY8IoIenGf9pog1n1FuSXrT11uibePyQYY16czNBgbhs9UGvoe
-
--- Dumped from database version 15.14 (Debian 15.14-1.pgdg13+1)
--- Dumped by pg_dump version 15.14 (Debian 15.14-1.pgdg13+1)
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -281,11 +272,3 @@ ALTER TABLE ONLY public.movies_genres
 
 ALTER TABLE ONLY public.movies_vod_providers
     ADD CONSTRAINT fkmcyra4gvl4d3ed2777q30yuqx FOREIGN KEY (movie_id) REFERENCES public.movies(id);
-
-
---
--- PostgreSQL database dump complete
---
-
-\unrestrict hTL4YqT4RMy7nlY8IoIenGf9pog1n1FuSXrT11uibePyQYY16czNBgbhs9UGvoe
-

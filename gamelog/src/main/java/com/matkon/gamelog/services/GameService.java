@@ -14,7 +14,6 @@ import com.matkon.gamelog.data.sync.FieldChange;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.data.sync.SyncUtils;
 import com.matkon.gamelog.repos.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,21 +31,23 @@ import java.util.Optional;
 
 @Service
 public class GameService {
-    @Autowired
-    private GameRepository gameRepository;
 
+    private final GameRepository gameRepository;
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
+    private final String rawgApiUrl;
+    private final String rawgApiKey;
 
-    @Value("${rawg.api.url}")
-    private String rawgApiUrl;
-
-    @Value("${rawg.api.key}")
-    private String rawgApiKey;
-
-    public GameService() {
-        this.webClient = WebClient.builder().build();
-        this.objectMapper = new ObjectMapper();
+    public GameService(GameRepository gameRepository,
+                       WebClient.Builder webClientBuilder,
+                       ObjectMapper objectMapper,
+                       @Value("${rawg.api.url}") String rawgApiUrl,
+                       @Value("${rawg.api.key}") String rawgApiKey) {
+        this.gameRepository = gameRepository;
+        this.webClient = webClientBuilder.build();
+        this.objectMapper = objectMapper;
+        this.rawgApiUrl = rawgApiUrl;
+        this.rawgApiKey = rawgApiKey;
     }
 
     public Page<Game> getWishlistGames(int page, int size, String searchTerm) {

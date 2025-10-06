@@ -1,0 +1,17 @@
+spring:
+  flyway:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+tmdb:
+  api:
+    key: dummy-key
+
+rawg:
+  api:
+    key: dummy-key
+    url: http://dummy-url-for-tests
