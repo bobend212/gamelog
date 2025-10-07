@@ -2,16 +2,11 @@ spring:
   flyway:
     enabled: false
 
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
+rawg:
+  api:
+    url: http://localhost:51499/api
+    key: dummy-key
 
 tmdb:
   api:
     key: dummy-key
-
-rawg:
-  api:
-    key: dummy-key
-    url: http://dummy-url-for-tests

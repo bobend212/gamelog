@@ -11,15 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -32,8 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
+@SpringBootTest
 class GameControllerTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -44,9 +39,6 @@ class GameControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     GameRepository gameRepository;
-
-    private static final String RESPONSE_FILES_PATH = "src/test/resources/__files/response/";
-    private static final String GAMES_API_URL = "/api/games";
 
     @BeforeEach
     void setUp() {
@@ -77,7 +69,7 @@ class GameControllerTest extends AbstractIntegrationTest {
 
         // then
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = readJsonFile("getLibraryGames_wishlistExcluded.json");
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getLibraryGames_wishlistExcluded.json");
 
         JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
@@ -95,7 +87,7 @@ class GameControllerTest extends AbstractIntegrationTest {
 
         // then
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = readJsonFile("getWishlistGames.json");
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getWishlistGames_onlyWishlist.json");
 
         JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
@@ -113,7 +105,7 @@ class GameControllerTest extends AbstractIntegrationTest {
 
         // then
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = readJsonFile("getWishlistGames_ForDashboard.json");
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getWishlistGames_ForDashboard.json");
 
         JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
@@ -154,7 +146,7 @@ class GameControllerTest extends AbstractIntegrationTest {
 
         // then
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = readJsonFile("updated_game_full.json");
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "updated_game_full.json");
 
         JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
 
@@ -196,14 +188,6 @@ class GameControllerTest extends AbstractIntegrationTest {
         game.setImageUrl("https://example.com/" + title.toLowerCase().replace(" ", "-") + ".jpg");
         game.setPlatform("PC");
         return game;
-    }
-
-    private String readJsonFile(String fileName) {
-        try {
-            return Files.readString(Paths.get(RESPONSE_FILES_PATH + fileName));
-        } catch (IOException e) {
-            throw new RuntimeException("Nie można wczytać pliku: " + fileName, e);
-        }
     }
 
     private Optional<Game> findByTitle(String title) {

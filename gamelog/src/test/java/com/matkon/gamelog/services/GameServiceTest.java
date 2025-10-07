@@ -1,10 +1,12 @@
 package com.matkon.gamelog.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.data.game.Game;
-import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.GameReleaseFilter;
+import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.dto.GameForWishlistDto;
 import com.matkon.gamelog.repos.GameRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +17,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,14 +32,30 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class GameServiceTest {
 
     @Mock
     private GameRepository gameRepository;
 
+    @Mock
+    private WebClient.Builder webClientBuilder;
+
+    @Mock
+    private WebClient webClient;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @InjectMocks
     private GameService gameService;
+
+    @BeforeEach
+    void setup() {
+        when(webClientBuilder.build()).thenReturn(webClient);
+
+        gameService = new GameService(gameRepository, webClientBuilder, objectMapper, "http://localhost:51499/api", "dummy-key");
+    }
 
     @Test
     void testGetWishlistGames_withSearchTerm_callsRepositoryWithSearchTerm() {
