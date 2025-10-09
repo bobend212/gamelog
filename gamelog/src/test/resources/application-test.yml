@@ -1,0 +1,12 @@
+spring:
+  flyway:
+    enabled: false
+
+rawg:
+  api:
+    url: http://localhost:51499/api
+    key: dummy-key
+
+tmdb:
+  api:
+    key: dummy-key

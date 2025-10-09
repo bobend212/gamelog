@@ -1,26 +1,21 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = "http://localhost:8080/api";
 
 const gameService = {
-
-  // [RAWG API] Add game to library by rawgAPI
-  addToLibrary: async (rawgId) => {
+  // [RAWG API] Add game to library by rawgId and status
+  saveGame: async (rawgId, gameStatus) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/games/add-library/${rawgId}`);
+      const response = await axios.post(
+        `${API_BASE_URL}/games/add/${rawgId}`,
+        null,
+        {
+          params: { gameStatus },
+        }
+      );
       return response.data;
     } catch (error) {
-      throw new Error('Failed to add game to library');
-    }
-  },
-
-  // [RAWG API] Add game to wishlist by rawgAPI
-  addToWishlist: async (rawgId) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/games/add-wishlist/${rawgId}`);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to add game to wishlist');
+      throw new Error("Failed to add game to library");
     }
   },
 
@@ -28,28 +23,33 @@ const gameService = {
   getAllLibraryGames: async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/games/library`, {
-        params: { page: 0, size: 1000 }
+        params: { page: 0, size: 1000 },
       });
       return response.data.content || [];
     } catch (error) {
-      throw new Error('Failed to fetch all library games');
+      throw new Error("Failed to fetch all library games");
     }
   },
 
   // Get all library games
-  getLibraryGames: async (page = 0, size = 8, status = 'ALL', searchTerm = '') => {
+  getLibraryGames: async (
+    page = 0,
+    size = 8,
+    status = "ALL",
+    searchTerm = ""
+  ) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/games/library`, {
         params: {
           page,
           size,
-          status: status !== 'ALL' ? status : 'ALL',
-          search: searchTerm
-        }
+          status: status !== "ALL" ? status : "ALL",
+          search: searchTerm,
+        },
       });
       return response.data;
     } catch (error) {
-      throw new Error('Failed to fetch library games');
+      throw new Error("Failed to fetch library games");
     }
   },
 
@@ -57,26 +57,29 @@ const gameService = {
   getAllWishlistGames: async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/games/wishlist`, {
-        params: { page: 0, size: 1000 }
+        params: { page: 0, size: 1000 },
       });
       return response.data.content || [];
     } catch (error) {
-      throw new Error('Failed to fetch all wishlist games');
+      throw new Error("Failed to fetch all wishlist games");
     }
   },
 
   // Get all wishlist games
-  getWishlistGames: async (page = 0, size = 8, search = '') => {
+  getWishlistGames: async (page = 0, size = 8, search = "") => {
     const response = await axios.get(`${API_BASE_URL}/games/wishlist`, {
-      params: { page, size, search }
+      params: { page, size, search },
     });
     return response.data;
   },
 
-  getWishlistGamesDashboard: async (page, size, sort, release = 'ALL') => {
-    const response = await axios.get(`${API_BASE_URL}/games/wishlist/dashboard`, {
-      params: { page, size, sort, release }
-    });
+  getWishlistGamesDashboard: async (page, size, sort, release = "ALL") => {
+    const response = await axios.get(
+      `${API_BASE_URL}/games/wishlist/dashboard`,
+      {
+        params: { page, size, sort, release },
+      }
+    );
     return response.data;
   },
 
@@ -89,12 +92,15 @@ const gameService = {
         rating: updateData.rating || null,
         notes: updateData.notes || null,
         completedAt: updateData.completedAt || null,
-        favourite: updateData.favourite || false
+        favourite: updateData.favourite || false,
       };
-      const response = await axios.put(`${API_BASE_URL}/games/${gameId}`, requestBody);
+      const response = await axios.put(
+        `${API_BASE_URL}/games/${gameId}`,
+        requestBody
+      );
       return response.data;
     } catch (error) {
-      throw new Error('Failed to update game');
+      throw new Error("Failed to update game");
     }
   },
 
@@ -103,32 +109,37 @@ const gameService = {
     try {
       await axios.delete(`${API_BASE_URL}/games/${gameId}`);
     } catch (error) {
-      throw new Error('Failed to delete game');
+      throw new Error("Failed to delete game");
     }
   },
 
   // [RAWG API] Search games
   searchGames: async (query) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/games/search?query=${encodeURIComponent(query)}`);
+      const response = await axios.get(
+        `${API_BASE_URL}/games/search?query=${encodeURIComponent(query)}`
+      );
       return response.data;
     } catch (error) {
-      throw new Error('Failed to search games');
+      throw new Error("Failed to search games");
     }
   },
 
   // [RAWG API] Sync library
   syncLibraryGames: async (status) => {
     try {
-      const response = await axios.patch(`${API_BASE_URL}/games/sync-library`, null, {
-        params: { status }
-      });
-      return response.data;  // return full response containing change details
+      const response = await axios.patch(
+        `${API_BASE_URL}/games/sync-library`,
+        null,
+        {
+          params: { status },
+        }
+      );
+      return response.data; // return full response containing change details
     } catch (error) {
-      throw new Error('Failed to sync library');
+      throw new Error("Failed to sync library");
     }
-  }
-
+  },
 };
 
 export default gameService;

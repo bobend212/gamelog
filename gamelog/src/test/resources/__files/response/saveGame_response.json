@@ -1,0 +1,19 @@
+{
+  "game": {
+    "id": 5,
+    "status": "PLAYING",
+    "rating": null,
+    "notes": null,
+    "platform": null,
+    "favourite": false,
+    "createdAt": null,
+    "updatedAt": null,
+    "completedAt": null,
+    "rawgId": 5001,
+    "title": "FIFA 06",
+    "releaseDate": "2005-09-26",
+    "imageUrl": "https://media.rawg.io/media/games/95e/95e64aeb13ec6a25cb3837ee5e6e336b.jpg"
+  },
+  "alreadyExists": false,
+  "message": "Game added successfully"
+}

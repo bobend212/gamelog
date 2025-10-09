@@ -12,8 +12,8 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("gamelog API")
+                        .title("The Library API")
                         .version("0.1")
-                        .description("API Documentation for my \"gamelog\" application!"));
+                        .description("API Documentation for my \"The Library\" backend!"));
     }
 }

@@ -1,45 +1,49 @@
 package com.matkon.gamelog.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.matkon.gamelog.AbstractIntegrationTest;
 import com.matkon.gamelog.data.game.Game;
-import com.matkon.gamelog.data.game.dto.GameSaveResultDto;
-import com.matkon.gamelog.data.game.dto.GameSearchResultDto;
 import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.dto.GameUpdateRequestDto;
-import com.matkon.gamelog.data.game.GameReleaseFilter;
-import com.matkon.gamelog.data.game.dto.GameForWishlistDto;
-import com.matkon.gamelog.data.sync.ChangeDetail;
-import com.matkon.gamelog.data.sync.FieldChange;
-import com.matkon.gamelog.data.sync.SyncResultDto;
+import com.matkon.gamelog.repos.GameRepository;
 import com.matkon.gamelog.services.GameService;
+import com.matkon.gamelog.services.RawgClientService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.skyscreamer.jsonassert.Customization;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(GameController.class)
-class GameControllerTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+class GameControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -47,199 +51,248 @@ class GameControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockitoBean
-    GameService gameService;
+    @Autowired
+    GameRepository gameRepository;
+
+    @Mock
+    private GameService gameService;
+
+    @Mock
+    private RawgClientService rawgClientService;
+
+    @BeforeEach
+    void setUp() {
+        gameRepository.deleteAll();
+
+        Game game1 = createGame(1001L, "The Witcher 3", GameStatus.COMPLETED, 9.5,
+                LocalDate.of(2015, 5, 19), true);
+        Game game2 = createGame(1002L, "Cyberpunk 2077", GameStatus.PLAYING, 8.0,
+                LocalDate.of(2020, 12, 10), false);
+        Game game3 = createGame(1003L, "Baldur's Gate 3", GameStatus.WISHLIST, null,
+                LocalDate.of(2023, 8, 3), false);
+        Game game4 = createGame(1004L, "Elden Ring", GameStatus.BACKLOG, null,
+                LocalDate.of(2022, 2, 25), false);
+
+        gameRepository.saveAll(List.of(game1, game2, game3, game4));
+    }
 
     @Test
-    void getLibraryGamesTest() throws Exception {
-        Game game = new Game();
-        game.setTitle("title1");
-        Game game2 = new Game();
-        game2.setTitle("title2");
-        List<Game> games = List.of(game, game2);
-        Page<Game> gamePage = new PageImpl<>(games);
-
-        when(gameService.getLibraryGames(0, 8, "ALL", "test"))
-                .thenReturn(gamePage);
-
-        mockMvc.perform(get("/api/games/library")
+    void getGamesTest_WishlistExcluded() throws Exception {
+        // when
+        MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/library")
                         .param("page", "0")
-                        .param("size", "8")
+                        .param("size", "10")
                         .param("status", "ALL")
-                        .param("search", "test"))
-                .andExpect(status().isOk());
+                        .param("search", ""))
+                .andExpect(status().isOk())
+                .andReturn();
 
-        verify(gameService).getLibraryGames(anyInt(), anyInt(), eq("ALL"), eq("test"));
+        // then
+        String actualResponse = result.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getLibraryGames_wishlistExcluded.json");
+
+        JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
 
     @Test
-    void getWishlistGamesTest() throws Exception {
-        Game game = new Game();
-        game.setTitle("title1");
-        Game game2 = new Game();
-        game2.setTitle("title2");
-        List<Game> games = List.of(game, game2);
-        Page<Game> gamePage = new PageImpl<>(games);
-
-        when(gameService.getWishlistGames(0, 8, "test"))
-                .thenReturn(gamePage);
-
-        mockMvc.perform(get("/api/games/wishlist")
+    void getGamesTest_OnlyWishlist() throws Exception {
+        // when
+        MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/wishlist")
                         .param("page", "0")
-                        .param("size", "8")
-                        .param("search", "test"))
-                .andExpect(status().isOk());
+                        .param("size", "10")
+                        .param("status", "ALL")
+                        .param("search", ""))
+                .andExpect(status().isOk())
+                .andReturn();
 
-        verify(gameService).getWishlistGames(anyInt(), anyInt(), eq("test"));
+        // then
+        String actualResponse = result.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getWishlistGames_onlyWishlist.json");
+
+        JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
 
     @Test
-    void getWishlistGamesDashboardTest() throws Exception {
-        GameForWishlistDto game = new GameForWishlistDto();
-        GameForWishlistDto game2 = new GameForWishlistDto();
-        List<GameForWishlistDto> games = List.of(game, game2);
-        Page<GameForWishlistDto> gamePage = new PageImpl<>(games);
-
-        when(gameService.getWishlistGamesDashboard(0, 50, "releaseDate,asc", GameReleaseFilter.ALL))
-                .thenReturn(gamePage);
-
-        mockMvc.perform(get("/api/games/wishlist/dashboard")
+    void getGamesTest_ForDashboard() throws Exception {
+        // when
+        MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/wishlist/dashboard")
                         .param("page", "0")
-                        .param("size", "8")
+                        .param("size", "10")
                         .param("sort", "releaseDate,asc")
-                        .param("release", GameReleaseFilter.ALL.name()))
-                .andExpect(status().isOk());
-
-        verify(gameService).getWishlistGamesDashboard(anyInt(), anyInt(), eq("releaseDate,asc"), eq(GameReleaseFilter.ALL));
-    }
-
-    @Test
-    void searchGamesTest() throws Exception {
-
-        GameSearchResultDto dto = new GameSearchResultDto(123L, "Test Game", "http://image.jpg", LocalDate.of(2023, 6, 15));
-        List<GameSearchResultDto> dtoList = List.of(dto);
-
-        when(gameService.searchGames("test")).thenReturn(dtoList);
-
-        mockMvc.perform(get("/api/games/search")
-                        .param("query", "test"))
-                .andExpect(status().isOk());
-
-        verify(gameService).searchGames("test");
-    }
-
-    @Test
-    void addGameToLibrarySuccessTest() throws Exception {
-        Long rawgId = 1L;
-        GameSaveResultDto result = new GameSaveResultDto(new Game(), false, "ok");
-
-        when(gameService.saveGameToDatabase(rawgId, GameStatus.BACKLOG))
-                .thenReturn(result);
-
-        mockMvc.perform(post("/api/games/add-library/{rawgId}", rawgId))
+                        .param("release", "ALL"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(result.getMessage()));
-    }
+                .andReturn();
 
-    @Test
-    void addGameToLibraryFailureTest() throws Exception {
-        Long rawgId = 1L;
+        // then
+        String actualResponse = result.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getWishlistGames_ForDashboard.json");
 
-        when(gameService.saveGameToDatabase(rawgId, GameStatus.BACKLOG))
-                .thenThrow(new RuntimeException("DB error"));
-
-        mockMvc.perform(post("/api/games/add-library/{rawgId}", rawgId))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void addGameToWishlistSuccessTest() throws Exception {
-        Long rawgId = 1L;
-        GameSaveResultDto result = new GameSaveResultDto(new Game(), false, "ok");
-
-        when(gameService.saveGameToDatabase(rawgId, GameStatus.WISHLIST))
-                .thenReturn(result);
-
-        mockMvc.perform(post("/api/games/add-wishlist/{rawgId}", rawgId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(result.getMessage()));
-    }
-
-    @Test
-    void addGameToWishlistFailureTest() throws Exception {
-        Long rawgId = 1L;
-
-        when(gameService.saveGameToDatabase(rawgId, GameStatus.WISHLIST))
-                .thenThrow(new RuntimeException("DB error"));
-
-        mockMvc.perform(post("/api/games/add-wishlist/{rawgId}", rawgId))
-                .andExpect(status().isBadRequest());
+        JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
 
     @Test
     void deleteGameTest() throws Exception {
-        mockMvc.perform(delete("/api/games/" + 1))
+        // given
+        Game gameToDelete = findByTitle("Elden Ring").orElseThrow();
+        Long gameId = gameToDelete.getId();
+
+        // when & then
+        mockMvc.perform(delete(GAMES_API_URL + "/{id}", gameId))
                 .andExpect(status().isNoContent());
+
+        Optional<Game> deletedGame = gameRepository.findById(gameId);
+        assertFalse(deletedGame.isPresent());
     }
 
     @Test
-    void updateGameSuccessTest() throws Exception {
-        Long gameId = 1L;
-        String updatedNotesText = "notes text";
+    void updateGameTest() throws Exception {
+        // given
+        Game gameToUpdate = findByTitle("Cyberpunk 2077").orElseThrow();
+        Long gameId = gameToUpdate.getId();
+
         GameUpdateRequestDto updateRequest = new GameUpdateRequestDto();
-        updateRequest.setNotes(updatedNotesText);
+        updateRequest.setNotes("Amazing game after patches!");
+        updateRequest.setRating(9.0);
+        updateRequest.setStatus(GameStatus.COMPLETED);
+        updateRequest.setFavourite(true);
+        updateRequest.setPlatform("PC");
 
-        Game updatedGame = new Game();
-        updatedGame.setId(gameId);
-        updatedGame.setNotes(updatedNotesText);
-
-        when(gameService.updateGame(eq(gameId), any(GameUpdateRequestDto.class)))
-                .thenReturn(updatedGame);
-
-        mockMvc.perform(put("/api/games/{id}", gameId)
+        // when
+        MvcResult result = mockMvc.perform(put(GAMES_API_URL + "/{id}", gameId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(gameId))
-                .andExpect(jsonPath("$.notes").value(updatedNotesText));
+                .andReturn();
+
+        // then
+        String actualResponse = result.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "updated_game_full.json");
+
+        JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
+
+        // verify in database
+        Game updatedGame = gameRepository.findById(gameId).orElseThrow();
+        assertAll("Verify updated game fields",
+                () -> assertEquals("Amazing game after patches!", updatedGame.getNotes(), "Notes do not match"),
+                () -> assertEquals(9.0, updatedGame.getRating(), "Rating does not match"),
+                () -> assertEquals(GameStatus.COMPLETED, updatedGame.getStatus(), "Status does not match"),
+                () -> assertTrue(updatedGame.isFavourite(), "Favourite flag should be true")
+        );
     }
 
     @Test
-    void updateGameBadRequestTest() throws Exception {
-        Long gameId = 3L;
+    void updateGameTest_shouldReturnBadRequest() throws Exception {
+        // given
+        Long nonExistentId = 99999L;
         GameUpdateRequestDto updateRequest = new GameUpdateRequestDto();
+        updateRequest.setNotes("This should fail");
 
-        when(gameService.updateGame(eq(gameId), any(GameUpdateRequestDto.class)))
-                .thenThrow(new RuntimeException("DB error"));
-
-        mockMvc.perform(put("/api/games/{id}", gameId)
+        // when & then
+        mockMvc.perform(put(GAMES_API_URL + "/{id}", nonExistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void syncLibraryGamesTest() throws Exception {
-        FieldChange change1 = new FieldChange("a", "b", "c");
-        FieldChange change2 = new FieldChange("a2", "b2", "c2");
-        List<FieldChange> changes1 = List.of(change1);
-        List<FieldChange> changes2 = List.of(change2);
-        List<ChangeDetail> changeDetails = List.of(
-                new ChangeDetail(1L, "game", changes1),
-                new ChangeDetail(1L, "game", changes2)
-        );
+    public void searchGamesTest() throws Exception {
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo(GAMES_API_URL))
+                .withQueryParam("key", equalTo("dummy-key"))
+                .withQueryParam("search", equalTo("witcher"))
+                .withQueryParam("page_size", equalTo("8"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("wiremock/rawg_search_games_response.json")));
 
-        SyncResultDto syncResultDto = new SyncResultDto(2, 2, changeDetails);
-
-        when(gameService.syncLibraryGames(eq(GameStatus.WISHLIST)))
-                .thenReturn(syncResultDto);
-
-        mockMvc.perform(patch("/api/games/sync-library")
-                        .contentType(MediaType.APPLICATION_JSON))
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(GAMES_API_URL + "/search")
+                        .param("query", "witcher"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalChecked").value(2))
-                .andExpect(jsonPath("$.updatedCount").value(2));
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "searchGame_response.json");
+
+        JSONAssert.assertEquals(actualResponse, expectedResponse, JSONCompareMode.LENIENT);
+    }
+
+    @Test
+    public void saveGameTest() throws Exception {
+        Long rawgId = 5001L;
+
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/games/" + rawgId))
+                .withQueryParam("key", equalTo("dummy-key"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("wiremock/rawg_get_game_response.json")));
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/games/add/{rawgId}", rawgId)
+                        .param("gameStatus", GameStatus.PLAYING.name()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "saveGame_response.json");
+
+        JSONAssert.assertEquals(expectedResponse, actualResponse,
+                new CustomComparator(JSONCompareMode.LENIENT,
+                        new Customization("game.createdAt", (o1, o2) -> true),
+                        new Customization("game.updatedAt", (o1, o2) -> true),
+                        new Customization("game.id", (o1, o2) -> true)
+                )
+        );
+    }
+
+    @Test
+    void saveGameTest_badRequest() throws Exception {
+        Long rawgId = 9999L;
+
+        Mockito.when(gameService.saveGame(rawgId, GameStatus.BACKLOG))
+                .thenThrow(new RuntimeException("Error adding game"));
+
+        mockMvc.perform(post("/api/games/add/{rawgId}", rawgId))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void syncGamesTest() throws Exception {
+        Long rawgId = 1003L;
+
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/games/" + rawgId))
+                .withQueryParam("key", equalTo("dummy-key"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("wiremock/rawg_get_game_response.json")));
+
+        MvcResult mvcResult = mockMvc.perform(patch("/api/games/sync-library")
+                        .param("status", "WISHLIST"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "syncGames_response.json");
+
+        JSONAssert.assertEquals(actualResponse, expectedResponse, JSONCompareMode.STRICT);
+    }
+
+    // -- HELPERS --
+
+    private Game createGame(Long rawgId, String title, GameStatus status, Double rating,
+                            LocalDate releaseDate, boolean favourite) {
+        Game game = new Game();
+        game.setRawgId(rawgId);
+        game.setTitle(title);
+        game.setStatus(status);
+        game.setRating(rating);
+        game.setReleaseDate(releaseDate);
+        game.setFavourite(favourite);
+        game.setImageUrl("https://example.com/" + title.toLowerCase().replace(" ", "-") + ".jpg");
+        game.setPlatform("PC");
+        return game;
+    }
+
+    private Optional<Game> findByTitle(String title) {
+        return gameRepository.findAll().stream()
+                .filter(g -> g.getTitle().equals(title))
+                .findFirst();
     }
 }

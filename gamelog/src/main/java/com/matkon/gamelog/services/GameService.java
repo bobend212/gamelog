@@ -1,7 +1,5 @@
 package com.matkon.gamelog.services;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.data.game.Game;
 import com.matkon.gamelog.data.game.GameReleaseFilter;
 import com.matkon.gamelog.data.game.GameStatus;
@@ -14,39 +12,28 @@ import com.matkon.gamelog.data.sync.FieldChange;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.data.sync.SyncUtils;
 import com.matkon.gamelog.repos.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class GameService {
-    @Autowired
-    private GameRepository gameRepository;
 
-    private final WebClient webClient;
-    private final ObjectMapper objectMapper;
+    private final GameRepository gameRepository;
+    private final RawgClientService rawgClientService;
 
-    @Value("${rawg.api.url}")
-    private String rawgApiUrl;
-
-    @Value("${rawg.api.key}")
-    private String rawgApiKey;
-
-    public GameService() {
-        this.webClient = WebClient.builder().build();
-        this.objectMapper = new ObjectMapper();
+    public GameService(GameRepository gameRepository, RawgClientService rawgClientService) {
+        this.gameRepository = gameRepository;
+        this.rawgClientService = rawgClientService;
     }
 
     public Page<Game> getWishlistGames(int page, int size, String searchTerm) {
@@ -102,24 +89,10 @@ public class GameService {
     }
 
     public List<GameSearchResultDto> searchGames(String query) {
-        RAWGSearchResponse response = webClient.get()
-                .uri(rawgApiUrl + "/games?key=" + rawgApiKey + "&search=" + query + "&page_size=8")
-                .retrieve()
-                .bodyToMono(RAWGSearchResponse.class)
-                .block();
-
-        if (response == null || response.results == null) return List.of();
-
-        return response.results.stream()
-                .map(game -> new GameSearchResultDto(game.id, game.name, game.background_image, parseDate(game.released)))
-                .toList();
+        return rawgClientService.searchGames(query);
     }
 
-    private LocalDate parseDate(String date) {
-        return (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
-    }
-
-    public GameSaveResultDto saveGameToDatabase(Long rawgId, GameStatus gameStatus) {
+    public GameSaveResultDto saveGame(Long rawgId, GameStatus gameStatus) {
         Optional<Game> existingGame = gameRepository.findByRawgId(rawgId);
         if (existingGame.isPresent()) {
             return new GameSaveResultDto(
@@ -130,23 +103,16 @@ public class GameService {
         }
 
         try {
-            String response = webClient.get()
-                    .uri(rawgApiUrl + "/games/" + rawgId + "?key=" + rawgApiKey)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+            Game game = rawgClientService.getGameDetails(rawgId);
 
-            if (response != null) {
-                Game game = parseGameFromRawg(response, rawgId);
-                if (game != null) {
-                    game.setStatus(gameStatus);
-                    Game savedGame = gameRepository.save(game);
-                    return new GameSaveResultDto(
-                            savedGame,
-                            false,
-                            "Game added successfully"
-                    );
-                }
+            if (game != null) {
+                game.setStatus(gameStatus);
+                Game savedGame = gameRepository.save(game);
+                return new GameSaveResultDto(
+                        savedGame,
+                        false,
+                        "Game added successfully"
+                );
             }
         } catch (Exception e) {
             System.err.println("Error fetching game: " + e.getMessage());
@@ -156,11 +122,11 @@ public class GameService {
         throw new RuntimeException("Game not found with ID: " + rawgId);
     }
 
-
     public void deleteGame(Long gameId) {
         gameRepository.deleteById(gameId);
     }
 
+    @Transactional
     public Game updateGame(Long id, GameUpdateRequestDto updateRequest) {
         Game existingGame = gameRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + id));
@@ -176,99 +142,17 @@ public class GameService {
         return gameRepository.save(existingGame);
     }
 
-    // -- RAWG Helpers
-
-    private Game parseGameFromRawg(String response, Long rawgId) {
-        try {
-            JsonNode gameNode = objectMapper.readTree(response);
-            Game game = createGameFromRAWGResponse(gameNode);
-            if (game != null) {
-                game.setRawgId(rawgId);
-            }
-            return game;
-        } catch (Exception e) {
-            System.err.println("Error parsing game response: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private List<Game> parseGamesFromResponse(String response) {
-        List<Game> games = new ArrayList<>();
-        try {
-            JsonNode root = objectMapper.readTree(response);
-            JsonNode results = root.get("results");
-
-            if (results != null && results.isArray()) {
-                for (JsonNode gameNode : results) {
-                    Game game = createGameFromRAWGResponse(gameNode);
-                    if (game != null) {
-                        games.add(game);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error parsing games response: " + e.getMessage());
-        }
-        return games;
-    }
-
-    private Game createGameFromRAWGResponse(JsonNode gameNode) {
-        try {
-            Game game = new Game();
-
-            if (gameNode.has("id")) {
-                game.setRawgId(gameNode.get("id").asLong());
-            }
-
-            if (gameNode.has("name")) {
-                game.setTitle(gameNode.get("name").asText());
-            } else {
-                game.setTitle("<no_title>");
-            }
-
-            if (gameNode.has("released") && !gameNode.get("released").isNull()) {
-                String rawDate = gameNode.get("released").asText();
-
-                try {
-                    // RAWG typically uses "yyyy-MM-dd"
-                    LocalDate releaseDate = LocalDate.parse(rawDate, DateTimeFormatter.ISO_LOCAL_DATE);
-                    game.setReleaseDate(releaseDate);
-                } catch (Exception e) {
-                    System.err.println("Error parsing releaseDate: " + rawDate);
-                }
-            }
-
-            if (gameNode.has("background_image") && !gameNode.get("background_image").isNull()) {
-                game.setImageUrl(gameNode.get("background_image").asText());
-            }
-
-            return game;
-        } catch (Exception e) {
-            System.err.println("Error creating game from node: " + e.getMessage());
-            return null;
-        }
-    }
-
-    public SyncResultDto syncLibraryGames(GameStatus status) {
-        List<Game> libraryGames = gameRepository.findAll()
+    public SyncResultDto syncGamesByStatus(GameStatus gameStatus) {
+        List<Game> games = gameRepository.findAll()
                 .stream()
-                .filter(game -> game.getStatus() == status)
+                .filter(game -> game.getStatus() == gameStatus)
                 .toList();
 
         int updatedCount = 0;
         List<ChangeDetail> changes = new ArrayList<>();
 
-        for (Game localGame : libraryGames) {
-            String response = webClient.get()
-                    .uri(rawgApiUrl + "/games/" + localGame.getRawgId() + "?key=" + rawgApiKey)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            if (response == null) continue;
-
-            Game latestData = parseGameFromRawg(response, localGame.getRawgId());
-
+        for (Game localGame : games) {
+            Game latestData = rawgClientService.getGameDetails(localGame.getRawgId());
             if (latestData == null) continue;
 
             List<FieldChange> fieldChanges = new ArrayList<>();
@@ -302,17 +186,6 @@ public class GameService {
             }
         }
 
-        return new SyncResultDto(libraryGames.size(), updatedCount, changes);
-    }
-
-    private static class RAWGSearchResponse {
-        public List<RAWGSearchResult> results;
-    }
-
-    private static class RAWGSearchResult {
-        public Long id;
-        public String name;
-        public String background_image;
-        public String released;
+        return new SyncResultDto(games.size(), updatedCount, changes);
     }
 }

@@ -1,13 +1,13 @@
 package com.matkon.gamelog.services;
 
 import com.matkon.gamelog.data.game.Game;
-import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.GameReleaseFilter;
+import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.dto.GameForWishlistDto;
 import com.matkon.gamelog.repos.GameRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,14 +29,22 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class GameServiceTest {
 
     @Mock
     private GameRepository gameRepository;
 
-    @InjectMocks
+    @Mock
+    private RawgClientService rawgClientService;
+
     private GameService gameService;
+
+    @BeforeEach
+    void setup() {
+        gameService = new GameService(gameRepository, rawgClientService);
+    }
 
     @Test
     void testGetWishlistGames_withSearchTerm_callsRepositoryWithSearchTerm() {
@@ -131,7 +140,7 @@ public class GameServiceTest {
         String sort = "releaseDate";
         GameReleaseFilter filter = GameReleaseFilter.TBA;
 
-        Pageable expectedPageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "releaseDate")); // default ASC
+        Pageable expectedPageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "releaseDate"));
         Page<Game> dummyPage = createDummyGamesPage();
 
         when(gameRepository.findByStatusAndReleaseDateIsNull(eq(GameStatus.WISHLIST), eq(expectedPageable)))
@@ -149,7 +158,7 @@ public class GameServiceTest {
         int page = 3;
         int size = 6;
         String sort = "title,desc";
-        GameReleaseFilter filter = GameReleaseFilter.ALL; // default case in your switch
+        GameReleaseFilter filter = GameReleaseFilter.ALL;
 
         Pageable expectedPageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "title"));
         Page<Game> dummyPage = createDummyGamesPage();

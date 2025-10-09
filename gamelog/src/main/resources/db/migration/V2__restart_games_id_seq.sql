@@ -1,0 +1,1 @@
+ALTER SEQUENCE public.games_id_seq RESTART WITH 500;
