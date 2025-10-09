@@ -9,7 +9,6 @@ import com.matkon.gamelog.repos.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -28,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,11 +47,11 @@ public class GameServiceTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @InjectMocks
     private GameService gameService;
 
     @BeforeEach
     void setup() {
+        when(webClientBuilder.baseUrl(anyString())).thenReturn(webClientBuilder);
         when(webClientBuilder.build()).thenReturn(webClient);
 
         gameService = new GameService(gameRepository, webClientBuilder, objectMapper, "http://localhost:51499/api", "dummy-key");

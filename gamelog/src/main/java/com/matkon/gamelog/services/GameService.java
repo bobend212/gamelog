@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
@@ -44,7 +45,7 @@ public class GameService {
                        @Value("${rawg.api.url}") String rawgApiUrl,
                        @Value("${rawg.api.key}") String rawgApiKey) {
         this.gameRepository = gameRepository;
-        this.webClient = webClientBuilder.build();
+        this.webClient = webClientBuilder.baseUrl(rawgApiUrl).build();
         this.objectMapper = objectMapper;
         this.rawgApiUrl = rawgApiUrl;
         this.rawgApiKey = rawgApiKey;
@@ -104,7 +105,12 @@ public class GameService {
 
     public List<GameSearchResultDto> searchGames(String query) {
         RAWGSearchResponse response = webClient.get()
-                .uri(rawgApiUrl + "/games?key=" + rawgApiKey + "&search=" + query + "&page_size=8")
+                .uri(uriBuilder -> uriBuilder
+                        .path("/games")
+                        .queryParam("key", rawgApiKey)
+                        .queryParam("search", query)
+                        .queryParam("page_size", 8)
+                        .build())
                 .retrieve()
                 .bodyToMono(RAWGSearchResponse.class)
                 .block();
@@ -120,7 +126,7 @@ public class GameService {
         return (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
     }
 
-    public GameSaveResultDto saveGameToDatabase(Long rawgId, GameStatus gameStatus) {
+    public GameSaveResultDto saveGame(Long rawgId, GameStatus gameStatus) {
         Optional<Game> existingGame = gameRepository.findByRawgId(rawgId);
         if (existingGame.isPresent()) {
             return new GameSaveResultDto(
@@ -131,23 +137,16 @@ public class GameService {
         }
 
         try {
-            String response = webClient.get()
-                    .uri(rawgApiUrl + "/games/" + rawgId + "?key=" + rawgApiKey)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+            Game game = getRawgGame(rawgId);
 
-            if (response != null) {
-                Game game = parseGameFromRawg(response, rawgId);
-                if (game != null) {
-                    game.setStatus(gameStatus);
-                    Game savedGame = gameRepository.save(game);
-                    return new GameSaveResultDto(
-                            savedGame,
-                            false,
-                            "Game added successfully"
-                    );
-                }
+            if (game != null) {
+                game.setStatus(gameStatus);
+                Game savedGame = gameRepository.save(game);
+                return new GameSaveResultDto(
+                        savedGame,
+                        false,
+                        "Game added successfully"
+                );
             }
         } catch (Exception e) {
             System.err.println("Error fetching game: " + e.getMessage());
@@ -157,11 +156,11 @@ public class GameService {
         throw new RuntimeException("Game not found with ID: " + rawgId);
     }
 
-
     public void deleteGame(Long gameId) {
         gameRepository.deleteById(gameId);
     }
 
+    @Transactional
     public Game updateGame(Long id, GameUpdateRequestDto updateRequest) {
         Game existingGame = gameRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Game not found with id: " + id));
@@ -191,26 +190,6 @@ public class GameService {
             System.err.println("Error parsing game response: " + e.getMessage());
             return null;
         }
-    }
-
-    private List<Game> parseGamesFromResponse(String response) {
-        List<Game> games = new ArrayList<>();
-        try {
-            JsonNode root = objectMapper.readTree(response);
-            JsonNode results = root.get("results");
-
-            if (results != null && results.isArray()) {
-                for (JsonNode gameNode : results) {
-                    Game game = createGameFromRAWGResponse(gameNode);
-                    if (game != null) {
-                        games.add(game);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error parsing games response: " + e.getMessage());
-        }
-        return games;
     }
 
     private Game createGameFromRAWGResponse(JsonNode gameNode) {
@@ -250,26 +229,17 @@ public class GameService {
         }
     }
 
-    public SyncResultDto syncLibraryGames(GameStatus status) {
-        List<Game> libraryGames = gameRepository.findAll()
+    public SyncResultDto syncGames(GameStatus gameStatus) {
+        List<Game> games = gameRepository.findAll()
                 .stream()
-                .filter(game -> game.getStatus() == status)
+                .filter(game -> game.getStatus() == gameStatus)
                 .toList();
 
         int updatedCount = 0;
         List<ChangeDetail> changes = new ArrayList<>();
 
-        for (Game localGame : libraryGames) {
-            String response = webClient.get()
-                    .uri(rawgApiUrl + "/games/" + localGame.getRawgId() + "?key=" + rawgApiKey)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            if (response == null) continue;
-
-            Game latestData = parseGameFromRawg(response, localGame.getRawgId());
-
+        for (Game localGame : games) {
+            Game latestData = getRawgGame(localGame.getRawgId());
             if (latestData == null) continue;
 
             List<FieldChange> fieldChanges = new ArrayList<>();
@@ -303,7 +273,22 @@ public class GameService {
             }
         }
 
-        return new SyncResultDto(libraryGames.size(), updatedCount, changes);
+        return new SyncResultDto(games.size(), updatedCount, changes);
+    }
+
+    private Game getRawgGame(Long rawgId) {
+        String response = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/games/" + rawgId)
+                        .queryParam("key", rawgApiKey)
+                        .build())
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        if (response == null) return null;
+
+        return parseGameFromRawg(response, rawgId);
     }
 
     private static class RAWGSearchResponse {

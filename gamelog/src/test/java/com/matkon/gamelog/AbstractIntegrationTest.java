@@ -1,5 +1,9 @@
 package com.matkon.gamelog;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -19,6 +23,22 @@ public abstract class AbstractIntegrationTest {
 
     public static final String RESPONSE_FILES_PATH = "src/test/resources/__files/response/";
     public static final String GAMES_API_URL = "/api/games";
+
+    protected static WireMockServer wireMockServer;
+
+    @BeforeAll
+    static void startWireMock() {
+        System.out.println("<<<<<<<<<<<<<<<< START");
+        wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig()
+                .port(51499));
+        wireMockServer.start();
+    }
+
+    @AfterAll
+    static void teardown() {
+        System.out.println("<<<<<<<<<<<<<<<< END");
+        wireMockServer.stop();
+    }
 
     @Container
     static final PostgreSQLContainer<?> POSTGRES_CONTAINER =

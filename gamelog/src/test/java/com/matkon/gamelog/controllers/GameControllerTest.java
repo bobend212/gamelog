@@ -1,34 +1,46 @@
 package com.matkon.gamelog.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.matkon.gamelog.AbstractIntegrationTest;
 import com.matkon.gamelog.data.game.Game;
 import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.dto.GameUpdateRequestDto;
 import com.matkon.gamelog.repos.GameRepository;
+import com.matkon.gamelog.services.GameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 class GameControllerTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -39,6 +51,9 @@ class GameControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     GameRepository gameRepository;
+
+    @Mock
+    private GameService gameService;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +72,7 @@ class GameControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldGetLibraryGames_ExcludingWishlist() throws Exception {
+    void getGamesTest_WishlistExcluded() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/library")
                         .param("page", "0")
@@ -75,7 +90,7 @@ class GameControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldGetLibraryGames_OnlyWishlist() throws Exception {
+    void getGamesTest_OnlyWishlist() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/wishlist")
                         .param("page", "0")
@@ -93,7 +108,7 @@ class GameControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldGetLibraryGames_OnlyWishlistForDashboard() throws Exception {
+    void getGamesTest_ForDashboard() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/wishlist/dashboard")
                         .param("page", "0")
@@ -111,7 +126,7 @@ class GameControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldDeleteGame() throws Exception {
+    void deleteGameTest() throws Exception {
         // given
         Game gameToDelete = findByTitle("Elden Ring").orElseThrow();
         Long gameId = gameToDelete.getId();
@@ -120,12 +135,12 @@ class GameControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(delete(GAMES_API_URL + "/{id}", gameId))
                 .andExpect(status().isNoContent());
 
-        // verify game was deleted
-        assert gameRepository.findById(gameId).isEmpty();
+        Optional<Game> deletedGame = gameRepository.findById(gameId);
+        assertFalse(deletedGame.isPresent());
     }
 
     @Test
-    void shouldUpdateGame() throws Exception {
+    void updateGameTest() throws Exception {
         // given
         Game gameToUpdate = findByTitle("Cyberpunk 2077").orElseThrow();
         Long gameId = gameToUpdate.getId();
@@ -161,7 +176,7 @@ class GameControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturnBadRequest_WhenUpdatingNonExistentGame() throws Exception {
+    void updateGameTest_shouldReturnBadRequest() throws Exception {
         // given
         Long nonExistentId = 99999L;
         GameUpdateRequestDto updateRequest = new GameUpdateRequestDto();
@@ -171,6 +186,64 @@ class GameControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(put(GAMES_API_URL + "/{id}", nonExistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void searchGamesTest() throws Exception {
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo(GAMES_API_URL))
+                .withQueryParam("key", equalTo("dummy-key"))
+                .withQueryParam("search", equalTo("witcher"))
+                .withQueryParam("page_size", equalTo("8"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("wiremock/rawg_search_games_response.json")));
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(GAMES_API_URL + "/search")
+                        .param("query", "witcher"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "searchGame_response.json");
+
+        JSONAssert.assertEquals(actualResponse, expectedResponse, JSONCompareMode.LENIENT);
+    }
+
+    @Test
+    public void saveGameTest() throws Exception {
+        Long rawgId = 5001L;
+
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/games/" + rawgId))
+                .withQueryParam("key", equalTo("dummy-key"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("wiremock/rawg_get_game_response.json")));
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/games/add/{rawgId}", rawgId)
+                        .param("gameStatus", GameStatus.PLAYING.name()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "saveGame_response.json");
+
+        JSONAssert.assertEquals(expectedResponse, actualResponse,
+                new CustomComparator(JSONCompareMode.LENIENT,
+                        new Customization("game.createdAt", (o1, o2) -> true),
+                        new Customization("game.updatedAt", (o1, o2) -> true)
+                )
+        );
+    }
+
+    @Test
+    void saveGameTest_badRequest() throws Exception {
+        Long rawgId = 9999L;
+
+        Mockito.when(gameService.saveGame(rawgId, GameStatus.BACKLOG))
+                .thenThrow(new RuntimeException("Error adding game"));
+
+        mockMvc.perform(post("/api/games/add/{rawgId}", rawgId))
                 .andExpect(status().isBadRequest());
     }
 

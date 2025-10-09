@@ -1,0 +1,246 @@
+{
+  "id": 36808,
+  "slug": "fifa-06",
+  "name": "FIFA 06",
+  "name_original": "FIFA 06",
+  "description": "<p>Delivering an unprecedented combination of attacking gameplay, complete customization, and pure authenticity, FIFA Soccer 06 is the total soccer experience. More intuitive gameplay lets you control every move with pinpoint accuracy, enabling you to pass, shoot, and tackle with more responsiveness than ever before. Off the pitch, master the most immersive Manager mode ever. Sign sponsors, monitor the transfer market, and buy players as you discover the stars of tomorrow. Featuring the most comprehensive line-up of licensed leagues, players, and kits from around the world, FIFA Soccer 06 dominates the pitch like never before.</p>",
+  "metacritic": null,
+  "metacritic_platforms": [],
+  "released": "2005-09-26",
+  "tba": false,
+  "updated": "2025-08-18T16:48:38",
+  "background_image": "https://media.rawg.io/media/games/95e/95e64aeb13ec6a25cb3837ee5e6e336b.jpg",
+  "background_image_additional": "https://media.rawg.io/media/screenshots/1dc/1dca8b7c6ef29d10e9173787f5cac984.jpg",
+  "website": "http://fifa06.ea.com",
+  "rating": 3.69,
+  "rating_top": 4,
+  "ratings": [
+    {
+      "id": 4,
+      "title": "recommended",
+      "count": 30,
+      "percent": 49.18
+    },
+    {
+      "id": 5,
+      "title": "exceptional",
+      "count": 14,
+      "percent": 22.95
+    },
+    {
+      "id": 3,
+      "title": "meh",
+      "count": 9,
+      "percent": 14.75
+    },
+    {
+      "id": 1,
+      "title": "skip",
+      "count": 8,
+      "percent": 13.11
+    }
+  ],
+  "reactions": {
+    "3": 1,
+    "7": 1,
+    "12": 1
+  },
+  "added": 122,
+  "added_by_status": {
+    "yet": 6,
+    "owned": 34,
+    "beaten": 41,
+    "toplay": 6,
+    "dropped": 35
+  },
+  "playtime": 0,
+  "screenshots_count": 49,
+  "movies_count": 0,
+  "creators_count": 0,
+  "achievements_count": 0,
+  "parent_achievements_count": 0,
+  "reddit_url": "",
+  "reddit_name": "",
+  "reddit_description": "",
+  "reddit_logo": "",
+  "reddit_count": 0,
+  "twitch_count": 20,
+  "youtube_count": 0,
+  "reviews_text_count": 1,
+  "ratings_count": 60,
+  "suggestions_count": 392,
+  "alternative_names": [
+    "FIFA Soccer 2006"
+  ],
+  "metacritic_url": "",
+  "parents_count": 0,
+  "additions_count": 0,
+  "game_series_count": 31,
+  "user_game": null,
+  "reviews_count": 61,
+  "saturated_color": "0f0f0f",
+  "dominant_color": "0f0f0f",
+  "parent_platforms": [
+    {
+      "platform": {
+        "id": 1,
+        "name": "PC",
+        "slug": "pc"
+      }
+    },
+    {
+      "platform": {
+        "id": 2,
+        "name": "PlayStation",
+        "slug": "playstation"
+      }
+    },
+    {
+      "platform": {
+        "id": 3,
+        "name": "Xbox",
+        "slug": "xbox"
+      }
+    },
+    {
+      "platform": {
+        "id": 7,
+        "name": "Nintendo",
+        "slug": "nintendo"
+      }
+    }
+  ],
+  "platforms": [
+    {
+      "platform": {
+        "id": 4,
+        "name": "PC",
+        "slug": "pc",
+        "image": null,
+        "year_end": null,
+        "year_start": null,
+        "games_count": 556383,
+        "image_background": "https://media.rawg.io/media/games/fc1/fc1307a2774506b5bd65d7e8424664a7.jpg"
+      },
+      "released_at": "2005-09-26",
+      "requirements": {}
+    },
+    {
+      "platform": {
+        "id": 105,
+        "name": "GameCube",
+        "slug": "gamecube",
+        "image": null,
+        "year_end": null,
+        "year_start": null,
+        "games_count": 636,
+        "image_background": "https://media.rawg.io/media/games/d9b/d9bbb8e69f53c4c42b8ff928cb581548.jpg"
+      },
+      "released_at": "2005-09-26",
+      "requirements": {}
+    },
+    {
+      "platform": {
+        "id": 80,
+        "name": "Xbox",
+        "slug": "xbox-old",
+        "image": null,
+        "year_end": null,
+        "year_start": null,
+        "games_count": 744,
+        "image_background": "https://media.rawg.io/media/screenshots/ca0/ca06700d8184f451b99396c23b4ffbe4.jpg"
+      },
+      "released_at": "2005-09-26",
+      "requirements": {}
+    },
+    {
+      "platform": {
+        "id": 15,
+        "name": "PlayStation 2",
+        "slug": "playstation2",
+        "image": null,
+        "year_end": null,
+        "year_start": null,
+        "games_count": 2068,
+        "image_background": "https://media.rawg.io/media/games/615/615e9fc0a325e0d87b84dad029b8b7b9.jpg"
+      },
+      "released_at": "2005-09-26",
+      "requirements": {}
+    },
+    {
+      "platform": {
+        "id": 24,
+        "name": "Game Boy Advance",
+        "slug": "game-boy-advance",
+        "image": null,
+        "year_end": null,
+        "year_start": null,
+        "games_count": 956,
+        "image_background": "https://media.rawg.io/media/screenshots/33c/33c4f185c9f312cfcf5243d496178b11.jpg"
+      },
+      "released_at": "2005-09-26",
+      "requirements": {}
+    }
+  ],
+  "stores": [],
+  "developers": [
+    {
+      "id": 13972,
+      "name": "Electronic Arts Canada",
+      "slug": "ea-canada",
+      "games_count": 143,
+      "image_background": "https://media.rawg.io/media/games/88d/88d4a5e7705e3cb1017b4b62b50f269c.jpg"
+    }
+  ],
+  "genres": [
+    {
+      "id": 15,
+      "name": "Sports",
+      "slug": "sports",
+      "games_count": 22490,
+      "image_background": "https://media.rawg.io/media/games/cb4/cb487ab3c54b81cb685388bab42ec848.jpeg"
+    }
+  ],
+  "tags": [
+    {
+      "id": 31,
+      "name": "Singleplayer",
+      "slug": "singleplayer",
+      "language": "eng",
+      "games_count": 247088,
+      "image_background": "https://media.rawg.io/media/games/310/3106b0e012271c5ffb16497b070be739.jpg"
+    },
+    {
+      "id": 7,
+      "name": "Multiplayer",
+      "slug": "multiplayer",
+      "language": "eng",
+      "games_count": 41932,
+      "image_background": "https://media.rawg.io/media/games/d0f/d0f91fe1d92332147e5db74e207cfc7a.jpg"
+    },
+    {
+      "id": 397,
+      "name": "Online multiplayer",
+      "slug": "online-multiplayer",
+      "language": "eng",
+      "games_count": 3804,
+      "image_background": "https://media.rawg.io/media/games/f46/f466571d536f2e3ea9e815ad17177501.jpg"
+    }
+  ],
+  "publishers": [
+    {
+      "id": 354,
+      "name": "Electronic Arts",
+      "slug": "electronic-arts",
+      "games_count": 1339,
+      "image_background": "https://media.rawg.io/media/games/af7/af7a831001c5c32c46e950cc883b8cb7.jpg"
+    }
+  ],
+  "esrb_rating": {
+    "id": 1,
+    "name": "Everyone",
+    "slug": "everyone"
+  },
+  "clip": null,
+  "description_raw": "Delivering an unprecedented combination of attacking gameplay, complete customization, and pure authenticity, FIFA Soccer 06 is the total soccer experience. More intuitive gameplay lets you control every move with pinpoint accuracy, enabling you to pass, shoot, and tackle with more responsiveness than ever before. Off the pitch, master the most immersive Manager mode ever. Sign sponsors, monitor the transfer market, and buy players as you discover the stars of tomorrow. Featuring the most comprehensive line-up of licensed leagues, players, and kits from around the world, FIFA Soccer 06 dominates the pitch like never before."
+}

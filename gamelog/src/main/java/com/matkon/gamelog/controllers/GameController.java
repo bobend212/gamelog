@@ -1,12 +1,12 @@
 package com.matkon.gamelog.controllers;
 
 import com.matkon.gamelog.data.game.Game;
+import com.matkon.gamelog.data.game.GameReleaseFilter;
+import com.matkon.gamelog.data.game.GameStatus;
+import com.matkon.gamelog.data.game.dto.GameForWishlistDto;
 import com.matkon.gamelog.data.game.dto.GameSaveResultDto;
 import com.matkon.gamelog.data.game.dto.GameSearchResultDto;
-import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.dto.GameUpdateRequestDto;
-import com.matkon.gamelog.data.game.GameReleaseFilter;
-import com.matkon.gamelog.data.game.dto.GameForWishlistDto;
 import com.matkon.gamelog.data.sync.SyncResultDto;
 import com.matkon.gamelog.services.GameService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -75,22 +75,11 @@ public class GameController {
         return ResponseEntity.ok(gameService.searchGames(query));
     }
 
-    @PostMapping("/add-library/{rawgId}")
+    @PostMapping("/add/{rawgId}")
     @Operation(summary = "[RAWG API] Save to LIBRARY by rawgId")
-    public ResponseEntity<GameSaveResultDto> addGameToLibrary(@PathVariable Long rawgId) {
+    public ResponseEntity<GameSaveResultDto> saveGame(@PathVariable Long rawgId, @RequestParam(defaultValue = "BACKLOG") GameStatus gameStatus) {
         try {
-            GameSaveResultDto result = gameService.saveGameToDatabase(rawgId, GameStatus.BACKLOG);
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @PostMapping("/add-wishlist/{rawgId}")
-    @Operation(summary = "[RAWG API] Save to WISHLIST by rawgId")
-    public ResponseEntity<GameSaveResultDto> addToWishlist(@PathVariable Long rawgId) {
-        try {
-            GameSaveResultDto result = gameService.saveGameToDatabase(rawgId, GameStatus.WISHLIST);
+            GameSaveResultDto result = gameService.saveGame(rawgId, gameStatus);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -118,7 +107,7 @@ public class GameController {
     @PatchMapping("/sync-library")
     @Operation(summary = "[RAWG API]  Sync library")
     public ResponseEntity<SyncResultDto> syncLibraryGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status) {
-        SyncResultDto result = gameService.syncLibraryGames(status);
+        SyncResultDto result = gameService.syncGames(status);
         return ResponseEntity.ok(result);
     }
 
