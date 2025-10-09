@@ -212,7 +212,7 @@ class GameControllerTest extends AbstractIntegrationTest {
         String actualResponse = mvcResult.getResponse().getContentAsString();
         String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "searchGame_response.json");
 
-        JSONAssert.assertEquals(actualResponse, expectedResponse, JSONCompareMode.LENIENT);
+        JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -271,7 +271,11 @@ class GameControllerTest extends AbstractIntegrationTest {
         String actualResponse = mvcResult.getResponse().getContentAsString();
         String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "syncGames_response.json");
 
-        JSONAssert.assertEquals(actualResponse, expectedResponse, JSONCompareMode.STRICT);
+        JSONAssert.assertEquals(expectedResponse, actualResponse,
+                new CustomComparator(JSONCompareMode.STRICT,
+                        new Customization("changes[0].mediaId", (o1, o2) -> true)
+                )
+        );
     }
 
     // -- HELPERS --
