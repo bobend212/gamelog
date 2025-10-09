@@ -107,7 +107,7 @@ public class GameController {
     @PatchMapping("/sync-library")
     @Operation(summary = "[RAWG API]  Sync library")
     public ResponseEntity<SyncResultDto> syncLibraryGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status) {
-        SyncResultDto result = gameService.syncGames(status);
+        SyncResultDto result = gameService.syncGamesByStatus(status);
         return ResponseEntity.ok(result);
     }
 

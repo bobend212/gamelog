@@ -28,7 +28,6 @@ public abstract class AbstractIntegrationTest {
 
     @BeforeAll
     static void startWireMock() {
-        System.out.println("<<<<<<<<<<<<<<<< START");
         wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig()
                 .port(51499));
         wireMockServer.start();
@@ -36,7 +35,6 @@ public abstract class AbstractIntegrationTest {
 
     @AfterAll
     static void teardown() {
-        System.out.println("<<<<<<<<<<<<<<<< END");
         wireMockServer.stop();
     }
 

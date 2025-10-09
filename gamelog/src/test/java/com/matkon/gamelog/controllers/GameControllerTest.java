@@ -8,6 +8,7 @@ import com.matkon.gamelog.data.game.GameStatus;
 import com.matkon.gamelog.data.game.dto.GameUpdateRequestDto;
 import com.matkon.gamelog.repos.GameRepository;
 import com.matkon.gamelog.services.GameService;
+import com.matkon.gamelog.services.RawgClientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,6 +56,9 @@ class GameControllerTest extends AbstractIntegrationTest {
 
     @Mock
     private GameService gameService;
+
+    @Mock
+    private RawgClientService rawgClientService;
 
     @BeforeEach
     void setUp() {
@@ -231,7 +236,8 @@ class GameControllerTest extends AbstractIntegrationTest {
         JSONAssert.assertEquals(expectedResponse, actualResponse,
                 new CustomComparator(JSONCompareMode.LENIENT,
                         new Customization("game.createdAt", (o1, o2) -> true),
-                        new Customization("game.updatedAt", (o1, o2) -> true)
+                        new Customization("game.updatedAt", (o1, o2) -> true),
+                        new Customization("game.id", (o1, o2) -> true)
                 )
         );
     }
@@ -245,6 +251,27 @@ class GameControllerTest extends AbstractIntegrationTest {
 
         mockMvc.perform(post("/api/games/add/{rawgId}", rawgId))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void syncGamesTest() throws Exception {
+        Long rawgId = 1003L;
+
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/games/" + rawgId))
+                .withQueryParam("key", equalTo("dummy-key"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("wiremock/rawg_get_game_response.json")));
+
+        MvcResult mvcResult = mockMvc.perform(patch("/api/games/sync-library")
+                        .param("status", "WISHLIST"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "syncGames_response.json");
+
+        JSONAssert.assertEquals(actualResponse, expectedResponse, JSONCompareMode.STRICT);
     }
 
     // -- HELPERS --

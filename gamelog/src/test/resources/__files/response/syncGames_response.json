@@ -1,0 +1,27 @@
+{
+  "totalChecked": 1,
+  "updatedCount": 1,
+  "changes": [
+    {
+      "mediaId": 3,
+      "mediaName": "FIFA 06",
+      "fieldChanges": [
+        {
+          "fieldName": "Release_Date",
+          "oldValue": "2023-08-03",
+          "newValue": "2005-09-26"
+        },
+        {
+          "fieldName": "Title",
+          "oldValue": "Baldur's Gate 3",
+          "newValue": "FIFA 06"
+        },
+        {
+          "fieldName": "Image_Url",
+          "oldValue": "https://example.com/baldur's-gate-3.jpg",
+          "newValue": "https://media.rawg.io/media/games/95e/95e64aeb13ec6a25cb3837ee5e6e336b.jpg"
+        }
+      ]
+    }
+  ]
+}
