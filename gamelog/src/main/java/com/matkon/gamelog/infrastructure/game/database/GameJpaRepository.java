@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
+public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
 
     Optional<GameEntity> findByRawgId(Long rawgId);
 

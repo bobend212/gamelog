@@ -1,6 +1,5 @@
 package com.matkon.gamelog.api.game;
 
-import com.matkon.gamelog.api.sync.SyncResponse;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.SyncResult;

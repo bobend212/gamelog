@@ -1,0 +1,12 @@
+{
+  "status": "COMPLETED",
+  "rating": 9.0,
+  "notes": "Amazing game after patches!",
+  "platform": "PC",
+  "favourite": true,
+  "completedAt": null,
+  "rawgId": 1002,
+  "title": "Cyberpunk 2077",
+  "releaseDate": "2020-12-10",
+  "imageUrl": "https://example.com/cyberpunk-2077.jpg"
+}

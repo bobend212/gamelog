@@ -1,18 +1,16 @@
-package com.matkon.gamelog.controllers;
+package com.matkon.gamelog.api.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.matkon.gamelog.AbstractIntegrationTest;
-import com.matkon.gamelog.data.game.Game;
-import com.matkon.gamelog.data.game.GameStatus;
-import com.matkon.gamelog.data.game.dto.GameUpdateRequestDto;
-import com.matkon.gamelog.repos.GameRepository;
-import com.matkon.gamelog.services.GameService;
-import com.matkon.gamelog.services.RawgClientService;
+import com.matkon.gamelog.domain.game.model.GameStatus;
+import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
+import com.matkon.gamelog.domain.game.service.GameService;
+import com.matkon.gamelog.infrastructure.game.database.GameEntity;
+import com.matkon.gamelog.infrastructure.game.database.GameJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -52,34 +50,34 @@ class GameControllerTest extends AbstractIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    GameRepository gameRepository;
+    GameJpaRepository gameJpaRepository;
 
     @Mock
     private GameService gameService;
 
     @Mock
-    private RawgClientService rawgClientService;
+    private GameInfoPort gameInfoPort;
 
     @BeforeEach
     void setUp() {
-        gameRepository.deleteAll();
+        gameJpaRepository.deleteAll();
 
-        Game game1 = createGame(1001L, "The Witcher 3", GameStatus.COMPLETED, 9.5,
+        GameEntity gameEntity1 = createGame(1001L, "The Witcher 3", GameStatus.COMPLETED, 9.5,
                 LocalDate.of(2015, 5, 19), true);
-        Game game2 = createGame(1002L, "Cyberpunk 2077", GameStatus.PLAYING, 8.0,
+        GameEntity gameEntity2 = createGame(1002L, "Cyberpunk 2077", GameStatus.COMPLETED, 8.0,
                 LocalDate.of(2020, 12, 10), false);
-        Game game3 = createGame(1003L, "Baldur's Gate 3", GameStatus.WISHLIST, null,
+        GameEntity gameEntity3 = createGame(1003L, "Baldur's Gate 3", GameStatus.WISHLIST, null,
                 LocalDate.of(2023, 8, 3), false);
-        Game game4 = createGame(1004L, "Elden Ring", GameStatus.BACKLOG, null,
+        GameEntity gameEntity4 = createGame(1004L, "Elden Ring", GameStatus.BACKLOG, null,
                 LocalDate.of(2022, 2, 25), false);
 
-        gameRepository.saveAll(List.of(game1, game2, game3, game4));
+        gameJpaRepository.saveAll(List.of(gameEntity1, gameEntity2, gameEntity3, gameEntity4));
     }
 
     @Test
-    void getGamesTest_WishlistExcluded() throws Exception {
+    void getGamesTest_All() throws Exception {
         // when
-        MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/library")
+        MvcResult result = mockMvc.perform(get(GAMES_API_URL)
                         .param("page", "0")
                         .param("size", "10")
                         .param("status", "ALL")
@@ -89,43 +87,42 @@ class GameControllerTest extends AbstractIntegrationTest {
 
         // then
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getLibraryGames_wishlistExcluded.json");
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getGames_all_response.json");
 
         JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
 
     @Test
-    void getGamesTest_OnlyWishlist() throws Exception {
+    void getGamesTest_SpecifiedStatus() throws Exception {
+        // when
+        MvcResult result = mockMvc.perform(get(GAMES_API_URL)
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("status", "COMPLETED")
+                        .param("search", ""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        String actualResponse = result.getResponse().getContentAsString();
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getGames_specifiedStatus_response.json");
+
+        JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
+    }
+
+    @Test
+    void getWishlistGamesTest() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/wishlist")
                         .param("page", "0")
                         .param("size", "10")
-                        .param("status", "ALL")
                         .param("search", ""))
                 .andExpect(status().isOk())
                 .andReturn();
 
         // then
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getWishlistGames_onlyWishlist.json");
-
-        JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
-    }
-
-    @Test
-    void getGamesTest_ForDashboard() throws Exception {
-        // when
-        MvcResult result = mockMvc.perform(get(GAMES_API_URL + "/wishlist/dashboard")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("sort", "releaseDate,asc")
-                        .param("release", "ALL"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        // then
-        String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getWishlistGames_ForDashboard.json");
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "getWishlistGames_response.json");
 
         JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
@@ -133,24 +130,34 @@ class GameControllerTest extends AbstractIntegrationTest {
     @Test
     void deleteGameTest() throws Exception {
         // given
-        Game gameToDelete = findByTitle("Elden Ring").orElseThrow();
-        Long gameId = gameToDelete.getId();
+        GameEntity gameEntityToDelete = findByTitle("Elden Ring").orElseThrow();
+        Long gameId = gameEntityToDelete.getId();
 
         // when & then
         mockMvc.perform(delete(GAMES_API_URL + "/{id}", gameId))
                 .andExpect(status().isNoContent());
 
-        Optional<Game> deletedGame = gameRepository.findById(gameId);
+        Optional<GameEntity> deletedGame = gameJpaRepository.findById(gameId);
         assertFalse(deletedGame.isPresent());
+    }
+
+    @Test
+    void deleteGameTest_shouldReturnNotFound() throws Exception {
+        // given
+        Long nonExistentId = 99999L;
+
+        // when & then
+        mockMvc.perform(delete(GAMES_API_URL + "/{id}", nonExistentId))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void updateGameTest() throws Exception {
         // given
-        Game gameToUpdate = findByTitle("Cyberpunk 2077").orElseThrow();
-        Long gameId = gameToUpdate.getId();
+        GameEntity gameEntityToUpdate = findByTitle("Cyberpunk 2077").orElseThrow();
+        Long gameId = gameEntityToUpdate.getId();
 
-        GameUpdateRequestDto updateRequest = new GameUpdateRequestDto();
+        GameUpdateRequest updateRequest = new GameUpdateRequest();
         updateRequest.setNotes("Amazing game after patches!");
         updateRequest.setRating(9.0);
         updateRequest.setStatus(GameStatus.COMPLETED);
@@ -166,32 +173,32 @@ class GameControllerTest extends AbstractIntegrationTest {
 
         // then
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "updated_game_full.json");
+        String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "updateGame_response.json");
 
         JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
 
         // verify in database
-        Game updatedGame = gameRepository.findById(gameId).orElseThrow();
+        GameEntity updatedGameEntity = gameJpaRepository.findById(gameId).orElseThrow();
         assertAll("Verify updated game fields",
-                () -> assertEquals("Amazing game after patches!", updatedGame.getNotes(), "Notes do not match"),
-                () -> assertEquals(9.0, updatedGame.getRating(), "Rating does not match"),
-                () -> assertEquals(GameStatus.COMPLETED, updatedGame.getStatus(), "Status does not match"),
-                () -> assertTrue(updatedGame.isFavourite(), "Favourite flag should be true")
+                () -> assertEquals("Amazing game after patches!", updatedGameEntity.getNotes(), "Notes do not match"),
+                () -> assertEquals(9.0, updatedGameEntity.getRating(), "Rating does not match"),
+                () -> assertEquals(GameStatus.COMPLETED, updatedGameEntity.getStatus(), "Status does not match"),
+                () -> assertTrue(updatedGameEntity.isFavourite(), "Favourite flag should be true")
         );
     }
 
     @Test
-    void updateGameTest_shouldReturnBadRequest() throws Exception {
+    void updateGameTest_shouldReturnNotFound() throws Exception {
         // given
         Long nonExistentId = 99999L;
-        GameUpdateRequestDto updateRequest = new GameUpdateRequestDto();
+        GameUpdateRequest updateRequest = new GameUpdateRequest();
         updateRequest.setNotes("This should fail");
 
         // when & then
         mockMvc.perform(put(GAMES_API_URL + "/{id}", nonExistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -216,6 +223,22 @@ class GameControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void searchGamesTest_shouldReturnNotFound() throws Exception {
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo(GAMES_API_URL))
+                .withQueryParam("key", equalTo("dummy-key"))
+                .withQueryParam("search", equalTo("non-existing-title"))
+                .withQueryParam("page_size", equalTo("8"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile(null)));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(GAMES_API_URL + "/search")
+                        .param("query", "non-existing-title"))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     public void saveGameTest() throws Exception {
         Long rawgId = 5001L;
 
@@ -225,7 +248,7 @@ class GameControllerTest extends AbstractIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("wiremock/rawg_get_game_response.json")));
 
-        MvcResult mvcResult = mockMvc.perform(post("/api/games/add/{rawgId}", rawgId)
+        MvcResult mvcResult = mockMvc.perform(post("/api/games/save/{rawgId}", rawgId)
                         .param("gameStatus", GameStatus.PLAYING.name()))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -233,24 +256,7 @@ class GameControllerTest extends AbstractIntegrationTest {
         String actualResponse = mvcResult.getResponse().getContentAsString();
         String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "saveGame_response.json");
 
-        JSONAssert.assertEquals(expectedResponse, actualResponse,
-                new CustomComparator(JSONCompareMode.LENIENT,
-                        new Customization("game.createdAt", (o1, o2) -> true),
-                        new Customization("game.updatedAt", (o1, o2) -> true),
-                        new Customization("game.id", (o1, o2) -> true)
-                )
-        );
-    }
-
-    @Test
-    void saveGameTest_badRequest() throws Exception {
-        Long rawgId = 9999L;
-
-        Mockito.when(gameService.saveGame(rawgId, GameStatus.BACKLOG))
-                .thenThrow(new RuntimeException("Error adding game"));
-
-        mockMvc.perform(post("/api/games/add/{rawgId}", rawgId))
-                .andExpect(status().isBadRequest());
+        JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -263,7 +269,7 @@ class GameControllerTest extends AbstractIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("wiremock/rawg_get_game_response.json")));
 
-        MvcResult mvcResult = mockMvc.perform(patch("/api/games/sync-library")
+        MvcResult mvcResult = mockMvc.perform(patch("/api/games/sync")
                         .param("status", "WISHLIST"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -280,22 +286,22 @@ class GameControllerTest extends AbstractIntegrationTest {
 
     // -- HELPERS --
 
-    private Game createGame(Long rawgId, String title, GameStatus status, Double rating,
-                            LocalDate releaseDate, boolean favourite) {
-        Game game = new Game();
-        game.setRawgId(rawgId);
-        game.setTitle(title);
-        game.setStatus(status);
-        game.setRating(rating);
-        game.setReleaseDate(releaseDate);
-        game.setFavourite(favourite);
-        game.setImageUrl("https://example.com/" + title.toLowerCase().replace(" ", "-") + ".jpg");
-        game.setPlatform("PC");
-        return game;
+    private GameEntity createGame(Long rawgId, String title, GameStatus status, Double rating,
+                                  LocalDate releaseDate, boolean favourite) {
+        GameEntity gameEntity = new GameEntity();
+        gameEntity.setRawgId(rawgId);
+        gameEntity.setTitle(title);
+        gameEntity.setStatus(status);
+        gameEntity.setRating(rating);
+        gameEntity.setReleaseDate(releaseDate);
+        gameEntity.setFavourite(favourite);
+        gameEntity.setImageUrl("https://example.com/" + title.toLowerCase().replace(" ", "-") + ".jpg");
+        gameEntity.setPlatform("PC");
+        return gameEntity;
     }
 
-    private Optional<Game> findByTitle(String title) {
-        return gameRepository.findAll().stream()
+    private Optional<GameEntity> findByTitle(String title) {
+        return gameJpaRepository.findAll().stream()
                 .filter(g -> g.getTitle().equals(title))
                 .findFirst();
     }

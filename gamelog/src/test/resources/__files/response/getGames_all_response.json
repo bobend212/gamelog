@@ -1,0 +1,72 @@
+{
+  "content" : [ {
+    "status" : "COMPLETED",
+    "rating" : 8.0,
+    "notes" : null,
+    "platform" : "PC",
+    "favourite" : false,
+    "completedAt" : null,
+    "rawgId" : 1002,
+    "title" : "Cyberpunk 2077",
+    "releaseDate" : "2020-12-10",
+    "imageUrl" : "https://example.com/cyberpunk-2077.jpg"
+  }, {
+    "status" : "BACKLOG",
+    "rating" : null,
+    "notes" : null,
+    "platform" : "PC",
+    "favourite" : false,
+    "completedAt" : null,
+    "rawgId" : 1004,
+    "title" : "Elden Ring",
+    "releaseDate" : "2022-02-25",
+    "imageUrl" : "https://example.com/elden-ring.jpg"
+  }, {
+    "status" : "WISHLIST",
+    "rating" : null,
+    "notes" : null,
+    "platform" : "PC",
+    "favourite" : false,
+    "completedAt" : null,
+    "rawgId" : 1003,
+    "title" : "Baldur's Gate 3",
+    "releaseDate" : "2023-08-03",
+    "imageUrl" : "https://example.com/baldur's-gate-3.jpg"
+  }, {
+    "status" : "COMPLETED",
+    "rating" : 9.5,
+    "notes" : null,
+    "platform" : "PC",
+    "favourite" : true,
+    "completedAt" : null,
+    "rawgId" : 1001,
+    "title" : "The Witcher 3",
+    "releaseDate" : "2015-05-19",
+    "imageUrl" : "https://example.com/the-witcher-3.jpg"
+  } ],
+  "pageable" : {
+    "pageNumber" : 0,
+    "pageSize" : 10,
+    "sort" : {
+      "empty" : true,
+      "sorted" : false,
+      "unsorted" : true
+    },
+    "offset" : 0,
+    "paged" : true,
+    "unpaged" : false
+  },
+  "last" : true,
+  "totalElements" : 4,
+  "totalPages" : 1,
+  "size" : 10,
+  "number" : 0,
+  "sort" : {
+    "empty" : true,
+    "sorted" : false,
+    "unsorted" : true
+  },
+  "first" : true,
+  "numberOfElements" : 4,
+  "empty" : false
+}

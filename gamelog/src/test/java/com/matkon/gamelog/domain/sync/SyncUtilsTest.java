@@ -1,4 +1,4 @@
-package com.matkon.gamelog.data.sync;
+package com.matkon.gamelog.domain.sync;
 
 import org.junit.jupiter.api.Test;
 
