@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,10 +41,9 @@ class GameController {
             @RequestParam(defaultValue = "8") int size,
             @RequestParam(defaultValue = "ALL") String status,
             @RequestParam(defaultValue = "") String search) {
-        return ResponseEntity.ok(
-                gameService.getGames(page, size, status, search)
-                        .map(gameMapper::mapGameToGameResponse)
-        );
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(gameService.getGames(page, size, status, search)
+                        .map(gameMapper::mapGameToGameResponse));
     }
 
     @GetMapping("/wishlist")
@@ -54,10 +54,9 @@ class GameController {
             @RequestParam(defaultValue = "8") int size,
             @RequestParam(defaultValue = "") String search
     ) {
-        return ResponseEntity.ok(
-                gameService.getGames(page, size, GameStatus.WISHLIST.name(), search)
-                        .map(gameMapper::mapGameToGameWishlistResponse)
-        );
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(gameService.getGames(page, size, GameStatus.WISHLIST.name(), search)
+                        .map(gameMapper::mapGameToGameWishlistResponse));
     }
 
     @GetMapping("/search")
@@ -67,22 +66,23 @@ class GameController {
             @ApiResponse(responseCode = "404", description = "Not found - Nothing found by query.")
     })
     public ResponseEntity<List<GameSearchResponse>> searchGames(@RequestParam String query) {
-        return ResponseEntity.ok(
-                gameService.searchGames(query)
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(gameService.searchGames(query)
                         .stream().map(gameMapper::mapGameToGameSearchResponse).toList());
     }
 
     @PostMapping("/save/{rawgId}")
     @Operation(summary = "[RAWG API] Save game - by rawgId")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully added to library."),
+            @ApiResponse(responseCode = "201", description = "Successfully added to library."),
             @ApiResponse(responseCode = "409", description = "Conflict - The game already exist in the db."),
             @ApiResponse(responseCode = "404", description = "Not Found - The game does not exist in the API")
     })
     public ResponseEntity<GameResponse> saveGame(@PathVariable Long rawgId,
                                                  @RequestParam(defaultValue = "BACKLOG") GameStatus gameStatus) {
-        return ResponseEntity.ok(gameMapper.mapGameToGameResponse(
-                gameService.saveGame(rawgId, gameStatus)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(gameMapper.mapGameToGameResponse(
+                        gameService.saveGame(rawgId, gameStatus)));
     }
 
     @DeleteMapping("/{id}")
@@ -93,7 +93,7 @@ class GameController {
     })
     public ResponseEntity<Void> deleteGame(@PathVariable Long id) {
         gameService.deleteGame(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/{id}")
@@ -105,17 +105,18 @@ class GameController {
     public ResponseEntity<GameResponse> updateGame(@PathVariable Long id, @RequestBody GameUpdateRequest gameUpdateRequest) {
 
         GameUpdate gameUpdate = gameMapper.mapGameUpdateRequestToGameUpdate(gameUpdateRequest);
-        return ResponseEntity.ok(
-                gameMapper.mapGameToGameResponse(
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(gameMapper.mapGameToGameResponse(
                         gameService.updateGame(id, gameUpdate)));
 
     }
 
     @PatchMapping("/sync")
     @Operation(summary = "[RAWG API] Sync games data with RAWG API - by status")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
     public ResponseEntity<SyncResponse> syncGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status) {
-        return ResponseEntity.ok(
-                gameMapper.mapSyncResultToSyncResponse(
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(gameMapper.mapSyncResultToSyncResponse(
                         gameService.syncGamesByStatus(status)));
     }
 }

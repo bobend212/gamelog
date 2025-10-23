@@ -250,13 +250,37 @@ class GameControllerTest extends AbstractIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(post("/api/games/save/{rawgId}", rawgId)
                         .param("gameStatus", GameStatus.PLAYING.name()))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String actualResponse = mvcResult.getResponse().getContentAsString();
         String expectedResponse = readJsonFile(RESPONSE_FILES_PATH, "saveGame_response.json");
 
         JSONAssert.assertEquals(expectedResponse, actualResponse, JSONCompareMode.LENIENT);
+    }
+
+    @Test
+    public void saveGameTest_shouldThrowGameAlreadyExistException() throws Exception {
+        mockMvc.perform(post("/api/games/save/{rawgId}", 1001L)
+                        .param("gameStatus", GameStatus.PLAYING.name()))
+                .andExpect(status().isConflict())
+                .andReturn();
+    }
+
+    @Test
+    public void saveGameTest_shouldThrowGameNotFoundException() throws Exception {
+        Long rawgId = 5001L;
+
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/games/" + rawgId))
+                .withQueryParam("key", equalTo("dummy-key"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("wiremock/rawg_get_game_response.json")));
+
+        mockMvc.perform(post("/api/games/save/{rawgId}", 5005L)
+                        .param("gameStatus", GameStatus.PLAYING.name()))
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test

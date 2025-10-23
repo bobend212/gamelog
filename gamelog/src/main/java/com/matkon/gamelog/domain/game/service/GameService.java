@@ -13,6 +13,8 @@ import com.matkon.gamelog.domain.game.ports.in.UpdateGameUseCase;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
 import com.matkon.gamelog.domain.game.ports.out.GamePersistencePort;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -32,26 +34,31 @@ public class GameService
     }
 
     @Override
+    @Cacheable("games")
     public Page<Game> getGames(int page, int size, String status, String searchTerm) {
         return gamePersistencePort.getGames(page, size, status, searchTerm);
     }
 
     @Override
+    @CacheEvict(value = "games", allEntries = true)
     public Game saveGame(Long rawgId, GameStatus gameStatus) {
         return gamePersistencePort.saveGame(rawgId, gameStatus);
     }
 
     @Override
+    @CacheEvict(value = "games", allEntries = true)
     public void deleteGame(Long gameId) {
         gamePersistencePort.deleteGame(gameId);
     }
 
     @Override
+    @CacheEvict(value = "games", allEntries = true)
     public Game updateGame(Long id, GameUpdate gameUpdate) {
         return gamePersistencePort.updateGame(id, gameUpdate);
     }
 
     @Override
+    @CacheEvict(value = "games", allEntries = true)
     public SyncResult syncGamesByStatus(GameStatus gameStatus) {
         return gamePersistencePort.syncGamesByStatus(gameStatus);
     }

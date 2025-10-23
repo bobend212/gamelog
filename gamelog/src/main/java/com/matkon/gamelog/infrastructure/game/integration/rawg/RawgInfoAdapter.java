@@ -4,6 +4,7 @@ import com.matkon.gamelog.domain.game.exception.GameNotFoundException;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -47,6 +48,9 @@ class RawgInfoAdapter implements GameInfoPort {
                         .path("/games/" + rawgId)
                         .build())
                 .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, (req, res) -> {
+                    throw new GameNotFoundException("Game with following ID '%s' does not exist in the API".formatted(rawgId));
+                })
                 .body(RawgGameInfoDto.class);
 
         if (response == null) {

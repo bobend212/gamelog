@@ -28,8 +28,7 @@ public abstract class AbstractIntegrationTest {
 
     @BeforeAll
     static void startWireMock() {
-        wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig()
-                .port(51499));
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
         wireMockServer.start();
     }
 
@@ -52,6 +51,11 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.url", POSTGRES_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRES_CONTAINER::getPassword);
+    }
+
+    @DynamicPropertySource
+    static void wiremockProperties(DynamicPropertyRegistry registry) {
+        registry.add("rawg.api.url", () -> "http://localhost:" + wireMockServer.port() + "/api");
     }
 
     protected String readJsonFile(String path, String fileName) {

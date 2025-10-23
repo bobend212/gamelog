@@ -3,15 +3,15 @@ package com.matkon.gamelog.infrastructure.game.database;
 import com.matkon.gamelog.api.game.GameMapper;
 import com.matkon.gamelog.domain.game.exception.GameAlreadyExistException;
 import com.matkon.gamelog.domain.game.exception.GameNotFoundException;
-import com.matkon.gamelog.domain.game.model.FieldDifference;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.SyncResult;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
 import com.matkon.gamelog.domain.game.ports.out.GamePersistencePort;
-import com.matkon.gamelog.domain.sync.SyncUtils;
+import com.matkon.gamelog.domain.sync.game.GameSyncStrategy;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,17 +19,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 class GamePersistencePortImpl implements GamePersistencePort {
 
     private final GameJpaRepository gameJpaRepository;
     private final GameMapper gameMapper;
-    private GameInfoPort gameInfoPort;
+    private final GameInfoPort gameInfoPort;
+    private final GameSyncStrategy syncStrategy;
 
     @Override
     public Page<Game> getGames(int page, int size, String status, String searchTerm) {
@@ -54,32 +55,25 @@ class GamePersistencePortImpl implements GamePersistencePort {
 
     @Override
     public Game saveGame(Long rawgId, GameStatus gameStatus) {
-        Optional<GameEntity> existingGameOpt = gameJpaRepository.findByRawgId(rawgId);
+        gameJpaRepository.findByRawgId(rawgId)
+                .ifPresent(game -> {
+                    throw new GameAlreadyExistException(rawgId);
+                });
 
-        if (existingGameOpt.isPresent()) {
-            throw new GameAlreadyExistException(rawgId);
-        }
+        Game game = Optional.ofNullable(gameInfoPort.getGameDetails(rawgId))
+                .orElseThrow(() -> new GameNotFoundException("Game with ID '%s' not found in external API".formatted(rawgId)));
 
-        try {
-            Game game = gameInfoPort.getGameDetails(rawgId);
+        game.setStatus(gameStatus);
+        GameEntity savedGameEntity = gameJpaRepository.save(gameMapper.mapGameToGameEntity(game));
 
-            if (game != null) {
-                game.setStatus(gameStatus);
-                GameEntity savedGameEntity = gameJpaRepository.save(gameMapper.mapGameToGameEntity(game));
-                return gameMapper.mapGameEntityToGame(savedGameEntity);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error adding game to library");
-        }
-
-        throw new GameNotFoundException("Game with following ID '%s' does not exist in the API".formatted(rawgId));
+        log.info("Game saved successfully: id={}", rawgId);
+        return gameMapper.mapGameEntityToGame(savedGameEntity);
     }
 
     @Override
     public void deleteGame(Long gameId) {
-        boolean exists = gameJpaRepository.existsById(gameId);
-        if (!exists) {
-            throw new GameNotFoundException("Game not found with ID: " + gameId);
+        if (!gameJpaRepository.existsById(gameId)) {
+            throw new GameNotFoundException("Game with ID '%s' not found in the database".formatted(gameId));
         }
         gameJpaRepository.deleteById(gameId);
     }
@@ -102,61 +96,12 @@ class GamePersistencePortImpl implements GamePersistencePort {
     }
 
     @Override
-    public SyncResult syncGamesByStatus(GameStatus gameStatus) {
-        List<GameEntity> gameEntities = gameJpaRepository.findAll()
+    public SyncResult syncGamesByStatus(GameStatus status) {
+        List<GameEntity> games = gameJpaRepository.findAll()
                 .stream()
-                .filter(game -> game.getStatus() == gameStatus)
+                .filter(game -> game.getStatus() == status)
                 .toList();
 
-        int updatedCount = 0;
-        List<FieldDifference> changes = new ArrayList<>();
-
-        for (GameEntity localGameEntity : gameEntities) {
-            Game latestData = gameInfoPort.getGameDetails(localGameEntity.getRawgId());
-            if (latestData == null) continue;
-
-            boolean changed = false;
-
-            String gameTitle = localGameEntity.getTitle();
-            if (SyncUtils.areDatesDifferent(localGameEntity.getReleaseDate(), latestData.getReleaseDate())) {
-                changes.add(FieldDifference.builder()
-                        .title(gameTitle)
-                        .fieldName("ReleaseDate")
-                        .oldValue(String.valueOf(localGameEntity.getReleaseDate()))
-                        .newValue(String.valueOf(latestData.getReleaseDate()))
-                        .build());
-                localGameEntity.setReleaseDate(latestData.getReleaseDate());
-                changed = true;
-            }
-
-            if (SyncUtils.areStringsDifferent(gameTitle, latestData.getTitle())) {
-                changes.add(FieldDifference.builder()
-                        .title(gameTitle)
-                        .fieldName("Title")
-                        .oldValue(gameTitle)
-                        .newValue(latestData.getTitle())
-                        .build());
-                localGameEntity.setTitle(latestData.getTitle());
-                changed = true;
-            }
-
-            if (SyncUtils.areStringsDifferent(localGameEntity.getImageUrl(), latestData.getImageUrl())) {
-                changes.add(FieldDifference.builder()
-                        .title(gameTitle)
-                        .fieldName("ImageUrl")
-                        .oldValue(localGameEntity.getImageUrl())
-                        .newValue(latestData.getImageUrl())
-                        .build());
-                localGameEntity.setImageUrl(latestData.getImageUrl());
-                changed = true;
-            }
-
-            if (changed) {
-                gameJpaRepository.save(localGameEntity);
-                updatedCount++;
-            }
-        }
-
-        return new SyncResult(gameEntities.size(), updatedCount, changes);
+        return syncStrategy.sync(games);
     }
 }
