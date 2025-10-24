@@ -1,0 +1,38 @@
+{
+  "content": [
+    {
+      "id": 3,
+      "title": "Baldur's Gate 3",
+      "releaseDate": "2023-08-03",
+      "tba": false,
+      "daysToRelease": null,
+      "released": true,
+      "imageUrl": "https://example.com/baldur's-gate-3.jpg"
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10,
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalPages": 1,
+  "totalElements": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "numberOfElements": 1,
+  "first": true,
+  "empty": false
+}

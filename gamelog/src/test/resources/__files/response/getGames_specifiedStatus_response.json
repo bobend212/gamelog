@@ -1,0 +1,50 @@
+{
+  "content" : [ {
+    "status" : "COMPLETED",
+    "rating" : 8.0,
+    "notes" : null,
+    "platform" : "PC",
+    "favourite" : false,
+    "completedAt" : null,
+    "rawgId" : 1002,
+    "title" : "Cyberpunk 2077",
+    "releaseDate" : "2020-12-10",
+    "imageUrl" : "https://example.com/cyberpunk-2077.jpg"
+  }, {
+    "status" : "COMPLETED",
+    "rating" : 9.5,
+    "notes" : null,
+    "platform" : "PC",
+    "favourite" : true,
+    "completedAt" : null,
+    "rawgId" : 1001,
+    "title" : "The Witcher 3",
+    "releaseDate" : "2015-05-19",
+    "imageUrl" : "https://example.com/the-witcher-3.jpg"
+  } ],
+  "pageable" : {
+    "pageNumber" : 0,
+    "pageSize" : 10,
+    "sort" : {
+      "empty" : true,
+      "sorted" : false,
+      "unsorted" : true
+    },
+    "offset" : 0,
+    "unpaged" : false,
+    "paged" : true
+  },
+  "last" : true,
+  "totalPages" : 1,
+  "totalElements" : 2,
+  "size" : 10,
+  "number" : 0,
+  "sort" : {
+    "empty" : true,
+    "sorted" : false,
+    "unsorted" : true
+  },
+  "numberOfElements" : 2,
+  "first" : true,
+  "empty" : false
+}

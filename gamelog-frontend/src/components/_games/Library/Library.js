@@ -46,19 +46,18 @@ const Library = () => {
   const loadLibraryGames = async (page) => {
     try {
       setLoading(true);
-      const response = await gameService.getLibraryGames(
+      const response = await gameService.getGames(
         page,
         pageSize,
         statusFilter,
-        debouncedSearchTerm // ✅ Use debounced term for API call
+        debouncedSearchTerm
       );
 
-      const totalCountResponse = await gameService.getAllLibraryGames();
-
+      const totalCountResponse = await gameService.getGames(0, 2000);
       setGames(response.content || []);
       setTotalPages(response.totalPages || 0);
       setTotalGames(response.totalElements || 0);
-      setAllGamesCount(totalCountResponse.length || 0); // Total count
+      setAllGamesCount(totalCountResponse.totalElements || 0); // Total count
     } catch (err) {
       setError(err.message);
       setGames([]);
@@ -149,6 +148,7 @@ const Library = () => {
                 className="filter-select"
               >
                 <option value="ALL">All</option>
+                <option value="WISHLIST">Wishlist</option>
                 <option value="PLAYING">Playing</option>
                 <option value="COMPLETED">Completed</option>
                 <option value="BACKLOG">Backlog</option>

@@ -9,7 +9,7 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
   const handleDelete = async () => {
-    if (window.confirm(`Are you want to remove "${game.title}" from the Library?`)) {
+    if (window.confirm(`Do you want to remove "${game.title}" from the Library?`)) {
       try {
         setIsUpdating(true);
         await gameService.deleteGame(game.id);
