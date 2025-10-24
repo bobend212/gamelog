@@ -21,19 +21,19 @@ const SearchResultCard = ({ game, onGameAdded }) => {
   const handleSaveGame = async (gameStatus) => {
     try {
       const result = await gameService.saveGame(game.rawgId, gameStatus);
-      if (result.alreadyExists) {
-        handleGameAlreadyExists(result.game);
+      setIsAdding(true);
+      if (gameStatus === "WISHLIST") {
+        toast.success(`"${game.title}" saved to Wishlist! 🟣`);
       } else {
-        setIsAdding(true);
-        if (gameStatus === "WISHLIST") {
-          toast.success(`"${game.title}" saved to Wishlist! 🟣`);
-        } else {
-          toast.success(`"${game.title}" saved to Backlog! 🟢`);
-          openEditModalFor(result);
-        }
+        toast.success(`"${game.title}" saved to Backlog! 🟢`);
+        openEditModalFor(result);
       }
     } catch (error) {
-      alert("Game save failed");
+      if (error.status === 409) {
+        handleGameAlreadyExists(error.message);
+      } else {
+        alert("Game save failed");
+      }
     } finally {
       setIsAdding(false);
     }
@@ -52,7 +52,7 @@ const SearchResultCard = ({ game, onGameAdded }) => {
 
   const handleEditSave = async (updatedGame) => {
     try {
-      await gameService.updateGame(gameData.game.id, updatedGame);
+      await gameService.updateGame(gameData.id, updatedGame);
       setShowEditModal(false);
       toast.success(`"${game.title}" saved to Library! 🟢`);
       onGameAdded();
@@ -62,8 +62,8 @@ const SearchResultCard = ({ game, onGameAdded }) => {
     }
   };
 
-  const handleGameAlreadyExists = (game) => {
-    toast.warning(`"${game.title}" is already in the database!`, {
+  const handleGameAlreadyExists = (msg) => {
+    toast.warning(`${msg}`, {
       icon: "⚠️",
       autoClose: 3000,
       position: "bottom-right",
@@ -111,7 +111,7 @@ const SearchResultCard = ({ game, onGameAdded }) => {
           </div>
         </div>
       </div>
-      {showEditModal && gameData.game && (
+      {showEditModal && gameData && (
         <EditGameModal
           game={game}
           onSave={handleEditSave}

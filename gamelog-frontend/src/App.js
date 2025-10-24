@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './components/_games/Dashboard/Dashboard';
 import Library from './components/_games/Library/Library';
-import Wishlist from './components/_games/Wishlist/Wishlist';
 import GameSearch from './components/_games/Search/GameSearch';
 import './App.css';
 import { ToastContainer } from 'react-toastify';
@@ -29,7 +28,6 @@ function App() {
             {/* Games */}
             <Route path="/games/dashboard" element={<Dashboard />} />
             <Route path="/games/library" element={<Library />} />
-            <Route path="/games/wishlist" element={<Wishlist />} />
             <Route path="/games/sync" element={<SyncLibrary />} />
             <Route path="/games/search" element={<GameSearch />} />
 
