@@ -1,6 +1,5 @@
 package com.matkon.gamelog.infrastructure.game.database;
 
-import com.matkon.gamelog.api.game.GameMapper;
 import com.matkon.gamelog.domain.game.exception.GameAlreadyExistException;
 import com.matkon.gamelog.domain.game.exception.GameNotFoundException;
 import com.matkon.gamelog.domain.game.model.Game;

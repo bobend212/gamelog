@@ -3,7 +3,6 @@ package com.matkon.gamelog.api.game;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.SyncResult;
-import com.matkon.gamelog.infrastructure.game.database.GameEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -11,9 +10,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 @Mapper(componentModel = "spring")
-public interface GameMapper {
-
-    Game mapGameEntityToGame(GameEntity gameEntity);
+public interface GameApiMapper {
 
     GameResponse mapGameToGameResponse(Game game);
 
@@ -23,8 +20,6 @@ public interface GameMapper {
     @Mapping(target = "tba", expression = "java(game.getReleaseDate() == null)")
     @Mapping(target = "released", expression = "java(isReleased(game.getReleaseDate()))")
     GameWishlistResponse mapGameToGameWishlistResponse(Game game);
-
-    GameEntity mapGameToGameEntity(Game game);
 
     GameUpdate mapGameUpdateRequestToGameUpdate(GameUpdateRequest gameUpdateRequest);
 

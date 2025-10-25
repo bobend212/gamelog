@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +30,7 @@ import java.util.List;
 class GameController {
 
     private final GameService gameService;
-    private final GameMapper gameMapper;
+    private final GameApiMapper gameApiMapper;
 
     @GetMapping()
     @Operation(summary = "Get ALL games - by status and search query")
@@ -43,7 +42,7 @@ class GameController {
             @RequestParam(defaultValue = "") String search) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(gameService.getGames(page, size, status, search)
-                        .map(gameMapper::mapGameToGameResponse));
+                        .map(gameApiMapper::mapGameToGameResponse));
     }
 
     @GetMapping("/wishlist")
@@ -56,7 +55,7 @@ class GameController {
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(gameService.getGames(page, size, GameStatus.WISHLIST.name(), search)
-                        .map(gameMapper::mapGameToGameWishlistResponse));
+                        .map(gameApiMapper::mapGameToGameWishlistResponse));
     }
 
     @GetMapping("/search")
@@ -68,7 +67,7 @@ class GameController {
     public ResponseEntity<List<GameSearchResponse>> searchGames(@RequestParam String query) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(gameService.searchGames(query)
-                        .stream().map(gameMapper::mapGameToGameSearchResponse).toList());
+                        .stream().map(gameApiMapper::mapGameToGameSearchResponse).toList());
     }
 
     @PostMapping("/save/{rawgId}")
@@ -81,7 +80,7 @@ class GameController {
     public ResponseEntity<GameResponse> saveGame(@PathVariable Long rawgId,
                                                  @RequestParam(defaultValue = "BACKLOG") GameStatus gameStatus) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(gameMapper.mapGameToGameResponse(
+                .body(gameApiMapper.mapGameToGameResponse(
                         gameService.saveGame(rawgId, gameStatus)));
     }
 
@@ -104,9 +103,9 @@ class GameController {
     })
     public ResponseEntity<GameResponse> updateGame(@PathVariable Long id, @RequestBody GameUpdateRequest gameUpdateRequest) {
 
-        GameUpdate gameUpdate = gameMapper.mapGameUpdateRequestToGameUpdate(gameUpdateRequest);
+        GameUpdate gameUpdate = gameApiMapper.mapGameUpdateRequestToGameUpdate(gameUpdateRequest);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(gameMapper.mapGameToGameResponse(
+                .body(gameApiMapper.mapGameToGameResponse(
                         gameService.updateGame(id, gameUpdate)));
 
     }
@@ -116,7 +115,7 @@ class GameController {
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
     public ResponseEntity<SyncResponse> syncGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(gameMapper.mapSyncResultToSyncResponse(
+                .body(gameApiMapper.mapSyncResultToSyncResponse(
                         gameService.syncGamesByStatus(status)));
     }
 }
