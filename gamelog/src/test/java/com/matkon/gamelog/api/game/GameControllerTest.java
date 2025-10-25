@@ -37,7 +37,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -165,7 +164,7 @@ class GameControllerTest extends AbstractIntegrationTest {
         updateRequest.setPlatform("PC");
 
         // when
-        MvcResult result = mockMvc.perform(put(GAMES_API_URL + "/{id}", gameId)
+        MvcResult result = mockMvc.perform(patch(GAMES_API_URL + "/{id}", gameId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
@@ -195,7 +194,7 @@ class GameControllerTest extends AbstractIntegrationTest {
         updateRequest.setNotes("This should fail");
 
         // when & then
-        mockMvc.perform(put(GAMES_API_URL + "/{id}", nonExistentId)
+        mockMvc.perform(patch(GAMES_API_URL + "/{id}", nonExistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isNotFound());

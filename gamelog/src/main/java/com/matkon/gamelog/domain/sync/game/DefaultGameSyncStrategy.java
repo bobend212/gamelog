@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class DefaultGameSyncStrategy implements GameSyncStrategy {
@@ -39,13 +38,11 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
             if (latestData == null) continue;
 
             boolean changed = false;
-
             for (FieldSyncStrategy fieldSyncStrategy : fieldSyncStrategies) {
-                Optional<FieldDifference> diffOpt = fieldSyncStrategy.syncField(localGame, latestData);
-                if (diffOpt.isPresent()) {
-                    changes.add(diffOpt.get());
-                    changed = true;
-                }
+                boolean thisChanged = fieldSyncStrategy.syncField(localGame, latestData)
+                        .map(changes::add)
+                        .orElse(false);
+                changed = changed || thisChanged;
             }
 
             if (changed) {

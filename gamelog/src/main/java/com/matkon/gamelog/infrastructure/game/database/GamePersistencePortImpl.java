@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,13 +83,12 @@ class GamePersistencePortImpl implements GamePersistencePort {
         GameEntity existingGameEntity = gameJpaRepository.findById(id)
                 .orElseThrow(() -> new GameNotFoundException("Game not found with id: " + id));
 
-        existingGameEntity.setPlatform(updateRequest.getPlatform());
-        existingGameEntity.setStatus(updateRequest.getStatus());
-        existingGameEntity.setRating(updateRequest.getRating());
-        existingGameEntity.setNotes(updateRequest.getNotes());
-        existingGameEntity.setCompletedAt(updateRequest.getCompletedAt());
-        existingGameEntity.setUpdatedAt(LocalDateTime.now());
-        existingGameEntity.setFavourite(updateRequest.isFavourite());
+        Optional.ofNullable(updateRequest.getPlatform()).ifPresent(existingGameEntity::setPlatform);
+        Optional.ofNullable(updateRequest.getStatus()).ifPresent(existingGameEntity::setStatus);
+        Optional.ofNullable(updateRequest.getRating()).ifPresent(existingGameEntity::setRating);
+        Optional.ofNullable(updateRequest.getNotes()).ifPresent(existingGameEntity::setNotes);
+        Optional.ofNullable(updateRequest.getCompletedAt()).ifPresent(existingGameEntity::setCompletedAt);
+        Optional.ofNullable(updateRequest.getFavourite()).ifPresent(existingGameEntity::setFavourite);
 
         return gameMapper.mapGameEntityToGame(existingGameEntity);
     }

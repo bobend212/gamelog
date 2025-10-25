@@ -96,7 +96,7 @@ class GameController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @Operation(summary = "Update game - by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully updated the game."),

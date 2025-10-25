@@ -18,5 +18,5 @@ public class GameUpdate {
     private Double rating;
     private String notes;
     private LocalDate completedAt;
-    private boolean favourite;
+    private Boolean favourite;
 }
