@@ -7,7 +7,7 @@ const gameService = {
   saveGame: async (rawgId, gameStatus) => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/save/${rawgId}`,
+        `${API_BASE_URL}/${rawgId}`,
         null,
         {
           params: { gameStatus },
@@ -59,7 +59,7 @@ const gameService = {
         completedAt: updateData.completedAt || null,
         favourite: updateData.favourite || false,
       };
-      const response = await axios.put(
+      const response = await axios.patch(
         `${API_BASE_URL}/${gameId}`,
         requestBody
       );
@@ -91,7 +91,7 @@ const gameService = {
   syncLibraryGames: async (status) => {
     try {
       const response = await axios.patch(
-        `${API_BASE_URL}/sync`,
+        `http://localhost:8080/api/sync/games`,
         null,
         {
           params: { status },
