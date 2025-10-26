@@ -1,24 +1,23 @@
-package com.matkon.gamelog.domain.sync.game;
+package com.matkon.gamelog.domain.game.sync;
 
 import com.matkon.gamelog.domain.game.model.FieldDifference;
 import com.matkon.gamelog.domain.game.model.Game;
-import com.matkon.gamelog.domain.sync.SyncUtils;
+import com.matkon.gamelog.domain.common.sync.SyncUtils;
 import com.matkon.gamelog.infrastructure.game.database.GameEntity;
 
 import java.util.Optional;
 
-public class ImageUrlSyncStrategy implements FieldSyncStrategy {
-
+public class ReleaseDateSyncStrategy implements FieldSyncStrategy {
     @Override
     public Optional<FieldDifference> syncField(GameEntity localGame, Game latestData) {
-        if (SyncUtils.areStringsDifferent(localGame.getImageUrl(), latestData.getImageUrl())) {
+        if (SyncUtils.areDatesDifferent(localGame.getReleaseDate(), latestData.getReleaseDate())) {
             FieldDifference diff = FieldDifference.builder()
                     .title(latestData.getTitle())
-                    .fieldName("ImageUrl")
-                    .oldValue(localGame.getImageUrl())
-                    .newValue(latestData.getImageUrl())
+                    .fieldName("ReleaseDate")
+                    .oldValue(String.valueOf(localGame.getReleaseDate()))
+                    .newValue(String.valueOf(latestData.getReleaseDate()))
                     .build();
-            localGame.setImageUrl(latestData.getImageUrl());
+            localGame.setReleaseDate(latestData.getReleaseDate());
             return Optional.of(diff);
         }
         return Optional.empty();

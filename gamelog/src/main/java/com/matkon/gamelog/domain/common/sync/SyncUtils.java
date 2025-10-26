@@ -1,4 +1,4 @@
-package com.matkon.gamelog.domain.sync;
+package com.matkon.gamelog.domain.common.sync;
 
 import java.time.LocalDate;
 import java.util.HashSet;

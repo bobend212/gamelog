@@ -8,7 +8,7 @@ import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.SyncResult;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
 import com.matkon.gamelog.domain.game.ports.out.GamePersistencePort;
-import com.matkon.gamelog.domain.sync.game.GameSyncStrategy;
+import com.matkon.gamelog.domain.game.sync.GameSyncStrategy;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

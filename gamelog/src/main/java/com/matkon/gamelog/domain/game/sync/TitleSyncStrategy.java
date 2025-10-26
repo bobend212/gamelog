@@ -1,23 +1,24 @@
-package com.matkon.gamelog.domain.sync.game;
+package com.matkon.gamelog.domain.game.sync;
 
 import com.matkon.gamelog.domain.game.model.FieldDifference;
 import com.matkon.gamelog.domain.game.model.Game;
-import com.matkon.gamelog.domain.sync.SyncUtils;
+import com.matkon.gamelog.domain.common.sync.SyncUtils;
 import com.matkon.gamelog.infrastructure.game.database.GameEntity;
 
 import java.util.Optional;
 
-public class ReleaseDateSyncStrategy implements FieldSyncStrategy {
+public class TitleSyncStrategy implements FieldSyncStrategy {
+
     @Override
     public Optional<FieldDifference> syncField(GameEntity localGame, Game latestData) {
-        if (SyncUtils.areDatesDifferent(localGame.getReleaseDate(), latestData.getReleaseDate())) {
+        if (SyncUtils.areStringsDifferent(localGame.getTitle(), latestData.getTitle())) {
             FieldDifference diff = FieldDifference.builder()
                     .title(latestData.getTitle())
-                    .fieldName("ReleaseDate")
-                    .oldValue(String.valueOf(localGame.getReleaseDate()))
-                    .newValue(String.valueOf(latestData.getReleaseDate()))
+                    .fieldName("Title")
+                    .oldValue(localGame.getTitle())
+                    .newValue(latestData.getTitle())
                     .build();
-            localGame.setReleaseDate(latestData.getReleaseDate());
+            localGame.setTitle(latestData.getTitle());
             return Optional.of(diff);
         }
         return Optional.empty();

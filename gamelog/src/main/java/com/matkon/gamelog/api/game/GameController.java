@@ -70,7 +70,7 @@ class GameController {
                         .stream().map(gameApiMapper::mapGameToGameSearchResponse).toList());
     }
 
-    @PostMapping("/save/{rawgId}")
+    @PostMapping("/{rawgId}")
     @Operation(summary = "[RAWG API] Save game - by rawgId")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully added to library."),
@@ -108,14 +108,5 @@ class GameController {
                 .body(gameApiMapper.mapGameToGameResponse(
                         gameService.updateGame(id, gameUpdate)));
 
-    }
-
-    @PatchMapping("/sync")
-    @Operation(summary = "[RAWG API] Sync games data with RAWG API - by status")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
-    public ResponseEntity<SyncResponse> syncGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(gameApiMapper.mapSyncResultToSyncResponse(
-                        gameService.syncGamesByStatus(status)));
     }
 }

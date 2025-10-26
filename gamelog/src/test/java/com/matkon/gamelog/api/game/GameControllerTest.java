@@ -292,7 +292,7 @@ class GameControllerTest extends AbstractIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("wiremock/rawg_get_game_response.json")));
 
-        MvcResult mvcResult = mockMvc.perform(patch("/api/games/sync")
+        MvcResult mvcResult = mockMvc.perform(patch("/api/sync/games")
                         .param("status", "WISHLIST"))
                 .andExpect(status().isOk())
                 .andReturn();

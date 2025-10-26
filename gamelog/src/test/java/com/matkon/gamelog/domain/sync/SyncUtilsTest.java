@@ -1,5 +1,6 @@
 package com.matkon.gamelog.domain.sync;
 
+import com.matkon.gamelog.domain.common.sync.SyncUtils;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

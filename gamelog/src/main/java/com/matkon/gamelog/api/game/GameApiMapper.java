@@ -2,7 +2,6 @@ package com.matkon.gamelog.api.game;
 
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
-import com.matkon.gamelog.domain.game.model.SyncResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -22,9 +21,6 @@ public interface GameApiMapper {
     GameWishlistResponse mapGameToGameWishlistResponse(Game game);
 
     GameUpdate mapGameUpdateRequestToGameUpdate(GameUpdateRequest gameUpdateRequest);
-
-    @Mapping(source = "fieldDifferences", target = "fieldChanges")
-    SyncResponse mapSyncResultToSyncResponse(SyncResult syncResult);
 
     // default methods
     default Long calculateDaysToRelease(LocalDate releaseDate) {

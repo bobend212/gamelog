@@ -1,4 +1,4 @@
-package com.matkon.gamelog.domain.sync.game;
+package com.matkon.gamelog.domain.game.sync;
 
 import com.matkon.gamelog.domain.game.model.SyncResult;
 import com.matkon.gamelog.infrastructure.game.database.GameEntity;

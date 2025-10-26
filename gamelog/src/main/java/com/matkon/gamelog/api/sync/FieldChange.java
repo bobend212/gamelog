@@ -1,4 +1,4 @@
-package com.matkon.gamelog.api.game;
+package com.matkon.gamelog.api.sync;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
