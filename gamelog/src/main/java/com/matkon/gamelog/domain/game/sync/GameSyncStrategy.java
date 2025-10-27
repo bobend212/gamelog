@@ -1,12 +1,12 @@
 package com.matkon.gamelog.domain.game.sync;
 
+import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.SyncResult;
-import com.matkon.gamelog.infrastructure.game.database.GameEntity;
 
 import java.util.List;
 
 public interface GameSyncStrategy {
 
-    SyncResult sync(List<GameEntity> games);
+    SyncResult sync(List<Game> games);
 }
 

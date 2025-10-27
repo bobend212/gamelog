@@ -98,7 +98,6 @@ class GamePersistencePortImpl implements GamePersistencePort {
                 .stream()
                 .filter(game -> game.getStatus() == status)
                 .toList();
-
-        return syncStrategy.sync(games);
+        return syncStrategy.sync(games.stream().map(gameMapper::mapGameEntityToGame).toList());
     }
 }

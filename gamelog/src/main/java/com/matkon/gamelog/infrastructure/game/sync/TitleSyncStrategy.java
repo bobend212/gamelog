@@ -1,16 +1,16 @@
-package com.matkon.gamelog.domain.game.sync;
+package com.matkon.gamelog.infrastructure.game.sync;
 
+import com.matkon.gamelog.domain.common.sync.SyncUtils;
 import com.matkon.gamelog.domain.game.model.FieldDifference;
 import com.matkon.gamelog.domain.game.model.Game;
-import com.matkon.gamelog.domain.common.sync.SyncUtils;
-import com.matkon.gamelog.infrastructure.game.database.GameEntity;
+import com.matkon.gamelog.domain.game.sync.FieldSyncStrategy;
 
 import java.util.Optional;
 
 public class TitleSyncStrategy implements FieldSyncStrategy {
 
     @Override
-    public Optional<FieldDifference> syncField(GameEntity localGame, Game latestData) {
+    public Optional<FieldDifference> syncField(Game localGame, Game latestData) {
         if (SyncUtils.areStringsDifferent(localGame.getTitle(), latestData.getTitle())) {
             FieldDifference diff = FieldDifference.builder()
                     .title(latestData.getTitle())

@@ -1,11 +1,13 @@
-package com.matkon.gamelog.domain.game.sync;
+package com.matkon.gamelog.infrastructure.game.sync;
 
 import com.matkon.gamelog.domain.game.model.FieldDifference;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.SyncResult;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
-import com.matkon.gamelog.infrastructure.game.database.GameEntity;
+import com.matkon.gamelog.domain.game.sync.FieldSyncStrategy;
+import com.matkon.gamelog.domain.game.sync.GameSyncStrategy;
 import com.matkon.gamelog.infrastructure.game.database.GameJpaRepository;
+import com.matkon.gamelog.infrastructure.game.database.GameMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,10 +19,12 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
     private final GameInfoPort gameInfoPort;
     private final GameJpaRepository gameJpaRepository;
     private final List<FieldSyncStrategy> fieldSyncStrategies;
+    private final GameMapper gameMapper;
 
-    public DefaultGameSyncStrategy(GameInfoPort gameInfoPort, GameJpaRepository repository) {
+    public DefaultGameSyncStrategy(GameInfoPort gameInfoPort, GameJpaRepository repository, GameMapper gameMapper) {
         this.gameInfoPort = gameInfoPort;
         this.gameJpaRepository = repository;
+        this.gameMapper = gameMapper;
         this.fieldSyncStrategies = List.of(
                 new ReleaseDateSyncStrategy(),
                 new TitleSyncStrategy(),
@@ -29,11 +33,11 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
     }
 
     @Override
-    public SyncResult sync(List<GameEntity> gameEntities) {
+    public SyncResult sync(List<Game> gameEntities) {
         int updatedCount = 0;
         List<FieldDifference> changes = new ArrayList<>();
 
-        for (GameEntity localGame : gameEntities) {
+        for (Game localGame : gameEntities) {
             Game latestData = gameInfoPort.getGameDetails(localGame.getRawgId());
             if (latestData == null) continue;
 
@@ -45,8 +49,9 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
                 changed = changed || thisChanged;
             }
 
+
             if (changed) {
-                gameJpaRepository.save(localGame);
+                gameJpaRepository.save(gameMapper.mapGameToGameEntity(localGame));
                 updatedCount++;
             }
         }
