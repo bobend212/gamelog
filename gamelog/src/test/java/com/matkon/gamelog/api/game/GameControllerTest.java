@@ -4,13 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.matkon.gamelog.AbstractIntegrationTest;
 import com.matkon.gamelog.domain.game.model.GameStatus;
-import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
-import com.matkon.gamelog.domain.game.service.GameService;
 import com.matkon.gamelog.infrastructure.game.database.GameEntity;
 import com.matkon.gamelog.infrastructure.game.database.GameJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -50,12 +47,6 @@ class GameControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     GameJpaRepository gameJpaRepository;
-
-    @Mock
-    private GameService gameService;
-
-    @Mock
-    private GameInfoPort gameInfoPort;
 
     @BeforeEach
     void setUp() {
@@ -247,7 +238,7 @@ class GameControllerTest extends AbstractIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("wiremock/rawg_get_game_response.json")));
 
-        MvcResult mvcResult = mockMvc.perform(post("/api/games/save/{rawgId}", rawgId)
+        MvcResult mvcResult = mockMvc.perform(post(GAMES_API_URL + "/{rawgId}", rawgId)
                         .param("gameStatus", GameStatus.PLAYING.name()))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -260,7 +251,7 @@ class GameControllerTest extends AbstractIntegrationTest {
 
     @Test
     public void saveGameTest_shouldThrowGameAlreadyExistException() throws Exception {
-        mockMvc.perform(post("/api/games/save/{rawgId}", 1001L)
+        mockMvc.perform(post(GAMES_API_URL + "/{rawgId}", 1001L)
                         .param("gameStatus", GameStatus.PLAYING.name()))
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -276,7 +267,7 @@ class GameControllerTest extends AbstractIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("wiremock/rawg_get_game_response.json")));
 
-        mockMvc.perform(post("/api/games/save/{rawgId}", 5005L)
+        mockMvc.perform(post(GAMES_API_URL + "/{rawgId}", 5005L)
                         .param("gameStatus", GameStatus.PLAYING.name()))
                 .andExpect(status().isNotFound())
                 .andReturn();
