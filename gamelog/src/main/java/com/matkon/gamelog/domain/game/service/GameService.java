@@ -3,7 +3,7 @@ package com.matkon.gamelog.domain.game.service;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
-import com.matkon.gamelog.domain.game.model.SyncResult;
+import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.ports.in.DeleteGameUseCase;
 import com.matkon.gamelog.domain.game.ports.in.GetGamesUseCase;
 import com.matkon.gamelog.domain.game.ports.in.SaveGameUseCase;
