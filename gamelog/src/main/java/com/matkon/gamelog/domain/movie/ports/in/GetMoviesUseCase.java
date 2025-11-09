@@ -5,5 +5,5 @@ import org.springframework.data.domain.Page;
 
 public interface GetMoviesUseCase {
 
-    Page<Movie> getMovies(int page, int size);
+    Page<Movie> getMovies(int page, int size, String search);
 }

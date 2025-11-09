@@ -23,6 +23,7 @@ public abstract class AbstractIntegrationTest {
 
     public static final String RESPONSE_FILES_PATH = "src/test/resources/__files/response/";
     public static final String GAMES_API_URL = "/api/games";
+    public static final String MOVIES_API_URL = "/api/movies";
 
     protected static WireMockServer wireMockServer;
 

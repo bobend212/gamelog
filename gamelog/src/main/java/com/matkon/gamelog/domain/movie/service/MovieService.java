@@ -26,8 +26,8 @@ public class MovieService implements GetMoviesUseCase, GetSingleMovieUseCase,
     private MovieInfoPort movieInfoPort;
 
     @Override
-    public Page<Movie> getMovies(int page, int size) {
-        return moviePersistencePort.getMovies(page, size);
+    public Page<Movie> getMovies(int page, int size, String search) {
+        return moviePersistencePort.getMovies(page, size, search);
     }
 
     @Override

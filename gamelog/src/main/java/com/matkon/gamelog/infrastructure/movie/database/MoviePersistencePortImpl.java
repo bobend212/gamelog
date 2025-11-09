@@ -30,9 +30,9 @@ public class MoviePersistencePortImpl implements MoviePersistencePort {
     private final List<MovieSyncStrategy> syncStrategies;
 
     @Override
-    public Page<Movie> getMovies(int page, int size) {
+    public Page<Movie> getMovies(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<MovieEntity> movies = movieJpaRepository.findAll(pageable);
+        Page<MovieEntity> movies = movieJpaRepository.findMovies(pageable, search);
         return movies.map(movieMapper::mapMovieEntityToMovie);
     }
 

@@ -46,7 +46,7 @@ public class SyncController {
     @PatchMapping("/movies/{movieId}")
     @Operation(summary = "[TMDB API] Sync single movie - by movieId")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
-    public ResponseEntity<SyncResponse> syncMovies(@PathVariable Long movieId) {
+    public ResponseEntity<SyncResponse> syncSingleMovie(@PathVariable Long movieId) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(syncApiMapper.mapSyncResultToSyncResponse(
                         movieService.syncSingleMovie(movieId)));

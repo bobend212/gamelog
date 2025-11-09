@@ -29,20 +29,21 @@ public class MovieController {
     private final MovieApiMapper movieApiMapper;
 
     @GetMapping()
-    @Operation(summary = "Get ALL movies")
+    @Operation(summary = "Get ALL movies - with search by title, originalTitle and genres")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
     public ResponseEntity<Page<MovieListResponse>> getMovies(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String search) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.getMovies(page, size)
+                .body(movieService.getMovies(page, size, search)
                         .map(movieApiMapper::mapMovieToMovieListResponse));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "[TMDB API] Get Movie by ID + fetch TMDB additional data")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
-    public ResponseEntity<MovieResponse> getMovie(@PathVariable Long id) {
+    public ResponseEntity<MovieResponse> getSingleMovie(@PathVariable Long id) {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(movieApiMapper.mapMovieToMovieResponse(

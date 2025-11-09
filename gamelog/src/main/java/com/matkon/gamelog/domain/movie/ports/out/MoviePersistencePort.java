@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 
 public interface MoviePersistencePort {
 
-    Page<Movie> getMovies(int page, int size);
+    Page<Movie> getMovies(int page, int size, String search);
 
     Movie getSingleMovie(Long id);
 

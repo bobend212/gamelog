@@ -155,7 +155,7 @@ const MovieSearch = () => {
                                 {/* Poster */}
                                 <Avatar
                                     variant="rounded"
-                                    src={POSTER_PATH_BASE_W200 + movie.poster_path}
+                                    src={POSTER_PATH_BASE_W200 + movie.poster}
                                     alt={movie.title}
                                     sx={{
                                         width: "100%",
@@ -196,7 +196,7 @@ const MovieSearch = () => {
                                 <IconButton
                                     color="primary"
                                     aria-label="Add movie"
-                                    onClick={() => handleAddMovie(movie.id)}
+                                    onClick={() => handleAddMovie(movie.tmdbId)}
                                     size="small"
                                     sx={{ alignSelf: "center" }}
                                 >

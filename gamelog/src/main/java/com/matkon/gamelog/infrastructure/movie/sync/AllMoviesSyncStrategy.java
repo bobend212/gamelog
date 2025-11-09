@@ -27,11 +27,6 @@ public class AllMoviesSyncStrategy implements MovieSyncStrategy {
         this.movieJpaRepository = movieJpaRepository;
         this.movieMapper = movieMapper;
         this.movieFieldSyncStrategies = List.of(
-                new MovieTitleSyncStrategy(),
-                new MovieOriginalTitleSyncStrategy(),
-                new MovieReleaseDateSyncStrategy(),
-                new MovieStatusSyncStrategy(),
-                new MoviePosterSyncStrategy(),
                 new MovieVodProvidersSyncStrategy()
         );
     }
