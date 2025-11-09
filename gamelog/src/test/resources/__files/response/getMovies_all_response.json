@@ -1,0 +1,89 @@
+{
+  "content": [
+    {
+      "id": 4,
+      "title": "Jurassic World: Odrodzenie",
+      "originalTitle": "Jurassic World: Rebirth",
+      "releaseDate": "2025-07-14",
+      "status": "Released",
+      "poster": "/jwrebirthpl54fd.jpg",
+      "genres": [
+        "Action"
+      ],
+      "vodProviders": []
+    },
+    {
+      "id": 3,
+      "title": "Bugonia",
+      "originalTitle": "Bugonia",
+      "releaseDate": "2025-06-07",
+      "status": "Released",
+      "poster": "/bugonia987sdsa3.jpg",
+      "genres": [
+        "Sci-Fi",
+        "Mystery"
+      ],
+      "vodProviders": [
+        "HBO",
+        "Disney+"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Paranormalna misja",
+      "originalTitle": "Paranormal Mission",
+      "releaseDate": "2025-03-12",
+      "status": "Released",
+      "poster": "/x8TdWFrEOpMaPb8AENSxGvQyvC9.jpg",
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "vodProviders": [
+        "Netflix",
+        "Prime Video"
+      ]
+    },
+    {
+      "id": 1,
+      "title": "Wiedźmin",
+      "originalTitle": "The Wither",
+      "releaseDate": "2015-05-19",
+      "status": "Released",
+      "poster": "/1s4OrFrEOpP3Pb89ETNxSDQyvQX.jpg",
+      "genres": [
+        "Horror",
+        "Fantasy"
+      ],
+      "vodProviders": [
+        "Netflix",
+        "HBO"
+      ]
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10,
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 4,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "empty": false,
+    "sorted": true,
+    "unsorted": false
+  },
+  "numberOfElements": 4,
+  "first": true,
+  "empty": false
+}

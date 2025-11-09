@@ -56,25 +56,21 @@ const SyncMovies = ({ onSyncComplete }) => {
 
                 {syncSummary && (
                     <Box sx={{ color: '#9ca3af', textAlign: 'center' }}>
-                        <Typography>Total Checked: {syncSummary.totalChecked}</Typography>
-                        <Typography>Series Updated: {syncSummary.updatedCount}</Typography>
-                        {syncSummary.changes.length > 0 &&
+                        <Typography>Movies Processed: {syncSummary.itemsProcessed}</Typography>
+                        <Typography>Movies Updated: {syncSummary.itemsUpdated}</Typography>
+                        {syncSummary.fieldChanges.length > 0 &&
                             <div>
                                 <h3>Updated Movies Details</h3>
-                                <ul>
-                                    {syncSummary.changes.map(change => (
-                                        <li key={change.mediaId}>
-                                            <strong>{change.mediaName}</strong>
-                                            <ul>
-                                                {change.fieldChanges.map((field, index) => (
-                                                    <li style={{ listStyle: 'none' }} key={index}>
-                                                        {field.fieldName}: <del>{field.oldValue ?? 'null'}</del> → <ins>{field.newValue ?? 'null'}</ins>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                {/* <ul> */}
+                                {syncSummary.fieldChanges.map((field, index) => (
+                                    <ul>
+                                        <li key={field.id}><strong>{field.title}</strong></li>
+                                        <li key={field.id}>
+                                            {field.fieldName}: <del>{field.oldValue ?? 'null'}</del> → <ins>{field.newValue ?? 'null'}</ins>
                                         </li>
-                                    ))}
-                                </ul>
+                                    </ul>
+                                ))}
+                                {/* </ul> */}
                             </div>
                         }
                     </Box>

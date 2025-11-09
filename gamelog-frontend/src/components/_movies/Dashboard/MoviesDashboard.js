@@ -14,27 +14,39 @@ import { toast } from 'react-toastify';
 
 const MoviesDashboard = () => {
     const [moviesList, setMoviesList] = useState([]);
-    const [allMovies, setAllMovies] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
-    const [moviesPage, setMoviesPage] = useState({ content: [], totalElements: 0, number: 0, size: 10 });
+
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [loading, setLoading] = useState(true);
+    const [moviesPage, setMoviesPage] = useState({ content: [], totalElements: 0 });
 
     useEffect(() => {
-        loadMovies(page, rowsPerPage);
-    }, []);
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setPage(0);
+        }, 300);
 
-    const loadMovies = async (pageParam, sizeParam) => {
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchQuery]);
+
+    useEffect(() => {
+        loadMovies(page, rowsPerPage, debouncedSearch);
+    }, [page, rowsPerPage, debouncedSearch]);
+
+    const loadMovies = async (pageParam, sizeParam, search) => {
         setLoading(true);
         try {
-            const data = await moviesService.getAllMoviesWithPagination(pageParam, sizeParam);
+            const data = await moviesService.getAllMovies(pageParam, sizeParam, search);
             setMoviesList(data.content);
             setMoviesPage(data);
-
-            const allMovies = await moviesService.getAllMovies();
-            setAllMovies(allMovies);
+        } catch (error) {
+            toast.error("Failed to load movies");
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -44,7 +56,7 @@ const MoviesDashboard = () => {
         if (window.confirm("Are you sure you want to delete this movie?")) {
             try {
                 await moviesService.deleteMovie(movieId);
-                await loadMovies(page, rowsPerPage);
+                await loadMovies(page, rowsPerPage, searchQuery);
                 toast.success('Movie deleted.', { autoClose: 2000 });
             } catch (error) {
                 alert("Failed to delete the movie.");
@@ -55,39 +67,19 @@ const MoviesDashboard = () => {
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
-        if (!searchQuery) {
-            loadMovies(newPage, rowsPerPage);
-        }
     };
 
     const handleChangeRowsPerPage = (event) => {
         const newSize = parseInt(event.target.value, 10);
         setRowsPerPage(newSize);
         setPage(0);
-        if (!searchQuery) {
-            loadMovies(0, newSize);
-        }
     };
 
-    const sourceData = searchQuery ? allMovies : moviesList;
-    const filteredMovies = sourceData.filter(movie => {
-        if (!searchQuery) return true;
-
-        const q = searchQuery.toLowerCase();
-        const titleMatch = movie.title.toLowerCase().includes(q);
-        const originalTitleMatch = movie.originalTitle.toLowerCase().includes(q);
-        const vodMatch = movie.vodProviders?.some(provider =>
-            provider.split(';')[1].toLowerCase().includes(q)
-        ) || false;
-        const genreMatch = movie.genres?.some(provider =>
-            provider.toLowerCase().includes(q)
-        ) || false;
-        return titleMatch || originalTitleMatch || vodMatch || genreMatch;
-    });
-
-    const displayedMovies = searchQuery
-        ? filteredMovies.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-        : filteredMovies;
+    const clearFilters = () => {
+        setSearchQuery('');
+        setDebouncedSearch(''); // ✅ Also clear debounced term
+        setPage(0);
+    };
 
     return (
         <>
@@ -110,7 +102,7 @@ const MoviesDashboard = () => {
                     {searchQuery && (
                         <IconButton
                             aria-label="clear search"
-                            onClick={() => setSearchQuery('')}
+                            onClick={clearFilters}
                             size="small"
                             sx={{
                                 ml: 1,
@@ -147,7 +139,7 @@ const MoviesDashboard = () => {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                displayedMovies
+                                moviesList
                                     .map(movie => {
                                         return (
                                             <TableRow
@@ -220,7 +212,7 @@ const MoviesDashboard = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                         <TablePagination
                             component="div"
-                            count={searchQuery ? filteredMovies.length : moviesPage.totalElements}
+                            count={moviesPage.totalElements}
                             page={page}
                             onPageChange={handleChangePage}
                             rowsPerPage={rowsPerPage}

@@ -80,7 +80,7 @@ const MovieDetails = () => {
 
     const handleSync = async (movieId) => {
         try {
-            const result = await moviesService.syncMovies(movieId);
+            const result = await moviesService.syncMovieById(movieId);
             setSyncSummary(result);
 
             await fetchMovie(movieId);

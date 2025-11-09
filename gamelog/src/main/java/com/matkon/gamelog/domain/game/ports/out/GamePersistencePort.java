@@ -3,7 +3,7 @@ package com.matkon.gamelog.domain.game.ports.out;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
-import com.matkon.gamelog.domain.game.model.SyncResult;
+import com.matkon.gamelog.domain.common.sync.SyncResult;
 import org.springframework.data.domain.Page;
 
 public interface GamePersistencePort {

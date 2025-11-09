@@ -5,7 +5,7 @@ import com.matkon.gamelog.domain.game.exception.GameNotFoundException;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
-import com.matkon.gamelog.domain.game.model.SyncResult;
+import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
 import com.matkon.gamelog.domain.game.ports.out.GamePersistencePort;
 import com.matkon.gamelog.domain.game.sync.GameSyncStrategy;

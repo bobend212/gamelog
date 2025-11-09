@@ -1,4 +1,4 @@
-package com.matkon.gamelog.legacy.data.movie;
+package com.matkon.gamelog.infrastructure.movie.database;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -27,7 +27,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Movie {
+public class MovieEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
