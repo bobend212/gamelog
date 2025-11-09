@@ -2,10 +2,12 @@ package com.matkon.gamelog.api.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.matkon.gamelog.AbstractIntegrationTest;
+import com.matkon.gamelog.IntegrationTest;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.infrastructure.game.database.GameEntity;
 import com.matkon.gamelog.infrastructure.game.database.GameJpaRepository;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.Customization;
@@ -13,8 +15,9 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -26,6 +29,13 @@ import java.util.Optional;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.matkon.gamelog.IntegrationTestHelper.GAMES_API_URL;
+import static com.matkon.gamelog.IntegrationTestHelper.RESPONSE_FILES_PATH;
+import static com.matkon.gamelog.IntegrationTestHelper.readJsonFile;
+import static com.matkon.gamelog.IntegrationTestHelper.startWireMock;
+import static com.matkon.gamelog.IntegrationTestHelper.stopWireMock;
+import static com.matkon.gamelog.IntegrationTestHelper.wireMockServer;
+import static com.matkon.gamelog.IntegrationTestHelper.wiremockProperties;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -36,8 +46,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-class GameControllerTest extends AbstractIntegrationTest {
+@IntegrationTest
+class GameControllerTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -47,6 +57,21 @@ class GameControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     GameJpaRepository gameJpaRepository;
+
+    @DynamicPropertySource
+    static void configure(DynamicPropertyRegistry registry) {
+        wiremockProperties(registry);
+    }
+
+    @BeforeAll
+    static void beforeAll() {
+        startWireMock();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        stopWireMock();
+    }
 
     @BeforeEach
     void setUp() {
