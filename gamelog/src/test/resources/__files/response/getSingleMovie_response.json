@@ -1,0 +1,20 @@
+{
+  "tmdbId": 1,
+  "title": "Wiedźmin",
+  "originalTitle": "The Wither",
+  "overview": "Niemcy, XIX wiek. Młoda udręczona kobieta staje się obiektem obsesji starożytnego transylwańskiego wampira, który zaczyna ją prześladować. Wprowadza do jej życia niewypowiedziany horror.",
+  "releaseDate": "2015-05-19",
+  "releaseDatePL": "2025-02-21",
+  "runtime": 133,
+  "status": "Released",
+  "poster": "/1s4OrFrEOpP3Pb89ETNxSDQyvQX.jpg",
+  "genres": [
+    "Horror",
+    "Fantasy"
+  ],
+  "vodProviders": [
+    "Netflix",
+    "HBO"
+  ],
+  "createdAt" : "2023-02-09T10:10:10"
+}

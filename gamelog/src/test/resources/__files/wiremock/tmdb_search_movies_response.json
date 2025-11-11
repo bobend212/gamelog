@@ -1,0 +1,26 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/3JFsKuQkTh7ZtmPWKGDq2BoLtTI.jpg",
+      "genre_ids": [
+        878,
+        80
+      ],
+      "id": 701387,
+      "original_language": "en",
+      "original_title": "Bugonia",
+      "overview": "Wpływowa dyrektor generalna wielkiej korporacji (Emma Stone) zostaje porwana przez dwóch mężczyzn, którzy mają bzika na punkcie teorii spiskowych. Uważają, że kobieta jest kosmitką, a ich plan zakłada ratunek Ziemi przed domniemaną inwazją obcych.",
+      "popularity": 42.3019,
+      "poster_path": "/inKvg8MT59w7wsxq1MggjTZqROn.jpg",
+      "release_date": "2025-10-23",
+      "title": "Bugonia",
+      "video": false,
+      "vote_average": 7.606,
+      "vote_count": 282
+    }
+  ],
+  "total_pages": 1,
+  "total_results": 1
+}

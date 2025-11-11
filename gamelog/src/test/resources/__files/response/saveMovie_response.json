@@ -1,0 +1,22 @@
+{
+  "tmdbId": 808,
+  "title": "Shrek",
+  "originalTitle": "Shrek",
+  "overview": null,
+  "releaseDate": "2001-05-18",
+  "releaseDatePL": null,
+  "runtime": 0,
+  "status": "Released",
+  "poster": "/o04jZs5SXhbvhqO4981W7KJXOWZ.jpg",
+  "genres": [
+    "Animacja",
+    "Komedia",
+    "Fantasy",
+    "Przygodowy",
+    "Familijny"
+  ],
+  "vodProviders": [
+    "/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg;Netflix",
+    "/h0ZYcYHicKQ4Ixm5nOjqvwni5NG.jpg;SkyShowtime"
+  ]
+}

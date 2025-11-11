@@ -1,7 +1,6 @@
 {
   "content": [
     {
-      "id": 4,
       "title": "Jurassic World: Odrodzenie",
       "originalTitle": "Jurassic World: Rebirth",
       "releaseDate": "2025-07-14",
@@ -13,11 +12,10 @@
       "vodProviders": []
     },
     {
-      "id": 3,
       "title": "Bugonia",
       "originalTitle": "Bugonia",
       "releaseDate": "2025-06-07",
-      "status": "Released",
+      "status": "In Production",
       "poster": "/bugonia987sdsa3.jpg",
       "genres": [
         "Sci-Fi",
@@ -29,7 +27,6 @@
       ]
     },
     {
-      "id": 2,
       "title": "Paranormalna misja",
       "originalTitle": "Paranormal Mission",
       "releaseDate": "2025-03-12",
@@ -45,7 +42,6 @@
       ]
     },
     {
-      "id": 1,
       "title": "Wiedźmin",
       "originalTitle": "The Wither",
       "releaseDate": "2015-05-19",

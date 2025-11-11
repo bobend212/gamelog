@@ -29,6 +29,7 @@ public final class IntegrationTestHelper {
     @DynamicPropertySource
     public static void wiremockProperties(DynamicPropertyRegistry registry) {
         registry.add("rawg.api.url", () -> "http://localhost:" + wireMockServer.port() + "/api");
+        registry.add("tmdb.api.url", () -> "http://localhost:" + wireMockServer.port());
     }
 
     public static String readJsonFile(String path, String fileName) {
