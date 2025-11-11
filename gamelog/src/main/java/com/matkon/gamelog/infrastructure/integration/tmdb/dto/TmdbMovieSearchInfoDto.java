@@ -1,4 +1,4 @@
-package com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto;
+package com.matkon.gamelog.infrastructure.integration.tmdb.dto;
 
 import lombok.Getter;
 import lombok.Setter;

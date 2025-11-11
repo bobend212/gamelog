@@ -1,10 +1,10 @@
-package com.matkon.gamelog.infrastructure.movie.integration.tmdb;
+package com.matkon.gamelog.infrastructure.integration.tmdb;
 
 import com.matkon.gamelog.domain.movie.model.Movie;
-import com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto.TmdbMovieInfoDto;
-import com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto.TmdbMovieSaveDto;
-import com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto.TmdbMovieSaveGenreDto;
-import com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto.TmdbMovieSearchInfoDto;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieInfoDto;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieSaveDto;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieSaveGenreDto;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieSearchInfoDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -12,7 +12,7 @@ import org.mapstruct.Named;
 import java.time.LocalDate;
 
 @Mapper(componentModel = "spring")
-public interface TmdbMapper {
+interface TmdbMapper {
 
     @Mapping(target = "overview", source = "tmdbInfo.overview")
     @Mapping(target = "runtime", source = "tmdbInfo.runtime")

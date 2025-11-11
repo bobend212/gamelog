@@ -1,4 +1,4 @@
-package com.matkon.gamelog.infrastructure.movie.integration.tmdb;
+package com.matkon.gamelog.infrastructure.integration.tmdb;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.movie.model.Movie;
 import com.matkon.gamelog.domain.movie.ports.out.MovieInfoPort;
-import com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto.TmdbMovieInfoDto;
-import com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto.TmdbMovieSaveDto;
-import com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto.TmdbSearchResponse;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieInfoDto;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieSaveDto;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieSearchResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class TmdbInfoAdapter implements MovieInfoPort {
+class TmdbInfoAdapter implements MovieInfoPort {
 
     RestClient restClient;
     TmdbMapper tmdbMapper;
@@ -32,13 +32,13 @@ public class TmdbInfoAdapter implements MovieInfoPort {
 
     @Override
     public List<Movie> searchMovies(String query) {
-        TmdbSearchResponse response = restClient.get()
+        TmdbMovieSearchResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/search/movie")
                         .queryParam("query", query)
                         .build())
                 .retrieve()
-                .body(TmdbSearchResponse.class);
+                .body(TmdbMovieSearchResponse.class);
 
         if (response == null || response.getResults().isEmpty()) {
             throw new ItemNotFoundException("No movies found matching the query: '%s'".formatted(query));

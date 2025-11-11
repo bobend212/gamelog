@@ -1,8 +1,10 @@
-package com.matkon.gamelog.infrastructure.game.integration.rawg;
+package com.matkon.gamelog.infrastructure.integration.rawg;
 
 import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
+import com.matkon.gamelog.infrastructure.integration.rawg.dto.RawgGameInfoDto;
+import com.matkon.gamelog.infrastructure.integration.rawg.dto.RawgSearchResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

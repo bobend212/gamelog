@@ -1,6 +1,7 @@
-package com.matkon.gamelog.infrastructure.game.integration.rawg;
+package com.matkon.gamelog.infrastructure.integration.rawg;
 
 import com.matkon.gamelog.domain.game.model.Game;
+import com.matkon.gamelog.infrastructure.integration.rawg.dto.RawgGameInfoDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

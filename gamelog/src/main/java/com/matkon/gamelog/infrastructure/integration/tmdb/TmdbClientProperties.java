@@ -1,11 +1,12 @@
-package com.matkon.gamelog.infrastructure.game.integration.rawg;
+package com.matkon.gamelog.infrastructure.integration.tmdb;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties(prefix = "rawg.api")
-class RawgClientProperties {
+@ConfigurationProperties(prefix = "tmdb.api")
+class TmdbClientProperties {
+
     private String key;
     private String url;
     private Integer timeoutInSeconds;

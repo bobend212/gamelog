@@ -1,4 +1,4 @@
-package com.matkon.gamelog.infrastructure.game.integration.rawg;
+package com.matkon.gamelog.infrastructure.integration.rawg;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

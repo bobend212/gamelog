@@ -1,4 +1,4 @@
-package com.matkon.gamelog.infrastructure.movie.integration.tmdb;
+package com.matkon.gamelog.infrastructure.integration.tmdb;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,7 +14,7 @@ import java.time.Duration;
 
 @Configuration
 @EnableConfigurationProperties(TmdbClientProperties.class)
-public class TmdbRestClientConfig {
+class TmdbRestClientConfig {
 
     private static final String ACCEPT = "accept";
     private static final String APPLICATION_JSON = "application/json";
