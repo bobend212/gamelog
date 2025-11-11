@@ -1,8 +1,8 @@
 package com.matkon.gamelog.infrastructure.movie.database;
 
+import com.matkon.gamelog.common.exception.ItemAlreadyExistsException;
+import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.common.sync.SyncResult;
-import com.matkon.gamelog.domain.movie.exception.MovieAlreadyExistException;
-import com.matkon.gamelog.domain.movie.exception.MovieNotFoundException;
 import com.matkon.gamelog.domain.movie.model.Movie;
 import com.matkon.gamelog.domain.movie.ports.out.MovieInfoPort;
 import com.matkon.gamelog.domain.movie.ports.out.MoviePersistencePort;
@@ -40,7 +40,7 @@ public class MoviePersistencePortImpl implements MoviePersistencePort {
     public Movie getSingleMovie(Long id) {
         Optional<MovieEntity> movieOpt = movieJpaRepository.findById(id);
         MovieEntity movieEntity = movieOpt.orElseThrow(() ->
-                new MovieNotFoundException("Movie with ID '%s' not found in the database".formatted(id)));
+                new ItemNotFoundException("Movie with ID '%s' not found in the database".formatted(id)));
 
         Movie movie = movieMapper.mapMovieEntityToMovie(movieEntity);
         movie.setReleaseDatePL(movieInfoPort.getReleaseDatePL(movie.getTmdbId()));
@@ -51,7 +51,7 @@ public class MoviePersistencePortImpl implements MoviePersistencePort {
     @Override
     public void deleteMovie(Long movieId) {
         if (!movieJpaRepository.existsById(movieId)) {
-            throw new MovieNotFoundException("Movie with ID '%s' not found in the database".formatted(movieId));
+            throw new ItemNotFoundException("Movie with ID '%s' not found in the database".formatted(movieId));
         }
         movieJpaRepository.deleteById(movieId);
     }
@@ -60,11 +60,11 @@ public class MoviePersistencePortImpl implements MoviePersistencePort {
     public Movie saveMovie(Long tmdbId) {
         movieJpaRepository.findByTmdbId(tmdbId)
                 .ifPresent(movie -> {
-                    throw new MovieAlreadyExistException(tmdbId);
+                    throw new ItemAlreadyExistsException(tmdbId);
                 });
 
         Movie movie = Optional.ofNullable(movieInfoPort.getSaveMovieDetails(tmdbId))
-                .orElseThrow(() -> new MovieNotFoundException(
+                .orElseThrow(() -> new ItemNotFoundException(
                         "Movie with ID '%s' not found in external API".formatted(tmdbId)));
 
         movie.setVodProviders(movieInfoPort.getVodProviders(tmdbId));

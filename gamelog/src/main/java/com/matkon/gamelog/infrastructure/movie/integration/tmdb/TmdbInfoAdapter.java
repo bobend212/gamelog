@@ -3,7 +3,7 @@ package com.matkon.gamelog.infrastructure.movie.integration.tmdb;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matkon.gamelog.domain.movie.exception.MovieNotFoundException;
+import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.movie.model.Movie;
 import com.matkon.gamelog.domain.movie.ports.out.MovieInfoPort;
 import com.matkon.gamelog.infrastructure.movie.integration.tmdb.dto.TmdbMovieInfoDto;
@@ -41,7 +41,7 @@ public class TmdbInfoAdapter implements MovieInfoPort {
                 .body(TmdbSearchResponse.class);
 
         if (response == null || response.getResults().isEmpty()) {
-            throw new MovieNotFoundException("No movies found matching the query: '%s'".formatted(query));
+            throw new ItemNotFoundException("No movies found matching the query: '%s'".formatted(query));
         }
 
         return response.getResults().stream()
@@ -59,7 +59,7 @@ public class TmdbInfoAdapter implements MovieInfoPort {
                 .body(TmdbMovieInfoDto.class);
 
         if (response == null) {
-            throw new MovieNotFoundException(
+            throw new ItemNotFoundException(
                     "Movie with following ID '%s' does not exist in the API".formatted(movie.getTmdbId()));
         }
 
@@ -76,7 +76,7 @@ public class TmdbInfoAdapter implements MovieInfoPort {
                 .body(TmdbMovieSaveDto.class);
 
         if (response == null) {
-            throw new MovieNotFoundException(
+            throw new ItemNotFoundException(
                     "Movie with following ID '%s' does not exist in the API".formatted(tmdbId));
         }
 

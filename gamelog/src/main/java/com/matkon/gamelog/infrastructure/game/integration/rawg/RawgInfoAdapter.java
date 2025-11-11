@@ -1,6 +1,6 @@
 package com.matkon.gamelog.infrastructure.game.integration.rawg;
 
-import com.matkon.gamelog.domain.game.exception.GameNotFoundException;
+import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,7 +33,7 @@ class RawgInfoAdapter implements GameInfoPort {
                 .body(RawgSearchResponse.class);
 
         if (response == null || response.getResults().isEmpty()) {
-            throw new GameNotFoundException("No games found matching the query: '%s'".formatted(query));
+            throw new ItemNotFoundException("No games found matching the query: '%s'".formatted(query));
         }
 
         return response.getResults().stream()
@@ -49,7 +49,7 @@ class RawgInfoAdapter implements GameInfoPort {
                         .build())
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, (req, res) -> {
-                    throw new GameNotFoundException("Game with following ID '%s' does not exist in the API".formatted(rawgId));
+                    throw new ItemNotFoundException("Game with following ID '%s' does not exist in the API".formatted(rawgId));
                 })
                 .body(RawgGameInfoDto.class);
 
