@@ -3,6 +3,8 @@ package com.matkon.gamelog.api.sync;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.service.GameService;
 import com.matkon.gamelog.domain.movie.service.MovieService;
+import com.matkon.gamelog.domain.tvshow.model.TrackingType;
+import com.matkon.gamelog.domain.tvshow.service.TVShowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,7 @@ public class SyncController {
 
     private final GameService gameService;
     private final MovieService movieService;
+    private final TVShowService tvShowService;
     private final SyncApiMapper syncApiMapper;
 
     @PatchMapping("/games")
@@ -50,5 +53,14 @@ public class SyncController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(syncApiMapper.mapSyncResultToSyncResponse(
                         movieService.syncSingleMovie(movieId)));
+    }
+
+    @PatchMapping("/tv-shows")
+    @Operation(summary = "[TMDB API] Sync TV Shows data with TMDB API - by trackingType")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
+    public ResponseEntity<SyncResponse> syncTVShows(@RequestParam(defaultValue = "WATCHING") TrackingType trackingType) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(syncApiMapper.mapSyncResultToSyncResponse(
+                        tvShowService.syncTVShowsByTrackingType(trackingType)));
     }
 }

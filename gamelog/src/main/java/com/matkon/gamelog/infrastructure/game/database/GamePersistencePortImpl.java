@@ -1,7 +1,7 @@
 package com.matkon.gamelog.infrastructure.game.database;
 
-import com.matkon.gamelog.domain.game.exception.GameAlreadyExistException;
-import com.matkon.gamelog.domain.game.exception.GameNotFoundException;
+import com.matkon.gamelog.common.exception.ItemAlreadyExistsException;
+import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
@@ -55,11 +55,11 @@ class GamePersistencePortImpl implements GamePersistencePort {
     public Game saveGame(Long rawgId, GameStatus gameStatus) {
         gameJpaRepository.findByRawgId(rawgId)
                 .ifPresent(game -> {
-                    throw new GameAlreadyExistException(rawgId);
+                    throw new ItemAlreadyExistsException(rawgId);
                 });
 
         Game game = Optional.ofNullable(gameInfoPort.getGameDetails(rawgId))
-                .orElseThrow(() -> new GameNotFoundException("Game with ID '%s' not found in external API".formatted(rawgId)));
+                .orElseThrow(() -> new ItemNotFoundException("Game with ID '%s' not found in external API".formatted(rawgId)));
 
         game.setStatus(gameStatus);
         GameEntity savedGameEntity = gameJpaRepository.save(gameMapper.mapGameToGameEntity(game));
@@ -71,7 +71,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
     @Override
     public void deleteGame(Long gameId) {
         if (!gameJpaRepository.existsById(gameId)) {
-            throw new GameNotFoundException("Game with ID '%s' not found in the database".formatted(gameId));
+            throw new ItemNotFoundException("Game with ID '%s' not found in the database".formatted(gameId));
         }
         gameJpaRepository.deleteById(gameId);
     }
@@ -80,7 +80,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
     @Transactional
     public Game updateGame(Long id, GameUpdate updateRequest) {
         GameEntity existingGameEntity = gameJpaRepository.findById(id)
-                .orElseThrow(() -> new GameNotFoundException("Game not found with id: " + id));
+                .orElseThrow(() -> new ItemNotFoundException("Game not found with id: " + id));
 
         Optional.ofNullable(updateRequest.getPlatform()).ifPresent(existingGameEntity::setPlatform);
         Optional.ofNullable(updateRequest.getStatus()).ifPresent(existingGameEntity::setStatus);

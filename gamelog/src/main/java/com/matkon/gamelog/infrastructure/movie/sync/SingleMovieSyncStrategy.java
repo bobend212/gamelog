@@ -1,8 +1,8 @@
 package com.matkon.gamelog.infrastructure.movie.sync;
 
+import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.common.sync.FieldDifference;
 import com.matkon.gamelog.domain.common.sync.SyncResult;
-import com.matkon.gamelog.domain.movie.exception.MovieNotFoundException;
 import com.matkon.gamelog.domain.movie.model.Movie;
 import com.matkon.gamelog.domain.movie.ports.out.MovieInfoPort;
 import com.matkon.gamelog.domain.movie.sync.MovieFieldSyncStrategy;
@@ -58,11 +58,11 @@ public class SingleMovieSyncStrategy implements MovieSyncStrategy {
 
         Optional<MovieEntity> movieOpt = movieJpaRepository.findById(movieId);
         MovieEntity movieEntity = movieOpt.orElseThrow(() ->
-                new MovieNotFoundException("Movie with ID '%s' not found in the database".formatted(movieId)));
+                new ItemNotFoundException("Movie with ID '%s' not found in the database".formatted(movieId)));
 
         Movie localMovie = movieMapper.mapMovieEntityToMovie(movieEntity);
         Movie latestMovieData = movieInfoPort.getSaveMovieDetails(localMovie.getTmdbId());
-        latestMovieData.setVodProviders(movieInfoPort.getVodProviders(localMovie.getTmdbId()));
+        latestMovieData.setVodProviders(movieInfoPort.getMovieVodProviders(localMovie.getTmdbId()));
 
         boolean changed = false;
         for (MovieFieldSyncStrategy fieldSyncStrategy : movieFieldSyncStrategies) {
