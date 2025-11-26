@@ -67,7 +67,7 @@ public class MoviePersistencePortImpl implements MoviePersistencePort {
                 .orElseThrow(() -> new ItemNotFoundException(
                         "Movie with ID '%s' not found in external API".formatted(tmdbId)));
 
-        movie.setVodProviders(movieInfoPort.getVodProviders(tmdbId));
+        movie.setVodProviders(movieInfoPort.getMovieVodProviders(tmdbId));
 
         MovieEntity savedMovie = movieJpaRepository.save(movieMapper.mapMovieToMovieEntity(movie));
 

@@ -6,9 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.movie.model.Movie;
 import com.matkon.gamelog.domain.movie.ports.out.MovieInfoPort;
+import com.matkon.gamelog.domain.tvshow.model.TVShow;
+import com.matkon.gamelog.domain.tvshow.ports.out.TVShowInfoPort;
 import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieInfoDto;
 import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieSaveDto;
 import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbMovieSearchResponse;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbTVShowSaveDto;
+import com.matkon.gamelog.infrastructure.integration.tmdb.dto.TmdbTVShowSearchResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -20,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-class TmdbInfoAdapter implements MovieInfoPort {
+class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
 
     RestClient restClient;
     TmdbMapper tmdbMapper;
@@ -141,7 +145,7 @@ class TmdbInfoAdapter implements MovieInfoPort {
     }
 
     @Override
-    public List<String> getVodProviders(Long tmdbId) {
+    public List<String> getMovieVodProviders(Long tmdbId) {
         String response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + tmdbId + "/watch/providers")
@@ -149,6 +153,10 @@ class TmdbInfoAdapter implements MovieInfoPort {
                 .retrieve()
                 .body(String.class);
 
+        return extractVodProviders(response);
+    }
+
+    private static List<String> extractVodProviders(String response) {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode root = null;
         try {
@@ -173,5 +181,53 @@ class TmdbInfoAdapter implements MovieInfoPort {
         }
 
         return providerNames;
+    }
+
+    @Override
+    public List<TVShow> searchTVShows(String query) {
+        TmdbTVShowSearchResponse response = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/search/tv")
+                        .queryParam("query", query)
+                        .build())
+                .retrieve()
+                .body(TmdbTVShowSearchResponse.class);
+
+        if (response == null || response.getResults().isEmpty()) {
+            throw new ItemNotFoundException("Nothing found matching the query: '%s'".formatted(query));
+        }
+
+        return response.getResults().stream()
+                .map(tmdbMapper::mapTmdbTVShowSearchInfoDtoToTVShow)
+                .toList();
+    }
+
+    @Override
+    public TVShow getSaveTVShowDetails(Long tmdbId) {
+        TmdbTVShowSaveDto response = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/tv/" + tmdbId)
+                        .build())
+                .retrieve()
+                .body(TmdbTVShowSaveDto.class);
+
+        if (response == null) {
+            throw new ItemNotFoundException(
+                    "TV Show with following ID '%s' does not exist in the API".formatted(tmdbId));
+        }
+
+        return tmdbMapper.mapTmdbTVShowSaveDtoToTVShow(response);
+    }
+
+    @Override
+    public List<String> getTVShowVodProviders(Long tmdbId) {
+        String response = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/tv/" + tmdbId + "/watch/providers")
+                        .build())
+                .retrieve()
+                .body(String.class);
+
+        return extractVodProviders(response);
     }
 }

@@ -62,7 +62,7 @@ public class SingleMovieSyncStrategy implements MovieSyncStrategy {
 
         Movie localMovie = movieMapper.mapMovieEntityToMovie(movieEntity);
         Movie latestMovieData = movieInfoPort.getSaveMovieDetails(localMovie.getTmdbId());
-        latestMovieData.setVodProviders(movieInfoPort.getVodProviders(localMovie.getTmdbId()));
+        latestMovieData.setVodProviders(movieInfoPort.getMovieVodProviders(localMovie.getTmdbId()));
 
         boolean changed = false;
         for (MovieFieldSyncStrategy fieldSyncStrategy : movieFieldSyncStrategies) {

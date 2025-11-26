@@ -1,0 +1,2 @@
+ALTER SEQUENCE public.series_seq RESTART WITH 7000;
+ALTER SEQUENCE public.seasons_seq RESTART WITH 4500;

@@ -15,5 +15,5 @@ public interface MovieInfoPort {
 
     LocalDate getReleaseDatePL(Long tmdbId);
 
-    List<String> getVodProviders(Long tmdbId);
+    List<String> getMovieVodProviders(Long tmdbId);
 }

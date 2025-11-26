@@ -1,0 +1,27 @@
+package com.matkon.gamelog.infrastructure.tvshow.sync;
+
+import com.matkon.gamelog.domain.common.sync.FieldDifference;
+import com.matkon.gamelog.domain.common.sync.SyncUtils;
+import com.matkon.gamelog.domain.tvshow.model.TVShow;
+import com.matkon.gamelog.domain.tvshow.sync.TVShowFieldSyncStrategy;
+
+import java.util.Optional;
+
+public class TVShowPosterPathSyncStrategy implements TVShowFieldSyncStrategy {
+
+    @Override
+    public Optional<FieldDifference> syncField(TVShow localTVShow, TVShow latestData) {
+        if (SyncUtils.areStringsDifferent(localTVShow.getPosterPath(), latestData.getPosterPath())) {
+            FieldDifference diff = FieldDifference.builder()
+                    .title(latestData.getName())
+                    .fieldName("Poster")
+                    .oldValue(localTVShow.getPosterPath())
+                    .newValue(latestData.getPosterPath())
+                    .build();
+            localTVShow.setPosterPath(latestData.getPosterPath());
+            return Optional.of(diff);
+        }
+
+        return Optional.empty();
+    }
+}
