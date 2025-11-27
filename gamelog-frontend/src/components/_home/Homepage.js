@@ -7,7 +7,7 @@ const Homepage = () => {
     const navigate = useNavigate();
 
     const options = [
-        { label: "TV Series", path: "/tv-series/dashboard" },
+        { label: "TV Shows", path: "/tv-shows/dashboard" },
         { label: "Movies (to watch)", path: "/movies/dashboard" },
         { label: "Games", path: "/games/dashboard" },
     ];
@@ -33,9 +33,6 @@ const Homepage = () => {
         >
             <Typography variant="h2" sx={{ fontWeight: "bold", mb: 3 }}>
                 The Library
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3 }}>
-                Select Media Type
             </Typography>
 
             <Grid container spacing={4} justifyContent="center" sx={{ maxWidth: 700, mb: 4 }}>
@@ -66,7 +63,7 @@ const Homepage = () => {
             </Grid>
 
             <Typography variant="body1" sx={{ maxWidth: 600, opacity: 0.85, fontSize: "1.1rem" }}>
-                For <strong>Games</strong>, this app uses the&nbsp;
+                Game data provided by&nbsp;
                 <a
                     href="https://rawg.io/apidocs"
                     target="_blank"
@@ -75,7 +72,7 @@ const Homepage = () => {
                 >
                     RAWG API
                 </a>
-                <br /> For <strong>Movies</strong> and <strong>TV Series</strong>, it uses the&nbsp;
+                <br /> Movie and TV Show data provided by&nbsp;
                 <a
                     href="https://www.themoviedb.org/documentation/api"
                     target="_blank"

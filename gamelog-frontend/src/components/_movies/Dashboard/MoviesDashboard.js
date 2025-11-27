@@ -7,7 +7,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import TablePagination from '@mui/material/TablePagination';
 import moviesService from "../services/moviesService";
-import { POSTER_PATH_BASE_W92, VOD_PROVIDER_PATH_BASE_W45 } from "../../_tv-series/utils/tvSeriesUtil";
+import { POSTER_PATH_BASE_W92, VOD_PROVIDER_PATH_BASE_W45 } from "../../_tv-shows/utils/TVShowUtil";
 import MoviesNavbar from "../Navbar/MoviesNavbar";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';

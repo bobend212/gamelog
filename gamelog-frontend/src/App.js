@@ -7,14 +7,14 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Homepage from './components/_home/Homepage';
 import MoviesDashboard from './components/_movies/Dashboard/MoviesDashboard';
-import TVSeriesDashboard from './components/_tv-series/Dashboard/TVSeriesDashboard';
-import SearchSeries from './components/_tv-series/Search/SearchSeries';
-import SeriesDetails from './components/_tv-series/Details/SeriesDetails';
 import SyncLibrary from './components/_games/Sync/SyncLibrary';
-import SyncSeries from './components/_tv-series/Sync/SyncSeries';
 import MovieDetails from './components/_movies/Details/MovieDetails';
 import MovieSearch from './components/_movies/Search/MovieSearch';
 import SyncMovies from './components/_movies/Sync/SyncMovies';
+import TVShowsDashboard from './components/_tv-shows/Dashboard/TVShowsDashboard';
+import TVShowSearch from './components/_tv-shows/Search/TVShowSearch';
+import TVShowDetails from './components/_tv-shows/Details/TVShowDetails';
+import TVShowSync from './components/_tv-shows/Sync/TVShowSync';
 
 function App() {
   return (
@@ -31,11 +31,11 @@ function App() {
             <Route path="/games/sync" element={<SyncLibrary />} />
             <Route path="/games/search" element={<GameSearch />} />
 
-            {/* TV Series */}
-            <Route path="/tv-series/dashboard" element={<TVSeriesDashboard />} />
-            <Route path="/tv-series/search" element={<SearchSeries />} />
-            <Route path="/tv-series/sync" element={<SyncSeries />} />
-            <Route path="/tv-series/:id" element={<SeriesDetails />} />
+            {/* TV Shows */}
+            <Route path="/tv-shows/dashboard" element={<TVShowsDashboard />} />
+            <Route path="/tv-shows/search" element={<TVShowSearch />} />
+            <Route path="/tv-shows/sync" element={<TVShowSync />} />
+            <Route path="/tv-shows/:id" element={<TVShowDetails />} />
 
             {/* Movies */}
             <Route path="/movies/dashboard" element={<MoviesDashboard />} />

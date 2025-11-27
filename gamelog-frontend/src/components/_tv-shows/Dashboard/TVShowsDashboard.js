@@ -3,82 +3,68 @@ import {
     Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, IconButton, Tooltip, Avatar, Stack, TextField, Chip
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navigation/Navbar";
-import StatusDialog from "../Common/StatusDialog";
-import tvSeriesService from "../../_tv-series/services/tvSeriesService";
+import tvShowService from "../services/tvShowService";
 import { Badge } from "@mui/material";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { parseDate, POSTER_PATH_BASE_W92, VOD_PROVIDER_PATH_BASE_W45, TRACKING_TYPES } from '../utils/tvSeriesUtil';
+import { parseDate, POSTER_PATH_BASE_W92, VOD_PROVIDER_PATH_BASE_W45, TRACKING_TYPES } from '../utils/TVShowUtil';
 import TablePagination from '@mui/material/TablePagination';
 
-const TVSeriesDashboard = () => {
-    const [seriesList, setSeriesList] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [selectedSeries, setSelectedSeries] = useState(null);
-    const [trackingTypeFilter, setTrackingTypeFilter] = useState(localStorage.getItem('series_status_filter') || TRACKING_TYPES.WATCHING.value);
-    const [seriesCount, setSeriesCount] = useState([])
-    const [totalSeriesCount, setTotalSeriesCount] = useState([])
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(12);
+const TVShowsDashboard = () => {
+    const [tvShowList, setTVShowList] = useState([]);
+    const [trackingTypeFilter, setTrackingTypeFilter] = useState(TRACKING_TYPES.WATCHING.value);
+    const [tvShowCount, setTVShowCount] = useState([])
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
-    const [name, setName] = useState('');
+
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(12);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        loadSeries(localStorage.getItem('series_status_filter') || TRACKING_TYPES.WATCHING.value);
-    }, [localStorage.getItem('series_status_filter') || TRACKING_TYPES.WATCHING.value]);
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setPage(0);
+        }, 300);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchQuery]);
+
+    useEffect(() => {
+        loadTVShows(page, rowsPerPage, debouncedSearch, trackingTypeFilter);
+    }, [page, rowsPerPage, debouncedSearch, trackingTypeFilter]);
 
     const setFilter = async (value) => {
-        localStorage.setItem('series_status_filter', value);
         setTrackingTypeFilter(value);
         setPage(0);
     };
 
-    const loadSeries = async (filter = "ALL TV SERIES") => {
+    const loadTVShows = async (pageParam, sizeParam, search, trackingTypeFilter) => {
         setLoading(true);
         try {
-            const data =
-                filter && filter !== "ALL TV SERIES"
-                    ? await tvSeriesService.getAllSeriesByTrackingType(filter)
-                    : await tvSeriesService.getAllSeries();
-            setSeriesList(data);
-            setSeriesCount(data.length)
-
-            const totalSeriesCount = await tvSeriesService.getAllSeries();
-            setTotalSeriesCount(totalSeriesCount.length);
+            const data = await tvShowService.getAllTVShows(pageParam, sizeParam, search, trackingTypeFilter);
+            setTVShowList(data.content);
+            setTVShowCount(data)
         } finally {
             setLoading(false);
         }
     };
 
-    const handleDelete = async (seriesId) => {
-        if (window.confirm("Are you sure you want to delete this series?")) {
+    const handleDelete = async (tvShowId) => {
+        if (window.confirm("Are you sure you want to delete this TV Show?")) {
             try {
-                await tvSeriesService.deleteSeries(seriesId);
-                await loadSeries(trackingTypeFilter);
+                await tvShowService.deleteTVShow(tvShowId);
+                await loadTVShows(page, rowsPerPage, debouncedSearch, trackingTypeFilter);
             } catch (error) {
-                alert("Failed to delete the series.");
+                alert("Failed to delete TV Show.");
                 console.error(error);
             }
-        }
-    };
-
-    const openStatusDialog = (series) => {
-        setSelectedSeries(series);
-        setDialogOpen(true);
-    };
-
-    const handleSaveStatus = async (newStatus) => {
-        if (selectedSeries) {
-            await tvSeriesService.updateTrackingType(selectedSeries.id, newStatus);
-            setDialogOpen(false);
-            setSelectedSeries(null);
-            await loadSeries(trackingTypeFilter);
         }
     };
 
@@ -90,16 +76,6 @@ const TVSeriesDashboard = () => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
-
-    const filteredSeries = seriesList.filter(series => {
-        const q = searchQuery.toLowerCase();
-        const nameMatch = series.name.toLowerCase().includes(q);
-        const vodMatch = series.vodProviders?.some(provider =>
-            provider.split(';')[1].toLowerCase().includes(q)
-        ) || false;
-
-        return nameMatch || vodMatch;
-    });
 
     return (
         <>
@@ -140,7 +116,7 @@ const TVSeriesDashboard = () => {
                             id="tracking-filter-label"
                             sx={{ color: "#cfd8dc" }}
                         >
-                            Status
+                            Tracking Type
                         </InputLabel>
                         <Select
                             labelId="tracking-filter-label"
@@ -162,9 +138,6 @@ const TVSeriesDashboard = () => {
                                     {t.label}
                                 </MenuItem>
                             ))}
-                            <MenuItem value="ALL TV SERIES" sx={{ color: "black", fontWeight: "bold" }}>
-                                ALL TV SERIES
-                            </MenuItem>
                         </Select>
                     </FormControl>
 
@@ -201,33 +174,33 @@ const TVSeriesDashboard = () => {
                                 <TableRow>
                                     <TableCell colSpan={4} align="center" sx={{ color: "#fff" }}>Loading...</TableCell>
                                 </TableRow>
-                            ) : seriesList.length === 0 ? (
+                            ) : tvShowList.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={6} align="center" sx={{ color: "#fff" }}>
-                                        No series tracked yet.
+                                        No TV Shows tracked yet.
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                filteredSeries
-                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map(series => {
-                                        const trackingType = TRACKING_TYPES[series.trackingType];
+                                tvShowList
+                                    // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map(tvShow => {
+                                        const trackingType = TRACKING_TYPES[tvShow.trackingType];
                                         return (
                                             <TableRow
                                                 hover
-                                                key={series.id}
+                                                key={tvShow.id}
                                                 sx={{
                                                     cursor: "pointer",
                                                     bgcolor: "#232634",
                                                     '& td': { color: "#fff" }
                                                 }}
-                                                onClick={() => navigate(`/tv-series/${series.id}`)}
+                                                onClick={() => navigate(`/tv-shows/${tvShow.id}`)}
                                             >
                                                 <TableCell>
                                                     <Avatar
                                                         variant="rounded"
-                                                        src={POSTER_PATH_BASE_W92 + series.poster_path}
-                                                        alt={series.name}
+                                                        src={POSTER_PATH_BASE_W92 + tvShow.posterPath}
+                                                        alt={tvShow.name}
                                                         sx={{ width: 40, height: 60, bgcolor: "#222" }}
                                                     />
                                                 </TableCell>
@@ -235,7 +208,7 @@ const TVSeriesDashboard = () => {
                                                     <Box display="flex">
                                                         <Box display="flex" flexDirection={"column"} mr={1}>
                                                             <Typography variant="body1" component="div" sx={{ fontWeight: 600 }}>
-                                                                {series.name}
+                                                                {tvShow.name}
                                                             </Typography>
                                                             <Badge
                                                                 color={trackingType.color}
@@ -257,7 +230,7 @@ const TVSeriesDashboard = () => {
                                                                         }}
                                                                     >
                                                                         {trackingType.label}
-                                                                        <Chip label={series.status} size="small" sx={{ ml: 1, bgcolor: 'primary.dark' }} />
+                                                                        <Chip label={tvShow.status} size="small" sx={{ ml: 1, bgcolor: 'primary.dark' }} />
                                                                     </Typography>
                                                                 </Box>
                                                             </Badge>
@@ -266,14 +239,14 @@ const TVSeriesDashboard = () => {
                                                     </Box>
                                                 </TableCell>
                                                 <TableCell align="left">
-                                                    {series.totalWatchedEpisodes} / {series.number_of_episodes} ({series.percentageProgress}%)
+                                                    {tvShow.totalWatchedEpisodes} / {tvShow.numberOfEpisodes} ({tvShow.percentageProgress}%)
                                                 </TableCell>
-                                                <TableCell align="left">{parseDate(series.last_air_date)}</TableCell>
-                                                <TableCell align="left">{series.nextEpisode}</TableCell>
+                                                <TableCell align="left">{parseDate(tvShow.lastAirDate)}</TableCell>
+                                                <TableCell align="left">{tvShow.nextEpisode}</TableCell>
 
                                                 <TableCell align="right" sx={{ whiteSpace: 'pre-line' }}>
                                                     <Stack direction="row" justifyContent="right" spacing={1} flexWrap="wrap" mb={1}>
-                                                        {series.vodProviders?.map((provider) => (
+                                                        {tvShow.vodProviders?.map((provider) => (
                                                             <Avatar
                                                                 key={provider}
                                                                 alt={provider}
@@ -285,13 +258,8 @@ const TVSeriesDashboard = () => {
                                                     </Stack>
                                                 </TableCell>
                                                 <TableCell align="right" onClick={e => e.stopPropagation()}>
-                                                    <Tooltip title="Change Tacking Type">
-                                                        <IconButton onClick={() => openStatusDialog(series)} size="small">
-                                                            <EditIcon sx={{ color: "white" }} />
-                                                        </IconButton>
-                                                    </Tooltip>
                                                     <Tooltip title="Delete">
-                                                        <IconButton onClick={() => handleDelete(series.id)} size="small">
+                                                        <IconButton onClick={() => handleDelete(tvShow.id)} size="small">
                                                             <DeleteForeverIcon sx={{ color: "red" }} />
                                                         </IconButton>
                                                     </Tooltip>
@@ -305,12 +273,12 @@ const TVSeriesDashboard = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                         <TablePagination
                             component="div"
-                            count={filteredSeries.length}
+                            count={tvShowCount.totalElements}
                             page={page}
                             onPageChange={handleChangePage}
                             rowsPerPage={rowsPerPage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
                             rowsPerPageOptions={[5, 12, 25, 50, 100]}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
                             sx={{
                                 color: 'white',
                                 '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
@@ -330,15 +298,9 @@ const TVSeriesDashboard = () => {
                         />
                     </Box>
                 </TableContainer>
-                <StatusDialog
-                    open={dialogOpen}
-                    onClose={() => setDialogOpen(false)}
-                    onSave={handleSaveStatus}
-                    currentStatus={selectedSeries?.myStatus}
-                />
             </Box>
         </>
     );
 };
 
-export default TVSeriesDashboard;
+export default TVShowsDashboard;

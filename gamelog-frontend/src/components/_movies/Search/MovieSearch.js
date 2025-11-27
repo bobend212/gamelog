@@ -15,7 +15,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import { toast } from 'react-toastify';
 import moviesService from "../services/moviesService";
-import { POSTER_PATH_BASE_W200 } from "../../_tv-series/utils/tvSeriesUtil";
+import { POSTER_PATH_BASE_W200 } from "../../_tv-shows/utils/TVShowUtil";
 import MoviesNavbar from "../Navbar/MoviesNavbar";
 
 const MovieSearch = () => {
@@ -206,6 +206,9 @@ const MovieSearch = () => {
                         </Grid>
                     ))}
                 </Grid>
+            </Box>
+            <Box component="p" sx={{ textAlign: 'center', mt: 2, color: 'grey' }} className="footer">
+                metadata by TMDB API
             </Box>
         </>
     );

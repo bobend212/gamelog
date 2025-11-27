@@ -13,20 +13,20 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="container">
         <div className="nav-brand">
-          <h2>📺 TV Series Library</h2>
+          <h2>📺 TV Shows Library</h2>
         </div>
         <div className="nav-links">
           <Link to="/" className={isActive('/')}>
             ⾕ Home
           </Link>
           <hr />
-          <Link to="/tv-series/dashboard" className={isActive('/tv-series/dashboard')}>
+          <Link to="/tv-shows/dashboard" className={isActive('/tv-shows/dashboard')}>
             Dashboard
           </Link>
-          <Link to="/tv-series/sync" className={isActive('/tv-series/sync')}>
+          <Link to="/tv-shows/sync" className={isActive('/tv-shows/sync')}>
             Sync
           </Link>
-          <Link to="/tv-series/search" className={isActive('/tv-series/search')}>
+          <Link to="/tv-shows/search" className={isActive('/tv-shows/search')}>
             Search
           </Link>
         </div>

@@ -15,7 +15,7 @@ import {
 
 import moviesService from "../services/moviesService";
 import MoviesNavbar from "../Navbar/MoviesNavbar";
-import { POSTER_PATH_BASE_W200, VOD_PROVIDER_PATH_BASE_W45 } from "../../_tv-series/utils/tvSeriesUtil";
+import { POSTER_PATH_BASE_W200, VOD_PROVIDER_PATH_BASE_W45 } from "../../_tv-shows/utils/TVShowUtil";
 import { toast } from 'react-toastify';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 
@@ -24,7 +24,6 @@ const MovieDetails = () => {
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
     const theme = useTheme();
-    const [syncSummary, setSyncSummary] = useState(null);
 
     useEffect(() => {
         fetchMovie(id);
@@ -81,7 +80,6 @@ const MovieDetails = () => {
     const handleSync = async (movieId) => {
         try {
             const result = await moviesService.syncMovieById(movieId);
-            setSyncSummary(result);
 
             await fetchMovie(movieId);
 
