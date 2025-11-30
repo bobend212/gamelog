@@ -12,6 +12,8 @@ import com.matkon.gamelog.domain.movie.ports.in.SyncSingleMovieUseCase;
 import com.matkon.gamelog.domain.movie.ports.out.MovieInfoPort;
 import com.matkon.gamelog.domain.movie.ports.out.MoviePersistencePort;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -31,26 +33,31 @@ public class MovieService implements GetMoviesUseCase, GetSingleMovieUseCase,
     }
 
     @Override
+    @Cacheable(value = "single_movie", key = "#id")
     public Movie getSingleMovie(Long id) {
         return moviePersistencePort.getSingleMovie(id);
     }
 
     @Override
+    @Cacheable(value = "movies_search_results", key = "#query")
     public List<Movie> searchMovies(String query) {
         return movieInfoPort.searchMovies(query);
     }
 
     @Override
+    @CacheEvict(value = "single_movie", allEntries = true)
     public void deleteMovie(Long movieId) {
         moviePersistencePort.deleteMovie(movieId);
     }
 
     @Override
+    @CacheEvict(value = "single_movie", allEntries = true)
     public Movie saveMovie(Long tmdbId) {
         return moviePersistencePort.saveMovie(tmdbId);
     }
 
     @Override
+    @CacheEvict(value = "single_movie", allEntries = true)
     public SyncResult syncSingleMovie(Long movieId) {
         return moviePersistencePort.syncSingleMovie(movieId);
     }

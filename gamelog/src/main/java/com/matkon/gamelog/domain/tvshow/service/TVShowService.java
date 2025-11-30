@@ -15,6 +15,8 @@ import com.matkon.gamelog.domain.tvshow.ports.in.UpdateTrackingTypeTVShowUseCase
 import com.matkon.gamelog.domain.tvshow.ports.out.TVShowInfoPort;
 import com.matkon.gamelog.domain.tvshow.ports.out.TVShowPersistencePort;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,37 +38,44 @@ public class TVShowService implements GetTVShowsUseCase, GetSingleTVShowUseCase,
     }
 
     @Override
+    @Cacheable(value = "single_tvShow", key = "#tvShowId")
     public TVShow getSingleTVShow(Long tvShowId) {
         return tvShowPersistencePort.getSingleTVShow(tvShowId);
     }
 
     @Override
+    @Cacheable(value = "tv_shows_search_results", key = "#query")
     public List<TVShow> searchTVShows(String query) {
         return tvShowInfoPort.searchTVShows(query);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "single_tvShow", allEntries = true)
     public TVShow saveTVShow(Long tmdbId, TrackingType trackingType) {
         return tvShowPersistencePort.saveTVShow(tmdbId, trackingType);
     }
 
     @Override
+    @CacheEvict(value = "single_tvShow", allEntries = true)
     public void deleteTVShow(Long tvShowId) {
         tvShowPersistencePort.deleteTVShow(tvShowId);
     }
 
     @Override
+    @CacheEvict(value = "single_tvShow", allEntries = true)
     public void updateTrackingType(Long tvShowId, TrackingType trackingType) {
         tvShowPersistencePort.updateTrackingType(tvShowId, trackingType);
     }
 
     @Override
+    @CacheEvict(value = "single_tvShow", allEntries = true)
     public void rateSeason(Long seasonId, Double rating) {
         tvShowPersistencePort.rateSeason(seasonId, rating);
     }
 
     @Override
+    @CacheEvict(value = "single_tvShow", allEntries = true)
     public void setWatchedCount(Long seasonId, Integer watchedCount) {
         tvShowPersistencePort.setWatchedCount(seasonId, watchedCount);
     }
