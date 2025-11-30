@@ -20,8 +20,9 @@ import org.springframework.web.client.RestClient;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
@@ -145,7 +146,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
     }
 
     @Override
-    public List<String> getMovieVodProviders(Long tmdbId) {
+    public Set<String> getMovieVodProviders(Long tmdbId) {
         String response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + tmdbId + "/watch/providers")
@@ -156,7 +157,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
         return extractVodProviders(response);
     }
 
-    private static List<String> extractVodProviders(String response) {
+    private static Set<String> extractVodProviders(String response) {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode root = null;
         try {
@@ -166,7 +167,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
         }
         JsonNode providersForCountry = root.path("results").path("PL");
 
-        List<String> providerNames = new ArrayList<>();
+        Set<String> providerNames = new HashSet<>();
         if (providersForCountry != null && providersForCountry.has("flatrate")) {
             JsonNode flatrateArray = providersForCountry.get("flatrate");
             if (flatrateArray.isArray()) {
@@ -220,7 +221,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
     }
 
     @Override
-    public List<String> getTVShowVodProviders(Long tmdbId) {
+    public Set<String> getTVShowVodProviders(Long tmdbId) {
         String response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/tv/" + tmdbId + "/watch/providers")

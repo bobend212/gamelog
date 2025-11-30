@@ -2,7 +2,7 @@ package com.matkon.gamelog.domain.common.sync;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 public class SyncUtils {
     public static boolean areDatesDifferent(LocalDate oldDate, LocalDate newDate) {
@@ -23,7 +23,7 @@ public class SyncUtils {
         return !oldInt.equals(newInt);                             // both non-null compare values
     }
 
-    public static boolean areStringListsDifferent(List<String> oldList, List<String> newList) {
+    public static boolean areStringListsDifferent(Set<String> oldList, Set<String> newList) {
         if (oldList == null && newList == null) return false;            // both null = no change
         if (oldList == null || newList == null) return true;             // one null, one not = change
         if (oldList.size() != newList.size()) return true;               // different size = change

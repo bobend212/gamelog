@@ -2,6 +2,7 @@ package com.matkon.gamelog.infrastructure.movie.database;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,9 +13,15 @@ import java.util.Optional;
 @Repository
 public interface MovieJpaRepository extends JpaRepository<MovieEntity, Long> {
 
+    @Query("SELECT m FROM MovieEntity m " +
+            "LEFT JOIN FETCH m.genres " +
+            "LEFT JOIN FETCH m.vodProviders " +
+            "WHERE m.id = :id")
+    Optional<MovieEntity> findById(@Param("id") Long id);
+
     Optional<MovieEntity> findByTmdbId(Long tmdbId);
 
-    @Query("SELECT DISTINCT m FROM MovieEntity m JOIN m.genres g " +
+    @Query("SELECT m FROM MovieEntity m LEFT JOIN FETCH m.genres g LEFT JOIN FETCH m.vodProviders " +
             "WHERE (LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(m.originalTitle) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(g) LIKE LOWER(CONCAT('%', :search, '%')))")

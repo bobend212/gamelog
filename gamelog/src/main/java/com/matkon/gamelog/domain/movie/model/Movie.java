@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -25,8 +25,8 @@ public class Movie {
     private LocalDate releaseDatePL;
     private String status;
     private String poster;
-    private List<String> genres;
-    private List<String> vodProviders;
+    private Set<String> genres;
+    private Set<String> vodProviders;
     private LocalDateTime createdAt;
     private String overview;
     private int runtime;

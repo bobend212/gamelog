@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -93,7 +94,7 @@ public class DefaultTVShowSyncStrategy implements TVShowSyncStrategy {
      * Merges the API season data into the existing Entity list.
      * Returns true if any change occurred.
      */
-    private boolean syncSeasons(TVShowEntity tvShowEntity, List<Season> apiSeasons, List<FieldDifference> changes) {
+    private boolean syncSeasons(TVShowEntity tvShowEntity, Set<Season> apiSeasons, List<FieldDifference> changes) {
         boolean anyChange = false;
 
         Map<Integer, SeasonEntity> existingSeasonsMap = tvShowEntity.getSeasons().stream()

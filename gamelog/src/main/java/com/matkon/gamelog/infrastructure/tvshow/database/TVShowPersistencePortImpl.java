@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,10 +46,6 @@ public class TVShowPersistencePortImpl implements TVShowPersistencePort {
         Optional<TVShowEntity> tvShowOpt = tvShowJpaRepository.findById(tvShowId);
         TVShowEntity tvShowEntity = tvShowOpt.orElseThrow(() ->
                 new ItemNotFoundException("TV Show with ID '%s' not found in the database".formatted(tvShowId)));
-
-        if (tvShowEntity.getSeasons() != null) {
-            tvShowEntity.getSeasons().sort(Comparator.comparing(SeasonEntity::getSeasonNumber));
-        }
 
         return tvShowMapper.mapTVShowEntityToTVShow(tvShowEntity);
     }

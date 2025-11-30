@@ -8,8 +8,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,11 +27,11 @@ public class TVShowResponse {
     private LocalDate lastAirDate;
     private String status;
     private TrackingType trackingType;
-    private List<SeasonResponse> seasons = new ArrayList<>();
+    private Set<SeasonResponse> seasons = new HashSet<>();
     private int totalWatchedEpisodes;
     private int percentageProgress;
     private Double ratingOverall;
     private LocalDateTime updatedAt;
     private String nextEpisode;
-    private List<String> vodProviders = new ArrayList<>();
+    private Set<String> vodProviders = new HashSet<>();
 }

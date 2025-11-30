@@ -4,7 +4,7 @@ import com.matkon.gamelog.domain.common.sync.SyncUtils;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -86,22 +86,22 @@ class SyncUtilsTest {
 
     @Test
     void string_lists_oneListNull_shouldReturnTrue() {
-        assertTrue(SyncUtils.areStringListsDifferent(null, List.of("a")));
-        assertTrue(SyncUtils.areStringListsDifferent(List.of("a"), null));
+        assertTrue(SyncUtils.areStringListsDifferent(null, Set.of("a")));
+        assertTrue(SyncUtils.areStringListsDifferent(Set.of("a"), null));
     }
 
     @Test
     void string_lists_differentSizeLists_shouldReturnTrue() {
-        assertTrue(SyncUtils.areStringListsDifferent(List.of("a", "b"), List.of("a")));
+        assertTrue(SyncUtils.areStringListsDifferent(Set.of("a", "b"), Set.of("a")));
     }
 
     @Test
     void string_lists_sameLists_shouldReturnFalse() {
-        assertFalse(SyncUtils.areStringListsDifferent(List.of("a", "b"), List.of("b", "a")));
+        assertFalse(SyncUtils.areStringListsDifferent(Set.of("a", "b"), Set.of("b", "a")));
     }
 
     @Test
     void string_lists_differentLists_shouldReturnTrue() {
-        assertTrue(SyncUtils.areStringListsDifferent(List.of("a", "b"), List.of("b", "c")));
+        assertTrue(SyncUtils.areStringListsDifferent(Set.of("a", "b"), Set.of("b", "c")));
     }
 }

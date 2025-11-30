@@ -18,8 +18,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "movies")
@@ -42,12 +42,12 @@ public class MovieEntity {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "movies_genres", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "genre_name")
-    private List<String> genres = new ArrayList<>();
+    private Set<String> genres = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "movies_vod_providers", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "provider_name")
-    private List<String> vodProviders = new ArrayList<>();
+    private Set<String> vodProviders = new HashSet<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

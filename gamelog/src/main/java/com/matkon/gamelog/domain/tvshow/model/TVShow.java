@@ -1,6 +1,5 @@
 package com.matkon.gamelog.domain.tvshow.model;
 
-import com.matkon.gamelog.infrastructure.tvshow.database.SeasonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -29,6 +28,6 @@ public class TVShow {
     private String status;
     private LocalDateTime updatedAt;
     private TrackingType trackingType;
-    private List<Season> seasons;
-    private List<String> vodProviders;
+    private Set<Season> seasons;
+    private Set<String> vodProviders;
 }

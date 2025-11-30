@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -22,8 +23,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "series")
@@ -53,12 +54,13 @@ public class TVShowEntity {
     private TrackingType trackingType;
 
     @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SeasonEntity> seasons = new ArrayList<>();
+    @OrderBy("seasonNumber ASC")
+    private Set<SeasonEntity> seasons = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tvseries_vod_providers", joinColumns = @JoinColumn(name = "tvseries_id"))
     @Column(name = "provider_name")
-    private List<String> vodProviders = new ArrayList<>();
+    private Set<String> vodProviders = new HashSet<>();
 
     public void addSeason(SeasonEntity seasonEntity) {
         seasons.add(seasonEntity);

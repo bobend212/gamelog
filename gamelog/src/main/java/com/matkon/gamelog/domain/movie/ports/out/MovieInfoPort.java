@@ -4,6 +4,7 @@ import com.matkon.gamelog.domain.movie.model.Movie;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 public interface MovieInfoPort {
 
@@ -15,5 +16,5 @@ public interface MovieInfoPort {
 
     LocalDate getReleaseDatePL(Long tmdbId);
 
-    List<String> getMovieVodProviders(Long tmdbId);
+    Set<String> getMovieVodProviders(Long tmdbId);
 }

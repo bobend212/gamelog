@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -70,16 +71,16 @@ class MovieControllerTest {
         movieJpaRepository.deleteAll();
 
         MovieEntity me1 = createMovie(1L, "Wiedźmin", "The Wither", LocalDate.of(2015, 5, 19),
-                "Released", "/1s4OrFrEOpP3Pb89ETNxSDQyvQX.jpg", List.of("Horror", "Fantasy"), List.of("Netflix", "HBO"));
+                "Released", "/1s4OrFrEOpP3Pb89ETNxSDQyvQX.jpg", Set.of("Horror", "Fantasy"), Set.of("Netflix", "HBO"));
 
         MovieEntity me2 = createMovie(2L, "Paranormalna misja", "Paranormal Mission", LocalDate.of(2025, 3, 12),
-                "Released", "/x8TdWFrEOpMaPb8AENSxGvQyvC9.jpg", List.of("Horror", "Thriller"), List.of("Netflix", "Prime Video"));
+                "Released", "/x8TdWFrEOpMaPb8AENSxGvQyvC9.jpg", Set.of("Horror", "Thriller"), Set.of("Netflix", "Prime Video"));
 
         MovieEntity me3 = createMovie(3L, "Bugonia", "Bugonia", LocalDate.of(2025, 6, 7),
-                "In Production", "/bugonia987sdsa3.jpg", List.of("Sci-Fi", "Mystery"), List.of("HBO", "Disney+"));
+                "In Production", "/bugonia987sdsa3.jpg", Set.of("Sci-Fi", "Mystery"), Set.of("HBO", "Disney+"));
 
         MovieEntity me4 = createMovie(4L, "Jurassic World: Odrodzenie", "Jurassic World: Rebirth", LocalDate.of(2025, 7, 14),
-                "Released", "/jwrebirthpl54fd.jpg", List.of("Action"), List.of());
+                "Released", "/jwrebirthpl54fd.jpg", Set.of("Action"), Set.of());
 
         movieJpaRepository.saveAll(List.of(me1, me2, me3, me4));
     }
@@ -229,7 +230,7 @@ class MovieControllerTest {
 
     private MovieEntity createMovie(Long tmdbId, String title, String originalTitle,
                                     LocalDate releaseDate, String status, String poster,
-                                    List<String> genres, List<String> vodProviders) {
+                                    Set<String> genres, Set<String> vodProviders) {
         MovieEntity movieEntity = new MovieEntity();
         movieEntity.setTmdbId(tmdbId);
         movieEntity.setTitle(title);
