@@ -277,7 +277,7 @@ const TVShowDetails = () => {
                         <Divider sx={{ my: 1, bgcolor: "#334" }} />
 
                         <Typography variant="h6" sx={{ mb: 1 }}>
-                            Seasons ({tvShow.seasons.length})
+                            Seasons ({tvShow.numberOfSeasons})
                         </Typography>
                         <Stack spacing={3}>
                             {tvShow.seasons.map((season) => (
