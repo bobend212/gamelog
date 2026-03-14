@@ -1,9 +1,9 @@
-version: '3.1'
+version: '3.9'
 
 services:
   postgres:
     image: postgres:15
-    restart: always
+    container_name: thelibrary-postgres
     environment:
       POSTGRES_DB: thelibrarydb
       POSTGRES_USER: ${POSTGRES_USER}
@@ -11,16 +11,50 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data  # persists database data
+      - pgdata:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4
-    restart: always
+    container_name: thelibrary-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "8081:80"
+    depends_on:
+      - postgres
+
+  backend:
+    build:
+      context: .
+    container_name: thelibrary-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/thelibrarydb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      RAWG_API_URL: ${RAWG_API_URL}
+      RAWG_API_KEY: ${RAWG_API_KEY}
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      TMDB_API_URL: ${TMDB_API_URL}
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ../gamelog-frontend
+    container_name: thelibrary-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../gamelog-frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_API_URL=http://localhost:8080
+    depends_on:
+      - backend
 
 volumes:
   pgdata:

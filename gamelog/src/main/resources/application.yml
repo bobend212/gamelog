@@ -9,23 +9,24 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
-    baseline-on-migrate: true
+    default-schema: public
+    schemas: public
   main:
     banner-mode: off
 
 server:
   port: 8080
 
-logging:
-  level:
-    com.gamelibrary: DEBUG
+#logging:
+#  level:
+#    com.gamelibrary: DEBUG
 
 rawg:
   api:
