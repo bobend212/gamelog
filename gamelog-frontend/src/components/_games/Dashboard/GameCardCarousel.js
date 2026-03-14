@@ -38,7 +38,7 @@ export default function GameCardCarousel({ games, header }) {
         >
             {header && (
                 <Typography variant="h5" sx={{ mb: 2, color: "#fff", ml: 2, textAlign: "left" }}>
-                    {header} ({games.length})
+                    {header}
                 </Typography>
             )}
             <Box sx={{ display: "flex", alignItems: "center" }}>

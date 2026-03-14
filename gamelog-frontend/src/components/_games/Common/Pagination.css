@@ -29,5 +29,6 @@
 }
 
 .pagination-btn:disabled {
-    display: none;
+    opacity: 0.3;
+    cursor: not-allowed;
 }

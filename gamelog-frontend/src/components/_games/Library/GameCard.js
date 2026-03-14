@@ -126,7 +126,7 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
             <div className="spacer"></div>
             {game.completedAt && (
               <div className="game-release">
-                <p className="completion-details-text">Completion details</p>
+                <p className="completion-details-text">Completed on</p>
                 {formatDate(game.completedAt)}
                 {game.platform && ` • ${game.platform}`}
               </div>

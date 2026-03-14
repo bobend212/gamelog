@@ -147,9 +147,9 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <GameCardCarousel games={lastEditedGames} header="Recently Updated - Library" />
-            <GameCardCarousel games={gamesNotReleased} header="Upcoming Games - Wishlist" />
-            <GameCardCarousel games={gamesReleased} header="Recently Released - Wishlist" />
+            <GameCardCarousel games={lastEditedGames} header="Last Updated" />
+            <GameCardCarousel games={gamesNotReleased} header="Upcoming" />
+            <GameCardCarousel games={gamesReleased} header="Released" />
             <GameCardCarousel games={gamesTBA} header="TBA" />
           </div>
 
