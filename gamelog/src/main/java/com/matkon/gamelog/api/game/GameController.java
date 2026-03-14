@@ -1,5 +1,6 @@
 package com.matkon.gamelog.api.game;
 
+import com.matkon.gamelog.api.game.dashboard.DashboardResponse;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.service.GameService;
@@ -31,6 +32,20 @@ class GameController {
 
     private final GameService gameService;
     private final GameApiMapper gameApiMapper;
+
+    @GetMapping("/test")
+    public String test() {
+        return "Hello from backend!!";
+    }
+
+    @GetMapping("/dashboard")
+    @Operation(summary = "Get dashboard data")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
+    public ResponseEntity<DashboardResponse> dashboard() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(gameApiMapper.mapDashboardDtoToDashboardResponse(
+                        gameService.getDashboard()));
+    }
 
     @GetMapping()
     @Operation(summary = "Get ALL games - by status and search query")

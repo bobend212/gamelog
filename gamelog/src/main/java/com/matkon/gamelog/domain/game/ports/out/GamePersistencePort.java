@@ -1,9 +1,10 @@
 package com.matkon.gamelog.domain.game.ports.out;
 
+import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
-import com.matkon.gamelog.domain.common.sync.SyncResult;
+import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
 import org.springframework.data.domain.Page;
 
 public interface GamePersistencePort {
@@ -17,4 +18,6 @@ public interface GamePersistencePort {
     Game updateGame(Long id, GameUpdate updateRequest);
 
     SyncResult syncGamesByStatus(GameStatus gameStatus);
+
+    DashboardDto getDashboard();
 }

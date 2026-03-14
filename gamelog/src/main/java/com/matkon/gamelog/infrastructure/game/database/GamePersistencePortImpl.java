@@ -2,10 +2,12 @@ package com.matkon.gamelog.infrastructure.game.database;
 
 import com.matkon.gamelog.common.exception.ItemAlreadyExistsException;
 import com.matkon.gamelog.common.exception.ItemNotFoundException;
+import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
-import com.matkon.gamelog.domain.common.sync.SyncResult;
+import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
+import com.matkon.gamelog.domain.game.model.dashboard.GameStatsDto;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
 import com.matkon.gamelog.domain.game.ports.out.GamePersistencePort;
 import com.matkon.gamelog.domain.game.sync.GameSyncStrategy;
@@ -32,6 +34,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
 
     @Override
     public Page<Game> getGames(int page, int size, String status, String searchTerm) {
+        log.info("Getting games with status: {}, searchTerm: {}", status, searchTerm);
         Pageable pageable = PageRequest.of(page, size);
 
         GameStatus dbStatus;
@@ -41,6 +44,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
             try {
                 dbStatus = GameStatus.valueOf(status.toUpperCase());
             } catch (IllegalArgumentException e) {
+                log.error("Invalid status: {}", status);
                 throw new IllegalArgumentException("Invalid status: " + status);
             }
         }
@@ -53,8 +57,10 @@ class GamePersistencePortImpl implements GamePersistencePort {
 
     @Override
     public Game saveGame(Long rawgId, GameStatus gameStatus) {
+        log.info("Saving game with rawgId: {}", rawgId);
         gameJpaRepository.findByRawgId(rawgId)
                 .ifPresent(game -> {
+                    log.error("Game already exists with rawgId: {}", rawgId);
                     throw new ItemAlreadyExistsException(rawgId);
                 });
 
@@ -64,13 +70,15 @@ class GamePersistencePortImpl implements GamePersistencePort {
         game.setStatus(gameStatus);
         GameEntity savedGameEntity = gameJpaRepository.save(gameMapper.mapGameToGameEntity(game));
 
-        log.info("Game saved successfully: id={}", rawgId);
+        log.info("Game id={} title={} saved", savedGameEntity.getId(), savedGameEntity.getTitle());
         return gameMapper.mapGameEntityToGame(savedGameEntity);
     }
 
     @Override
     public void deleteGame(Long gameId) {
+        log.info("Deleting game with id: {}", gameId);
         if (!gameJpaRepository.existsById(gameId)) {
+            log.error("Game with id: {} not found in the database", gameId);
             throw new ItemNotFoundException("Game with ID '%s' not found in the database".formatted(gameId));
         }
         gameJpaRepository.deleteById(gameId);
@@ -79,6 +87,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
     @Override
     @Transactional
     public Game updateGame(Long id, GameUpdate updateRequest) {
+        log.info("Updating game with id: {}", id);
         GameEntity existingGameEntity = gameJpaRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException("Game not found with id: " + id));
 
@@ -94,10 +103,33 @@ class GamePersistencePortImpl implements GamePersistencePort {
 
     @Override
     public SyncResult syncGamesByStatus(GameStatus status) {
+        log.info("Syncing games with status: {}", status);
         List<GameEntity> games = gameJpaRepository.findAll()
                 .stream()
                 .filter(game -> game.getStatus() == status)
                 .toList();
         return syncStrategy.sync(games.stream().map(gameMapper::mapGameEntityToGame).toList());
     }
+
+    @Override
+    public DashboardDto getDashboard() {
+        log.info("Getting dashboard");
+        GameStatsDto stats = new GameStatsDto(
+                gameJpaRepository.countTotal(),
+                gameJpaRepository.countByStatus(GameStatus.WISHLIST),
+                gameJpaRepository.countByStatus(GameStatus.PLAYING),
+                gameJpaRepository.countByStatus(GameStatus.COMPLETED),
+                gameJpaRepository.countByStatus(GameStatus.DROPPED),
+                gameJpaRepository.countByStatus(GameStatus.ONLINE),
+                gameJpaRepository.averageRating()
+        );
+
+        return new DashboardDto(
+                stats,
+                gameJpaRepository.platformStats(),
+                gameJpaRepository.completionsPerYear(),
+                gameJpaRepository.recentlyCompleted(PageRequest.of(0, 5))
+        );
+    }
+
 }

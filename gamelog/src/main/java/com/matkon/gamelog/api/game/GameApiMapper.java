@@ -1,7 +1,9 @@
 package com.matkon.gamelog.api.game;
 
+import com.matkon.gamelog.api.game.dashboard.DashboardResponse;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
+import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -21,6 +23,8 @@ public interface GameApiMapper {
     GameWishlistResponse mapGameToGameWishlistResponse(Game game);
 
     GameUpdate mapGameUpdateRequestToGameUpdate(GameUpdateRequest gameUpdateRequest);
+
+    DashboardResponse mapDashboardDtoToDashboardResponse(DashboardDto dashboardDto);
 
     // default methods
     default Long calculateDaysToRelease(LocalDate releaseDate) {
