@@ -1,0 +1,8 @@
+
+# curl -X 'GET'
+#  'http://localhost:8080/api/games?page=0&size=8&status=ALL'
+#  -H 'accept: */*'
+GET http://localhost:8080/api/games?page=0&size=8&status=ALL
+accept: */*
+
+###

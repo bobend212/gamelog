@@ -1,0 +1,10 @@
+
+# curl -X 'POST'
+#  'http://localhost:8080/api/games/54491?gameStatus=BACKLOG'
+#  -H 'accept: */*'
+#  -d ''
+POST http://localhost:8080/api/games/54497?gameStatus=BACKLOG
+accept: */*
+Content-Type: application/x-www-form-urlencoded
+
+###
