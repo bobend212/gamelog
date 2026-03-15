@@ -1,7 +1,6 @@
 package com.matkon.gamelog.infrastructure.game.database;
 
 import com.matkon.gamelog.domain.game.model.GameStatus;
-import com.matkon.gamelog.domain.game.model.dashboard.PlatformStatDto;
 import com.matkon.gamelog.domain.game.model.dashboard.RecentGameDto;
 import com.matkon.gamelog.domain.game.model.dashboard.YearCompletionStatDto;
 import org.springframework.data.domain.Page;
@@ -44,21 +43,6 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
     long countByStatus(@Param("status") GameStatus status);
 
     @Query("""
-            SELECT ROUND(AVG(g.rating), 1)
-            FROM GameEntity g
-            WHERE g.rating IS NOT NULL
-            """)
-    Double averageRating();
-
-    @Query("""
-            SELECT new com.matkon.gamelog.domain.game.model.dashboard.PlatformStatDto(g.platform, COUNT(g))
-            FROM GameEntity g
-            WHERE g.platform IS NOT NULL
-            GROUP BY g.platform
-            """)
-    List<PlatformStatDto> platformStats();
-
-    @Query("""
             SELECT new com.matkon.gamelog.domain.game.model.dashboard.YearCompletionStatDto(
                 YEAR(g.completedAt),
                 COUNT(g)
@@ -74,11 +58,14 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
             SELECT new com.matkon.gamelog.domain.game.model.dashboard.RecentGameDto(
                 g.rawgId,
                 g.title,
-                g.completedAt
+                g.updatedAt,
+                g.status,
+                g.releaseDate,
+                g.imageUrl
             )
             FROM GameEntity g
-            WHERE g.status = 'COMPLETED' AND g.completedAt IS NOT NULL
-            ORDER BY g.completedAt DESC
+            ORDER BY g.updatedAt DESC
+            LIMIT 5
             """)
-    List<RecentGameDto> recentlyCompleted(Pageable pageable);
+    List<RecentGameDto> recentlyUpdated(Pageable pageable);
 }

@@ -13,7 +13,6 @@ const Dashboard = () => {
     totalWishlist: 0,
     completedGames: 0,
     currentlyPlaying: 0,
-    backloggedGames: 0,
     droppedGames: 0,
     onlineGames: 0
   });
@@ -24,31 +23,31 @@ const Dashboard = () => {
   const [gamesReleased, setGamesReleased] = useState([]);
   const [gamesTBA, setGamesTBA] = useState([]);
 
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const [libraryGames, wishlistGames] = await Promise.all([
-        gameService.getGames(0, 2000),
-        gameService.getWishlistGames(),
-      ]);
+      // const [libraryGames, wishlistGames] = await Promise.all([
+      //   gameService.getGames(0, 2000),
+      //   gameService.getWishlistGames(),
+      // ]);
+      const dashboard = await gameService.getGamesDashboard();
 
-      // Stats calculations
       setStats({
-        totalLibrary: libraryGames.totalElements,
-        totalWishlist: libraryGames.content.filter(g => g.status === 'WISHLIST').length,
-        completedGames: libraryGames.content.filter(g => g.status === 'COMPLETED').length,
-        currentlyPlaying: libraryGames.content.filter(g => g.status === 'PLAYING').length,
-        backloggedGames: libraryGames.content.filter(g => g.status === 'BACKLOG').length,
-        droppedGames: libraryGames.content.filter(g => g.status === 'DROPPED').length,
-        onlineGames: libraryGames.content.filter(g => g.status === 'ONLINE').length,
+        totalLibrary: dashboard.stats.totalGames,
+        totalWishlist: dashboard.stats.wishlisted,
+        completedGames: dashboard.stats.completed,
+        currentlyPlaying: dashboard.stats.playing,
+        droppedGames: dashboard.stats.dropped,
+        onlineGames: dashboard.stats.online,
       });
 
       // Recently updated games carousel
-      const allGames = [...libraryGames.content, ...wishlistGames.content];
-      const sortedGames = allGames
-        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-        .slice(0, 20);
-      setLastEditedGames(sortedGames);
+      // const allGames = [...libraryGames.content, ...wishlistGames.content];
+      // const sortedGames = allGames
+      //   .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      //   .slice(0, 20);
+      setLastEditedGames(dashboard.recentlyUpdated);
 
     } catch (err) {
       setError(err.message);
@@ -60,34 +59,38 @@ const Dashboard = () => {
   const populateWishlistCarousels = async () => {
     try {
       const wishlistGames = await gameService.getWishlistGames(0, 100);
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const upcomingGames = wishlistGames.content.filter(game => {
+      const upcoming = [];
+      const released = [];
+      const tba = [];
+
+      for (const game of wishlistGames.content) {
+        if (game.tba) {
+          tba.push(game);
+          continue;
+        }
+
         const releaseDate = new Date(game.releaseDate);
-        return releaseDate >= today && !game.tba;
-      }).sort((a, b) => {
-        const dateA = new Date(a.releaseDate);
-        const dateB = new Date(b.releaseDate);
-        return dateA - dateB;
-      });;
 
-      setGamesNotReleased(upcomingGames);
+        if (releaseDate >= today) {
+          upcoming.push(game);
+        } else {
+          released.push(game);
+        }
+      }
 
-      const recentlyReleased = wishlistGames.content
-        .filter(game => {
-          const releaseDate = new Date(game.releaseDate);
-          return (releaseDate < today || releaseDate.toDateString() === today.toDateString()) && !game.tba;
-        })
-        .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
+      upcoming.sort((a, b) => new Date(a.releaseDate) - new Date(b.releaseDate));
+      released.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
 
-      setGamesReleased(recentlyReleased);
-
-      const gamesTBA = wishlistGames.content.filter(game => game.tba);
-      setGamesTBA(gamesTBA);
+      setGamesNotReleased(upcoming);
+      setGamesReleased(released);
+      setGamesTBA(tba);
 
     } catch (err) {
-      console.error('Failed to fetch wishlist games:', err);
+      console.error("Failed to fetch wishlist games:", err);
     }
   };
 
@@ -147,7 +150,7 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <GameCardCarousel games={lastEditedGames} header="Last Updated" />
+            <GameCardCarousel games={lastEditedGames} header="Recently Updated" />
             <GameCardCarousel games={gamesNotReleased} header="Upcoming" />
             <GameCardCarousel games={gamesReleased} header="Released" />
             <GameCardCarousel games={gamesTBA} header="TBA" />

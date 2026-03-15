@@ -120,15 +120,13 @@ class GamePersistencePortImpl implements GamePersistencePort {
                 gameJpaRepository.countByStatus(GameStatus.PLAYING),
                 gameJpaRepository.countByStatus(GameStatus.COMPLETED),
                 gameJpaRepository.countByStatus(GameStatus.DROPPED),
-                gameJpaRepository.countByStatus(GameStatus.ONLINE),
-                gameJpaRepository.averageRating()
+                gameJpaRepository.countByStatus(GameStatus.ONLINE)
         );
 
         return new DashboardDto(
                 stats,
-                gameJpaRepository.platformStats(),
                 gameJpaRepository.completionsPerYear(),
-                gameJpaRepository.recentlyCompleted(PageRequest.of(0, 5))
+                gameJpaRepository.recentlyUpdated(PageRequest.of(0, 5))
         );
     }
 

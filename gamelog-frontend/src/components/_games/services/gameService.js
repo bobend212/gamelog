@@ -4,6 +4,17 @@ const API_BASE_URL = process.env.REACT_APP_API_URL + "/api/games";
 
 const gameService = {
 
+  getGamesDashboard: async () => {
+    try {
+      const { data } = await axios.get(`${API_BASE_URL}/dashboard`);
+      // console.log(data)
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch dashboard:", error);
+      throw error;
+    }
+  },
+
   saveGame: async (rawgId, gameStatus) => {
     try {
       const response = await axios.post(

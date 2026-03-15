@@ -6,7 +6,6 @@ public record GameStatsDto(
         long playing,
         long completed,
         long dropped,
-        long online,
-        double averageRating
+        long online
 ) {
 }

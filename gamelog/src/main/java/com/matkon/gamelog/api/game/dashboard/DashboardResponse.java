@@ -5,8 +5,7 @@ import java.util.List;
 
 public record DashboardResponse(
         GameStats stats,
-        List<PlatformStat> platformBreakdown,
         List<YearCompletionStat> yearlyCompletions,
-        List<RecentGame> recentlyCompleted
+        List<RecentGame> recentlyUpdated
 ) {
 }
