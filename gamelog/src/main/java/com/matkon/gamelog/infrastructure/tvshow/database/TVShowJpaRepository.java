@@ -22,13 +22,17 @@ public interface TVShowJpaRepository extends JpaRepository<TVShowEntity, Long> {
     Optional<TVShowEntity> findByTmdbId(Long tmdbId);
 
     @Query(value = "SELECT DISTINCT t FROM TVShowEntity t " +
-            "LEFT JOIN FETCH t.vodProviders " +
-            "LEFT JOIN FETCH t.seasons " +
-            "WHERE (:search IS NULL OR LOWER(t.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            "LEFT JOIN t.vodProviders vp " +
+            "WHERE (:search IS NULL OR " +
+            "LOWER(t.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(vp) LIKE LOWER(CONCAT('%', :search, '%'))) " +
             "AND (:trackingType IS NULL OR t.trackingType = :trackingType)",
 
-            countQuery = "SELECT count(t) FROM TVShowEntity t " +
-                    "WHERE (:search IS NULL OR LOWER(t.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            countQuery = "SELECT COUNT(DISTINCT t) FROM TVShowEntity t " +
+                    "LEFT JOIN t.vodProviders vp " +
+                    "WHERE (:search IS NULL OR " +
+                    "LOWER(t.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                    "LOWER(vp) LIKE LOWER(CONCAT('%', :search, '%'))) " +
                     "AND (:trackingType IS NULL OR t.trackingType = :trackingType)")
     Page<TVShowEntity> findAllBySearchAndTrackingType(
             @Param("search") String search,
