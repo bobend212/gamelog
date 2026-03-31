@@ -1,18 +1,20 @@
 package com.matkon.gamelog.infrastructure.game.sync;
 
 import com.matkon.gamelog.domain.common.sync.FieldDifference;
-import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.common.sync.SyncResult;
+import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
 import com.matkon.gamelog.domain.game.sync.FieldSyncStrategy;
 import com.matkon.gamelog.domain.game.sync.GameSyncStrategy;
 import com.matkon.gamelog.infrastructure.game.database.GameJpaRepository;
 import com.matkon.gamelog.infrastructure.game.database.GameMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class DefaultGameSyncStrategy implements GameSyncStrategy {
 
@@ -51,11 +53,13 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
 
 
             if (changed) {
+                log.info("Updating game: {}", localGame.getTitle());
                 gameJpaRepository.save(gameMapper.mapGameToGameEntity(localGame));
                 updatedCount++;
             }
         }
 
+        log.info("Syncing games completed: updated={}", changes.size());
         return new SyncResult(gameEntities.size(), updatedCount, changes);
     }
 }
