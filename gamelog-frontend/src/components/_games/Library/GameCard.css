@@ -14,7 +14,7 @@
   transform: translateY(-2px);
 }
 
-/* ---------- Game Image ---------- */
+/* ---------- Image ---------- */
 .game-image {
   height: 200px;
   overflow: hidden;
@@ -22,193 +22,248 @@
   flex-shrink: 0;
 }
 
-/* ---------- Game Content ---------- */
-.game-content {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+.game-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* ---------- Game Details ---------- */
-.game-details {
-  flex-grow: 1;
-}
-
-/* ---------- Game Actions ---------- */
-.game-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  padding-top: 0.2rem;
-}
-
-/* ---------- Rating Badge ---------- */
-.rating-badge {
+/* ---------- Overlay ---------- */
+.image-overlay {
   position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  right: auto;
-  padding: 0.4rem 0.75rem;
-  border-radius: 14px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.6) 40%,
+      rgba(0, 0, 0, 0.0) 100%);
+  padding: 12px;
+
+  pointer-events: none;
+}
+
+.overlay-title {
+  font-size: 1rem;
+  font-weight: 700;
   color: white;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  margin: 0;
+}
+
+.overlay-meta {
+  font-size: 0.76rem;
+  color: #d1d5db;
+  margin-top: 4px;
+}
+
+/* ---------- Hover ---------- */
+.game-card:hover .game-image img {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* ---------- BADGES ---------- */
+
+/* LEFT SIDE */
+.top-left-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  height: 26px;
-  line-height: 1;
+  gap: 8px;
 }
 
+/* COMMON BADGE STYLE */
+.rating-badge {
+  padding: 5px 10px;
+  border-radius: 999px;
+
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.55);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+  transition: all 0.2s ease;
+}
+
+/* ICONS */
 .rating-icon {
   font-size: 0.8rem;
+  color: #facc15;
 }
 
 .rating-text {
-  letter-spacing: 0.5px;
   font-weight: 700;
 }
 
-/* ---------- Status Badge ---------- */
+.favourite-icon {
+  font-size: 0.75rem;
+  color: #fb7185;
+  margin-left: 4px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+}
+
+/* RIGHT SIDE */
 .status-badge {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  left: auto;
-  padding: 0.4rem 0.75rem;
-  border-radius: 14px;
+  top: 10px;
+  right: 10px;
+
+  padding: 5px 10px;
+  border-radius: 999px;
+
   font-size: 0.75rem;
   font-weight: 600;
   color: white;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 26px;
-  line-height: 1;
+
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.55);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Optional: persistent visibility class */
-.rating-badge.persistent,
-.status-badge.persistent {
-  opacity: 1;
-  transform: none;
+/* hover lift */
+.game-card:hover .rating-badge,
+.game-card:hover .status-badge {
+  transform: translateY(-2px);
+  background: rgba(0, 0, 0, 0.7);
 }
 
-/* ---------- Detail Layout ---------- */
-.game-detail {
+/* ---------- BADGE COLORS ---------- */
+.rating-badge.excellent {
+  border-color: rgba(16, 185, 129, 0.6);
+}
+
+.rating-badge.good {
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+.rating-badge.ok {
+  border-color: rgba(245, 158, 11, 0.6);
+}
+
+.rating-badge.bad {
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+.status-badge.playing {
+  border-color: rgba(139, 92, 246, 0.6);
+}
+
+.status-badge.completed {
+  border-color: rgba(16, 185, 129, 0.6);
+}
+
+.status-badge.backlog {
+  border-color: rgba(245, 158, 11, 0.6);
+}
+
+.status-badge.wishlist {
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+.status-badge.dropped {
+  border-color: rgba(107, 114, 128, 0.6);
+}
+
+.status-badge.online {
+  border-color: rgba(56, 189, 248, 0.6);
+}
+
+/* ---------- ACTION BUTTONS ---------- */
+.image-actions {
+  position: absolute;
+
+  right: 12px;
+  top: 50%;
+  transform: translate(10px, -50%);
+
   display: flex;
-  margin-bottom: 0.5rem;
-  font-size: 0.85rem;
-}
+  flex-direction: column;
+  gap: 8px;
 
-.detail-label {
-  color: #9ca3af;
-  font-weight: 500;
-  min-width: 70px;
-  margin-right: 0.5rem;
-}
+  opacity: 0;
+  z-index: 20;
 
-.detail-value {
-  color: #e5e7eb;
-  flex: 1;
-}
-
-.detail-value.notes {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: unset;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
-}
-
-/* ---------- Buttons ---------- */
-.btn-compact {
-  padding: 0.5rem;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
   transition: all 0.2s ease;
+}
+
+/* show on hover */
+.game-card:hover .image-actions {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* BUTTON STYLE (MATCH BADGES) */
+.btn-compact {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
 
-.btn-compact:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
 
-.btn-compact:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 
-.btn-compact .icon {
-  font-size: 1rem;
-}
-
-.btn-edit {
-  background-color: #3b82f6;
   color: white;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
 }
 
-.btn-edit:hover:not(:disabled) {
-  background-color: #2563eb;
+/* hover */
+.btn-compact:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.75);
+  transform: scale(1.08);
+}
+
+/* click */
+.btn-compact:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+/* accents */
+.btn-edit {
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
 .btn-delete {
-  background-color: #ef4444;
-  color: white;
+  border-color: rgba(239, 68, 68, 0.5);
 }
 
-.btn-delete:hover:not(:disabled) {
-  background-color: #dc2626;
+/* disabled */
+.btn-compact:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-/* ---------- Responsive Adjustments ---------- */
-@media (max-width: 768px) {
-  .rating-badge {
-    top: 0.5rem;
-    left: 0.5rem;
-    font-size: 0.7rem;
-    padding: 0.3rem 0.6rem;
-    height: 22px;
-  }
-
-  .rating-icon {
-    font-size: 0.7rem;
-  }
-
-  .rating-text {
-    font-size: 0.7rem;
-  }
-
-  .status-badge {
-    top: 0.5rem;
-    right: 0.5rem;
-    font-size: 0.7rem;
-    padding: 0.3rem 0.6rem;
-    height: 22px;
-  }
-}
-
-.completion-details-text {
-  font-style: italic;
-}
-
-.spacer {
-  margin-top: 10px;
-  margin-bottom: px;
+/* icon */
+.btn-compact .icon {
+  font-size: 0.8rem;
 }

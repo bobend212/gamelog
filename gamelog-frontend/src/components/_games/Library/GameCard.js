@@ -89,77 +89,86 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
     <>
       <div className="game-card">
         <div className="game-image">
-          {game.imageUrl ? (
-            <img src={game.imageUrl} alt={game.title} />
-          ) : (
-            <img src="../gamer-placeholder.png" alt="no-image" />
-          )}
+          <img
+            src={game.imageUrl || "/gamer-placeholder.png"}
+            alt={game.title}
+          />
 
-          {game.rating && (
-            <div
-              className="rating-badge"
-              style={{ backgroundColor: getRatingColor(game.rating) }}
-            >
-              <span className="rating-icon">★</span>
-              <span className="rating-text">{game.rating.toFixed(1)}</span>
+          <div className="image-overlay">
+            <div className="overlay-bottom">
+              <h3 className="overlay-title">
+                {game.title}
+
+              </h3>
+
+              <div className="overlay-meta">
+                <span>{formatDate(game.releaseDate)}</span>
+
+                {game.completedAt && (
+                  <span> • {formatDate(game.completedAt)} ✔</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {(game.rating || game.favourite) && (
+            <div className="top-left-badges">
+              {(game.rating || game.favourite) && (
+                <div
+                  className={`rating-badge ${game.rating >= 4.5
+                    ? 'excellent'
+                    : game.rating >= 4.0
+                      ? 'good'
+                      : game.rating >= 3.5
+                        ? 'ok'
+                        : 'bad'
+                    }`}
+                >
+                  {game.rating && (
+                    <>
+                      <span className="rating-icon">★</span>
+                      <span className="rating-text">{game.rating.toFixed(1)}</span>
+                    </>
+                  )}
+
+                  {game.favourite && (
+                    <span className="favourite-icon">♥</span>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {showStatus && (
             <div
-              className="status-badge"
-              style={{ backgroundColor: getStatusColor(game.status) }}
+              className={`status-badge ${game.status?.toLowerCase()}`}
             >
               {getStatusLabel(game.status)}
             </div>
           )}
-        </div>
 
-        <div className="game-content">
-          <h3 className="game-title">
-            {game.title}
-            {game.favourite && (<span>❤️</span>)}
-          </h3>
-
-          <div className="game-meta">
-            <p className="game-release">Release: {formatDate(game.releaseDate)}</p>
-            <div className="spacer"></div>
-            {game.completedAt && (
-              <div className="game-release">
-                <p className="completion-details-text">Completed on</p>
-                {formatDate(game.completedAt)}
-                {game.platform && ` • ${game.platform}`}
-              </div>
-            )}
-            {game.platform && !game.completedAt && (<p className="game-release">Platform: {game.platform}</p>
-            )}
-          </div>
-
-          <div className="game-details">
-            {game.notes && (
-              <div className="game-meta">
-                <p className="game-notes">{game.notes}</p>
-              </div>
-            )}
-          </div>
-
-          <div className="game-actions">
+          <div className="image-actions">
             <button
               onClick={handleEdit}
               disabled={isUpdating}
-              className="btn btn-compact btn-edit"
-              title="Edit game details"
+              className="btn-compact btn-edit"
             >
-              <span className="icon">✏️</span>
+              <span className="icon">✎</span>
             </button>
 
             <button
               onClick={handleDelete}
               disabled={isUpdating}
-              className="btn btn-compact btn-delete"
-              title="Remove from library"
+              className="btn-compact btn-delete"
             >
               <span className="icon">🗑️</span>
+            </button>
+            <button
+              // onClick={handleDelete}
+              disabled
+              className="btn-compact btn-delete"
+            >
+              <span className="icon">❔</span>
             </button>
           </div>
         </div>
