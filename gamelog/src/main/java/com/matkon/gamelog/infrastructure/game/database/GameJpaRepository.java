@@ -21,10 +21,17 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
     Optional<GameEntity> findById(Long id);
 
     @Query("""
-                SELECT g FROM GameEntity g
-                WHERE (:status IS NULL OR g.status = :status)
-                  AND (:searchTerm IS NULL OR :searchTerm = '' OR LOWER(g.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')))
-                ORDER BY CASE WHEN g.status = 'PLAYING' THEN 0 ELSE 1 END, g.updatedAt DESC
+            SELECT g FROM GameEntity g
+            WHERE (:status IS NULL OR g.status = :status)
+              AND (:searchTerm IS NULL OR :searchTerm = '' OR LOWER(g.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')))
+            ORDER BY
+              CASE
+                WHEN g.status = 'PLAYING' THEN 0
+                WHEN g.status = 'BACKLOG' THEN 1
+                ELSE 2
+              END,
+              CASE WHEN g.completedAt IS NULL THEN 1 ELSE 0 END,
+              g.completedAt DESC
             """)
     Page<GameEntity> findGamesByStatus(
             @Param("status") GameStatus status,
