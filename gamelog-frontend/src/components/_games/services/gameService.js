@@ -7,10 +7,19 @@ const gameService = {
   getGamesDashboard: async () => {
     try {
       const { data } = await axios.get(`${API_BASE_URL}/dashboard`);
-      // console.log(data)
       return data;
     } catch (error) {
       console.error("Failed to fetch dashboard:", error);
+      throw error;
+    }
+  },
+
+  getGameDetails: async (gameId) => {
+    try {
+      const { data } = await axios.get(`${API_BASE_URL}/details/${gameId}`);
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch game details:", error);
       throw error;
     }
   },

@@ -2,7 +2,9 @@ package com.matkon.gamelog.infrastructure.integration.rawg;
 
 import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.game.model.Game;
+import com.matkon.gamelog.domain.game.model.GameDetails;
 import com.matkon.gamelog.domain.game.ports.out.GameInfoPort;
+import com.matkon.gamelog.infrastructure.integration.rawg.dto.RawgGameDetailsDto;
 import com.matkon.gamelog.infrastructure.integration.rawg.dto.RawgGameInfoDto;
 import com.matkon.gamelog.infrastructure.integration.rawg.dto.RawgSearchResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,7 +46,7 @@ class RawgInfoAdapter implements GameInfoPort {
     }
 
     @Override
-    public Game getGameDetails(Long rawgId) {
+    public Game getGame(Long rawgId) {
         RawgGameInfoDto response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/games/" + rawgId)
@@ -60,5 +62,24 @@ class RawgInfoAdapter implements GameInfoPort {
         }
 
         return rawgMapper.mapRawgGameInfoDtoToGame(response);
+    }
+
+    @Override
+    public GameDetails getGameDetails(Long rawgId) {
+        RawgGameDetailsDto response = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/games/" + rawgId)
+                        .build())
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, (req, res) -> {
+                    throw new ItemNotFoundException("Game with following ID '%s' does not exist in the API".formatted(rawgId));
+                })
+                .body(RawgGameDetailsDto.class);
+
+        if (response == null) {
+            return null;
+        }
+
+        return rawgMapper.mapRawgGameDetailsDtoToGameDetails(response);
     }
 }

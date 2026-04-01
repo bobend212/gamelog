@@ -2,6 +2,7 @@ package com.matkon.gamelog.domain.game.service;
 
 import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.model.Game;
+import com.matkon.gamelog.domain.game.model.GameDetailsDto;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
@@ -61,5 +62,9 @@ public class GameService
 
     public DashboardDto getDashboard() {
         return gamePersistencePort.getDashboard();
+    }
+
+    public GameDetailsDto getGameDetails(Long gameId) {
+        return gamePersistencePort.getGameDetails(gameId);
     }
 }

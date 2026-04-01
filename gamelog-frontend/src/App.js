@@ -15,6 +15,7 @@ import TVShowsDashboard from './components/_tv-shows/Dashboard/TVShowsDashboard'
 import TVShowSearch from './components/_tv-shows/Search/TVShowSearch';
 import TVShowDetails from './components/_tv-shows/Details/TVShowDetails';
 import TVShowSync from './components/_tv-shows/Sync/TVShowSync';
+import GameDetails from './components/_games/Details/GameDetails';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/games/library" element={<Library />} />
             <Route path="/games/sync" element={<SyncLibrary />} />
             <Route path="/games/search" element={<GameSearch />} />
+            <Route path="/games/details/:gameId" element={<GameDetails />} />
 
             {/* TV Shows */}
             <Route path="/tv-shows/dashboard" element={<TVShowsDashboard />} />

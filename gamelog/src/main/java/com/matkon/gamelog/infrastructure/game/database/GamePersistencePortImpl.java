@@ -4,6 +4,8 @@ import com.matkon.gamelog.common.exception.ItemAlreadyExistsException;
 import com.matkon.gamelog.common.exception.ItemNotFoundException;
 import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.model.Game;
+import com.matkon.gamelog.domain.game.model.GameDetails;
+import com.matkon.gamelog.domain.game.model.GameDetailsDto;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
@@ -64,7 +66,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
                     throw new ItemAlreadyExistsException(rawgId);
                 });
 
-        Game game = Optional.ofNullable(gameInfoPort.getGameDetails(rawgId))
+        Game game = Optional.ofNullable(gameInfoPort.getGame(rawgId))
                 .orElseThrow(() -> new ItemNotFoundException("Game with ID '%s' not found in external API".formatted(rawgId)));
 
         game.setStatus(gameStatus);
@@ -128,6 +130,23 @@ class GamePersistencePortImpl implements GamePersistencePort {
                 gameJpaRepository.completionsPerYear(),
                 gameJpaRepository.recentlyUpdated(PageRequest.of(0, 5))
         );
+    }
+
+    @Override
+    public GameDetailsDto getGameDetails(Long gameId) {
+
+        GameEntity existingGameEntity = gameJpaRepository.findById(gameId)
+                .orElseThrow(() -> new ItemNotFoundException("Game not found with id: " + gameId));
+
+        Game game = gameMapper.mapGameEntityToGame(existingGameEntity);
+
+        GameDetails externalDetails = gameInfoPort.getGameDetails(game.getRawgId());
+
+        if (externalDetails == null) {
+            return new GameDetailsDto(game, null);
+        }
+
+        return new GameDetailsDto(game, externalDetails);
     }
 
 }

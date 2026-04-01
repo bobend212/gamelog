@@ -3,8 +3,11 @@ import gameService from '../services/gameService';
 import EditGameModal from './EditGameModal';
 import './GameCard.css';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const GameCard = ({ game, onUpdate, showStatus = true }) => {
+  const navigate = useNavigate();
+
   const [isUpdating, setIsUpdating] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -164,9 +167,8 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
               <span className="icon">🗑️</span>
             </button>
             <button
-              // onClick={handleDelete}
-              disabled
-              className="btn-compact btn-delete"
+              onClick={() => navigate(`/games/details/${game.id}`)}
+              className="btn-compact"
             >
               <span className="icon">❔</span>
             </button>

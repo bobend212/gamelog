@@ -2,6 +2,7 @@ package com.matkon.gamelog.domain.game.ports.out;
 
 import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.model.Game;
+import com.matkon.gamelog.domain.game.model.GameDetailsDto;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
@@ -20,4 +21,6 @@ public interface GamePersistencePort {
     SyncResult syncGamesByStatus(GameStatus gameStatus);
 
     DashboardDto getDashboard();
+
+    GameDetailsDto getGameDetails(Long gameId);
 }

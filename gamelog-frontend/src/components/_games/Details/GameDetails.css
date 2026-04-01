@@ -1,0 +1,295 @@
+.game-details-page {
+    color: white;
+}
+
+/* ---------- HERO ---------- */
+
+.hero {
+    position: relative;
+    height: 420px;
+    background-size: cover;
+    background-position: center;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(to top, #0f0f0f 10%, transparent 60%),
+        linear-gradient(to right, rgba(0, 0, 0, 0.85) 20%, transparent 70%);
+    backdrop-filter: blur(12px);
+}
+
+.hero-content {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 2rem;
+    height: 100%;
+    padding-bottom: 2rem;
+}
+
+.hero-cover {
+    width: 22rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    transition: transform 0.3s ease;
+}
+
+.hero-cover:hover {
+    transform: scale(1.03);
+}
+
+.hero-info h1 {
+    font-size: 2.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero-meta {
+    display: flex;
+    gap: 1rem;
+    color: #9ca3af;
+    /* margin-bottom: 1rem; */
+    align-items: center;
+    justify-content: center;
+}
+
+.status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- BADGE ---------- */
+
+.rating-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* ---------- ACTIONS ---------- */
+
+.hero-actions a {
+    margin-right: 10px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.hero-actions a:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ---------- BODY ---------- */
+
+.details-body {
+    margin-top: 0;
+    padding-top: 2rem;
+}
+
+/* ---------- GLASS ---------- */
+
+.glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* ---------- SECTION HEADER ---------- */
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.section-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.section-icon {
+    font-size: 1.2rem;
+}
+
+/* ---------- NOTES (premium personal look) ---------- */
+
+.notes-card {
+    background: linear-gradient(135deg,
+            rgba(59, 130, 246, 0.15),
+            rgba(139, 92, 246, 0.15));
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(12px);
+}
+
+.notes-card p {
+    color: #e0e7ff;
+    line-height: 1.7;
+    font-style: italic;
+}
+
+/* ---------- DESCRIPTION ---------- */
+
+.description {
+    color: #e5e7eb;
+    line-height: 1.7;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 768px) {
+    .hero {
+        height: auto;
+        padding: 2rem 0;
+    }
+
+    .hero-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .hero-cover {
+        width: 160px;
+    }
+
+    .hero-info h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* ---------- META SECTIONS ---------- */
+
+.meta-section {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-row {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.meta-section.user {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.meta-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+    margin-bottom: 0.4rem;
+}
+
+/* ---------- META ROW ---------- */
+
+.hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* ---------- STATUS ---------- */
+
+.status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* ---------- RATING INLINE (KEY CHANGE) ---------- */
+
+.rating-inline {
+    padding: 4px 10px;
+    border-radius: 999px;
+
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    background: rgba(250, 204, 21, 0.15);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+
+    color: #fde68a;
+}
+
+/* subtle hover polish */
+.meta-section.user:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+/* ---------- METACRITIC BUTTON WITH SCORE ---------- */
+
+.action-btn.metacritic {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+}
+
+/* score badge */
+.metacritic-score {
+    margin-left: 6px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+/* good */
+.action-btn.metacritic.good {
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.action-btn.metacritic.good .metacritic-score {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+
+/* mid */
+.action-btn.metacritic.mid {
+    border-color: rgba(234, 179, 8, 0.4);
+}
+
+.action-btn.metacritic.mid .metacritic-score {
+    background: rgba(234, 179, 8, 0.2);
+    color: #fde68a;
+}
+
+/* bad */
+.action-btn.metacritic.bad {
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.action-btn.metacritic.bad .metacritic-score {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}

@@ -40,7 +40,7 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
         List<FieldDifference> changes = new ArrayList<>();
 
         for (Game localGame : gameEntities) {
-            Game latestData = gameInfoPort.getGameDetails(localGame.getRawgId());
+            Game latestData = gameInfoPort.getGame(localGame.getRawgId());
             if (latestData == null) continue;
 
             boolean changed = false;

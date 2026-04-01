@@ -47,6 +47,15 @@ class GameController {
                         gameService.getDashboard()));
     }
 
+    @GetMapping("/details/{id}")
+    @Operation(summary = "Get game details data")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
+    public ResponseEntity<GameDetailsResponse> getGameDetails(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(gameApiMapper.mapGameDetailsToGameDetailsResponse(
+                        gameService.getGameDetails(id)));
+    }
+
     @GetMapping()
     @Operation(summary = "Get ALL games - by status and search query")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
