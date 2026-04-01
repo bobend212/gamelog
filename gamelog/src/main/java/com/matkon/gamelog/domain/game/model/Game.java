@@ -21,7 +21,7 @@ public class Game {
     private Double rating;
     private String notes;
     private String platform;
-    private boolean favourite = false;
+    private boolean favourite;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDate completedAt;

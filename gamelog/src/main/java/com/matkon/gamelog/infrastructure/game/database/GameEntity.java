@@ -42,7 +42,7 @@ public class GameEntity {
     private String platform;
 
     @Column(nullable = false)
-    private boolean favourite = false;
+    private boolean favourite;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
