@@ -31,7 +31,7 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
                 ELSE 2
               END,
               CASE WHEN g.completedAt IS NULL THEN 1 ELSE 0 END,
-              g.completedAt DESC
+              g.updatedAt DESC
             """)
     Page<GameEntity> findGamesByStatus(
             @Param("status") GameStatus status,
