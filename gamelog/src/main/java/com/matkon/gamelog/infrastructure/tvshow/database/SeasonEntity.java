@@ -6,6 +6,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "seasons")
@@ -21,19 +24,30 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class SeasonEntity {
+
     @Id
     @GeneratedValue
     private Long id;
-
     private String name;
     private int seasonNumber;
     private LocalDate airDate;
     private int episodeCount;
-
     private int watchedCount;
     private Double rating;
 
+    private LocalDateTime updatedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "series_id")
-    private TVShowEntity series;
+    @JoinColumn(name = "tv_show_id")
+    private TVShowEntity tvShow;
+
+    @PrePersist
+    protected void onCreate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

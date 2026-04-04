@@ -108,7 +108,7 @@ public class TVShowPersistencePortImpl implements TVShowPersistencePort {
                 .orElseThrow(() -> new ItemNotFoundException("Season with ID '%s' not found in the database".formatted(seasonId)));
 
         existingSeason.setRating(rating);
-        existingSeason.getSeries().setUpdatedAt(LocalDateTime.now());
+        existingSeason.getTvShow().setUpdatedAt(LocalDateTime.now());
     }
 
     @Override
@@ -124,7 +124,7 @@ public class TVShowPersistencePortImpl implements TVShowPersistencePort {
 
         if (newWatchedCount >= 0 && newWatchedCount <= maxEpisodes) {
             existingSeason.setWatchedCount(newWatchedCount);
-            existingSeason.getSeries().setUpdatedAt(LocalDateTime.now());
+            existingSeason.getTvShow().setUpdatedAt(LocalDateTime.now());
         }
     }
 

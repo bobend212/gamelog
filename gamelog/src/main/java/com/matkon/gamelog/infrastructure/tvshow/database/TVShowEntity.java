@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "series")
+@Table(name = "tv_shows")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -53,18 +53,18 @@ public class TVShowEntity {
     @Enumerated(EnumType.STRING)
     private TrackingType trackingType;
 
-    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("seasonNumber ASC")
     private Set<SeasonEntity> seasons = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tvseries_vod_providers", joinColumns = @JoinColumn(name = "tvseries_id"))
-    @Column(name = "provider_name")
+    @CollectionTable(name = "tv_show_vod_providers", joinColumns = @JoinColumn(name = "tv_show_id"))
+    @Column(name = "provider")
     private Set<String> vodProviders = new HashSet<>();
 
     public void addSeason(SeasonEntity seasonEntity) {
         seasons.add(seasonEntity);
-        seasonEntity.setSeries(this);
+        seasonEntity.setTvShow(this);
     }
 
     @PreUpdate

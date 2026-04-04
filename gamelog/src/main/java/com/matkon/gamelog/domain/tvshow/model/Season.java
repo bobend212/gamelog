@@ -22,5 +22,5 @@ public class Season {
     private int episodeCount;
     private int watchedCount;
     private Double rating;
-    private TVShow series;
+    private TVShow tvShow;
 }

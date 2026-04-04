@@ -133,7 +133,7 @@ public class DefaultTVShowSyncStrategy implements TVShowSyncStrategy {
 
         if (SyncUtils.areStringsDifferent(target.getName(), source.getName())) {
             changes.add(FieldDifference.builder()
-                    .title(target.getSeries().getName() + " - Season: " + target.getSeasonNumber())
+                    .title(target.getTvShow().getName() + " - Season: " + target.getSeasonNumber())
                     .fieldName("Name")
                     .oldValue(target.getName())
                     .newValue(source.getName())
@@ -143,7 +143,7 @@ public class DefaultTVShowSyncStrategy implements TVShowSyncStrategy {
         }
         if (SyncUtils.areDatesDifferent(target.getAirDate(), source.getAirDate())) {
             changes.add(FieldDifference.builder()
-                    .title(target.getSeries().getName() + " - Season: " + target.getSeasonNumber())
+                    .title(target.getTvShow().getName() + " - Season: " + target.getSeasonNumber())
                     .fieldName("Air Date")
                     .oldValue(String.valueOf(target.getAirDate()))
                     .newValue(String.valueOf(source.getAirDate()))
@@ -153,7 +153,7 @@ public class DefaultTVShowSyncStrategy implements TVShowSyncStrategy {
         }
         if (SyncUtils.areIntsDifferent(target.getEpisodeCount(), source.getEpisodeCount())) {
             changes.add(FieldDifference.builder()
-                    .title(target.getSeries().getName() + " - Season: " + target.getSeasonNumber())
+                    .title(target.getTvShow().getName() + " - Season: " + target.getSeasonNumber())
                     .fieldName("No. of episodes")
                     .oldValue(String.valueOf(target.getEpisodeCount()))
                     .newValue(String.valueOf(source.getEpisodeCount()))

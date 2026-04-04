@@ -14,7 +14,7 @@ public interface TVShowMapper {
     @Mapping(target = "seasons", ignore = true)
     TVShowEntity mapTVShowToTVShowEntity(TVShow tvShow);
 
-    @Mapping(target = "series", ignore = true)
+    @Mapping(target = "tvShow", ignore = true)
     Season mapSeasonEntityToSeason(SeasonEntity seasonEntity);
 
     SeasonEntity mapSeasonToSeasonEntity(Season season);
