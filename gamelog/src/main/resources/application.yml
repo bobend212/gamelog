@@ -20,6 +20,8 @@ spring:
     schemas: public
   main:
     banner-mode: off
+  jackson:
+    time-zone: Europe/Warsaw
 
 server:
   port: 8080

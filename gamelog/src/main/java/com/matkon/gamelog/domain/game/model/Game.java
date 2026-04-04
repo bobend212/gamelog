@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -22,8 +22,8 @@ public class Game {
     private String notes;
     private String platform;
     private boolean favourite;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
     private LocalDate completedAt;
     private Long rawgId;
     private String title;

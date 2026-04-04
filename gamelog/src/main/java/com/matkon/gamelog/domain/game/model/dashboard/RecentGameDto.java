@@ -3,12 +3,12 @@ package com.matkon.gamelog.domain.game.model.dashboard;
 import com.matkon.gamelog.domain.game.model.GameStatus;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public record RecentGameDto(
-        Long gameId,
+        Long id,
         String title,
-        LocalDateTime updatedAt,
+        OffsetDateTime updatedAt,
         GameStatus status,
         LocalDate releaseDate,
         String imageUrl
