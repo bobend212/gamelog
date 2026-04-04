@@ -37,9 +37,11 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
     @Override
     public SyncResult sync(List<Game> gameEntities) {
         int updatedCount = 0;
+        int counter = 1;
         List<FieldDifference> changes = new ArrayList<>();
 
         for (Game localGame : gameEntities) {
+            log.info("Syncing games progress: {} of {}", counter, gameEntities.size());
             Game latestData = gameInfoPort.getGame(localGame.getRawgId());
             if (latestData == null) continue;
 
@@ -57,6 +59,7 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
                 gameJpaRepository.save(gameMapper.mapGameToGameEntity(localGame));
                 updatedCount++;
             }
+            counter++;
         }
 
         log.info("Syncing games completed: updated={}", changes.size());
