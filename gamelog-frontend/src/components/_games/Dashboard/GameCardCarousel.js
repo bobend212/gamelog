@@ -1,49 +1,63 @@
 import React, { useState } from "react";
-import { Box, IconButton, Typography, Card, CardContent, CardMedia } from "@mui/material";
+import {
+    Box,
+    IconButton,
+    Typography,
+    Card,
+    CardContent,
+    CardMedia
+} from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { useNavigate } from "react-router-dom";
 
 const cardWidth = 200;
 const cardsAtOnce = 5;
-const gapSize = 16; // gap=2 in MUI spacing = 8 * 2
+const gapSize = 16;
 
 export default function GameCardCarousel({ games, header }) {
+    const navigate = useNavigate();
     const [startIdx, setStartIdx] = useState(0);
 
     const canGoBack = startIdx > 0;
     const canGoForward = startIdx + cardsAtOnce < games.length;
 
     const handlePrev = () => setStartIdx(Math.max(0, startIdx - cardsAtOnce));
-    const handleNext = () => setStartIdx(Math.min(games.length - cardsAtOnce, startIdx + cardsAtOnce));
+    const handleNext = () =>
+        setStartIdx(Math.min(games.length - cardsAtOnce, startIdx + cardsAtOnce));
+
+    const handleNavigate = (id) => {
+        navigate(`/games/details/${id}`);
+    };
 
     const formatDateToCustomString = (dateString) => {
         const date = new Date(dateString);
-        const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        const month = monthNames[date.getMonth()];
-        const day = date.getDate();
-        const year = date.getFullYear();
-        return `${month} ${day}, ${year}`;
-    }
+        const monthNames = [
+            "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+        ];
+        return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} `;
+    };
+
     return (
         <Box
             sx={{
                 position: "relative",
-                px: 0,
-                py: 0.5,
+                py: 1,
                 background: "#191919",
                 borderRadius: 3,
                 overflow: "hidden"
             }}
         >
             {header && (
-                <Typography variant="h5" sx={{ mb: 2, color: "#fff", ml: 2, textAlign: "left" }}>
+                <Typography variant="h5" sx={{ mb: 2, color: "#fff", ml: 2 }}>
                     {header}
                 </Typography>
             )}
+
             <Box sx={{ display: "flex", alignItems: "center" }}>
+
                 <IconButton
-                    aria-label="previous"
                     onClick={handlePrev}
                     disabled={!canGoBack}
                     sx={{
@@ -51,75 +65,121 @@ export default function GameCardCarousel({ games, header }) {
                         bgcolor: "#222",
                         mr: 2,
                         opacity: canGoBack ? 1 : 0.4,
-                        "&:hover": { bgcolor: "#333" },
+                        "&:hover": { bgcolor: "#333" }
                     }}
                 >
-                    <ArrowBackIosNewIcon />
+                    <ArrowBackIosNewIcon fontSize="small" />
                 </IconButton>
+
                 <Box
                     sx={{
                         display: "flex",
-                        gap: 1.5,
+                        gap: 1.2,
                         overflow: "hidden",
-                        flexWrap: "nowrap",
                         width: `calc(${cardWidth}px * ${cardsAtOnce} + ${gapSize}px * ${cardsAtOnce - 1})`
-                        // paddingBottom: 0
-                        // minHeight: 270,
                     }}
                 >
-                    {games.slice(startIdx, startIdx + cardsAtOnce).map((game) => (
-                        <Card
-                            key={game.id}
-                            sx={{
-                                width: cardWidth,
-                                minWidth: cardWidth,
-                                borderRadius: 2,
-                                bgcolor: "#232323",
-                                color: "#fff",
-                                boxShadow: 3,
-                                display: "flex",
-                                flexDirection: "column"
-                            }}
-                        >
-                            <CardMedia
-                                image={game.imageUrl}
-                                title={game.title}
-                                sx={{ height: 112, backgroundSize: "cover" }}
-                            />
-                            <CardContent sx={{ textAlign: "center" }} style={{ padding: 8 }}>
-                                <Typography
-                                    variant="body2"
+                    {games
+                        .slice(startIdx, startIdx + cardsAtOnce)
+                        .map((game) => (
+                            <Card
+                                key={game.id}
+                                onClick={() => handleNavigate(game.id)}
+                                sx={{
+                                    width: cardWidth,
+                                    minWidth: cardWidth,
+                                    borderRadius: 2,
+                                    bgcolor: "#232323",
+                                    color: "#fff",
+                                    boxShadow: 2,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease",
+                                    "&:hover": {
+                                        transform: "translateY(-3px)",
+                                        boxShadow: 4
+                                    }
+                                }}
+                            >
+                                <CardMedia
+                                    image={game.imageUrl}
+                                    title={game.title}
                                     sx={{
-                                        fontWeight: 600,
-                                        whiteSpace: 'normal',
-                                        wordBreak: 'break-word',
+                                        height: 120,
+                                        backgroundSize: "cover"
                                     }}
-                                    gutterBottom
+                                />
+
+                                <CardContent
+                                    sx={{
+                                        px: 0.7,
+                                        py: 0.4,
+                                        "&:last-child": {
+                                            pb: 0.4
+                                        },
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        textAlign: "center"
+                                    }}
                                 >
-                                    {game.title}
-                                </Typography>
-
-                                <Typography variant="body2" sx={{ color: "#aaa" }}>
-                                    {game.releaseDate ? `${formatDateToCustomString(game.releaseDate)}` : "TBA"}
-                                </Typography>
-
-                                {game.daysToRelease && (
-                                    <Typography variant="body2" sx={{ color: "#aaa", fontWeight: 600 }}>
-                                        {game.daysToRelease} days left
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            fontWeight: 700,
+                                            fontSize: "0.9rem",
+                                            lineHeight: 1.2,
+                                            display: "-webkit-box",
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: "vertical",
+                                            overflow: "hidden"
+                                        }}
+                                    >
+                                        {game.title}
                                     </Typography>
-                                )}
 
-                                {game.status && (
-                                    <Box sx={{ fontWeight: 600 }}>
-                                        {game.status}
-                                    </Box>
-                                )}
-                            </CardContent>
-                        </Card>
-                    ))}
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            color: "#bbb",
+                                            fontSize: "0.72rem"
+                                        }}
+                                    >
+                                        {game.releaseDate
+                                            ? formatDateToCustomString(game.releaseDate)
+                                            : ""}
+                                        {game.daysToRelease && (
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    color: "#bbb",
+                                                    fontSize: "0.72rem"
+                                                }}
+                                            >
+                                                - {game.daysToRelease} days left
+                                            </Typography>
+                                        )}
+                                    </Typography>
+
+                                    {game.status && (
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                fontWeight: 700,
+                                                fontSize: "0.7rem",
+                                                color: "#4ade80"
+                                            }}
+                                        >
+                                            {game.status}
+                                        </Typography>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ))}
                 </Box>
+
                 <IconButton
-                    aria-label="next"
                     onClick={handleNext}
                     disabled={!canGoForward}
                     sx={{
@@ -127,11 +187,12 @@ export default function GameCardCarousel({ games, header }) {
                         bgcolor: "#222",
                         ml: 2,
                         opacity: canGoForward ? 1 : 0.4,
-                        "&:hover": { bgcolor: "#333" },
+                        "&:hover": { bgcolor: "#333" }
                     }}
                 >
-                    <ArrowForwardIosIcon />
+                    <ArrowForwardIosIcon fontSize="small" />
                 </IconButton>
+
             </Box>
         </Box>
     );
