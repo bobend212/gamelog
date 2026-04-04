@@ -128,7 +128,6 @@ const GameDetails = () => {
                                         rel="noreferrer"
                                         className="action-btn"
                                     >
-                                        <span className="action-icon">🔗 </span>
                                         <span>Website</span>
                                     </a>
                                 )}
@@ -145,7 +144,6 @@ const GameDetails = () => {
                                                 : 'bad'
                                             }`}
                                     >
-                                        <span className="action-icon">🟢</span>
                                         <span>Metacritic</span>
 
                                         {details.metacritic && (
