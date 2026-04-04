@@ -21,17 +21,28 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
     Optional<GameEntity> findById(Long id);
 
     @Query("""
-            SELECT g FROM GameEntity g
+            SELECT g
+            FROM GameEntity g
             WHERE (:status IS NULL OR g.status = :status)
               AND (:searchTerm IS NULL OR :searchTerm = '' OR LOWER(g.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')))
-            ORDER BY
-              CASE
-                WHEN g.status = 'PLAYING' THEN 0
-                WHEN g.status = 'BACKLOG' THEN 1
-                ELSE 2
-              END,
-              CASE WHEN g.completedAt IS NULL THEN 1 ELSE 0 END,
-              g.updatedAt DESC
+            ORDER BY CASE
+                         WHEN :status IS NOT NULL THEN 0
+                         WHEN g.status = 'PLAYING' THEN 0
+                         WHEN g.status = 'BACKLOG' THEN 1
+                         WHEN g.status = 'COMPLETED' THEN 2
+                         ELSE 3
+                         END,
+                     CASE
+                         WHEN :status = 'COMPLETED' AND g.completedAt IS NULL THEN 1
+                         WHEN :status IS NULL AND g.status = 'COMPLETED' AND g.completedAt IS NULL THEN 1
+                         ELSE 0
+                         END,
+                     CASE
+                         WHEN :status = 'COMPLETED' THEN g.completedAt
+                         WHEN :status IS NOT NULL THEN g.updatedAt
+                         WHEN g.status = 'COMPLETED' THEN g.completedAt
+                         ELSE g.updatedAt
+                         END DESC
             """)
     Page<GameEntity> findGamesByStatus(
             @Param("status") GameStatus status,
@@ -63,7 +74,7 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
 
     @Query("""
             SELECT new com.matkon.gamelog.domain.game.model.dashboard.RecentGameDto(
-                g.rawgId,
+                g.id,
                 g.title,
                 g.updatedAt,
                 g.status,
