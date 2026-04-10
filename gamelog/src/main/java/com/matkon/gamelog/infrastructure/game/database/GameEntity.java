@@ -56,6 +56,8 @@ public class GameEntity {
     @Column(unique = true)
     private Long rawgId;
 
+    private Long igdbId;
+
     @NotBlank
     @Column(nullable = false)
     private String title;

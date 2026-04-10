@@ -22,6 +22,7 @@ class GameResponse {
     private OffsetDateTime updatedAt;
     private LocalDate completedAt;
     private Long rawgId;
+    private Long igdbId;
     private String title;
     private LocalDate releaseDate;
     private String imageUrl;

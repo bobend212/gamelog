@@ -41,8 +41,8 @@ public class GameService
     }
 
     @Override
-    public Game saveGame(Long rawgId, GameStatus gameStatus) {
-        return gamePersistencePort.saveGame(rawgId, gameStatus);
+    public Game saveGame(Long externalId, GameStatus gameStatus) {
+        return gamePersistencePort.saveGame(externalId, gameStatus);
     }
 
     @Override

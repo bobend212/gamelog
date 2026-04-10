@@ -20,7 +20,7 @@ const SearchResultCard = ({ game, onGameAdded }) => {
 
   const handleSaveGame = async (gameStatus) => {
     try {
-      const result = await gameService.saveGame(game.rawgId, gameStatus);
+      const result = await gameService.saveGame(game.externalId, gameStatus);
       setIsAdding(true);
       if (gameStatus === "WISHLIST") {
         toast.success(`"${game.title}" saved to Wishlist! 🟣`);

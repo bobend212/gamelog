@@ -83,7 +83,7 @@ class GameController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "[RAWG API] Search games - by query")
+    @Operation(summary = "[IGDB API] Search games - by query")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
             @ApiResponse(responseCode = "404", description = "Not found - Nothing found by query.")
@@ -94,18 +94,17 @@ class GameController {
                         .stream().map(gameApiMapper::mapGameToGameSearchResponse).toList());
     }
 
-    @PostMapping("/{rawgId}")
-    @Operation(summary = "[RAWG API] Save game - by rawgId")
+    @PostMapping("/{externalId}")
+    @Operation(summary = "[IGDB API] Save game - by externalId")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully added to library."),
             @ApiResponse(responseCode = "409", description = "Conflict - The game already exist in the db."),
             @ApiResponse(responseCode = "404", description = "Not Found - The game does not exist in the API")
     })
-    public ResponseEntity<GameResponse> saveGame(@PathVariable Long rawgId,
-                                                 @RequestParam(defaultValue = "BACKLOG") GameStatus gameStatus) {
+    public ResponseEntity<GameResponse> saveGame(@PathVariable Long externalId, @RequestParam(defaultValue = "BACKLOG") GameStatus gameStatus) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(gameApiMapper.mapGameToGameResponse(
-                        gameService.saveGame(rawgId, gameStatus)));
+                        gameService.saveGame(externalId, gameStatus)));
     }
 
     @DeleteMapping("/{id}")

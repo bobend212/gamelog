@@ -20,7 +20,7 @@ const Library = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalGames, setTotalGames] = useState(0);
-  const [pageSize] = useState(20);
+  const [pageSize] = useState(12);
 
   // ✅ Debounce search term
   useEffect(() => {

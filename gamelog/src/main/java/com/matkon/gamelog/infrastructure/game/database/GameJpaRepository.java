@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
 
-    Optional<GameEntity> findByRawgId(Long rawgId);
+    Optional<GameEntity> findByIgdbId(Long igdbId);
 
     Optional<GameEntity> findById(Long id);
 

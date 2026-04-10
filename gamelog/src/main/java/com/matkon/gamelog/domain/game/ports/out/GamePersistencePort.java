@@ -12,7 +12,7 @@ public interface GamePersistencePort {
 
     Page<Game> getGames(int page, int size, String status, String searchTerm);
 
-    Game saveGame(Long rawgId, GameStatus gameStatus);
+    Game saveGame(Long externalId, GameStatus gameStatus);
 
     void deleteGame(Long gameId);
 

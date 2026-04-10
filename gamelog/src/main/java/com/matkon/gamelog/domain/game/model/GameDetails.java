@@ -6,8 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDate;
 
 @Builder
 @AllArgsConstructor
@@ -16,11 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class GameDetails {
 
-    private String description;
-    private Integer metacritic;
-    private LocalDateTime updatedRawg;
-    private String websiteUrl;
-    private String metacriticUrl;
+    private String storyline;
+    private String summary;
+    private LocalDate igdbLastUpdated;
     private String additionalImageUrl;
-    private List<GamePlatformDto> platforms;
+    private String igdbUrl;
 }

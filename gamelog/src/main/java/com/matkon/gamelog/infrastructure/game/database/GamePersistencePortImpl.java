@@ -58,16 +58,16 @@ class GamePersistencePortImpl implements GamePersistencePort {
     }
 
     @Override
-    public Game saveGame(Long rawgId, GameStatus gameStatus) {
-        log.info("Saving game with rawgId: {}", rawgId);
-        gameJpaRepository.findByRawgId(rawgId)
+    public Game saveGame(Long externalId, GameStatus gameStatus) {
+        log.info("Saving game with externalId: {}", externalId);
+        gameJpaRepository.findByIgdbId(externalId)
                 .ifPresent(game -> {
-                    log.error("Game already exists with rawgId: {}", rawgId);
-                    throw new ItemAlreadyExistsException(rawgId);
+                    log.error("Game already exists with externalId: {}", externalId);
+                    throw new ItemAlreadyExistsException(externalId);
                 });
 
-        Game game = Optional.ofNullable(gameInfoPort.getGame(rawgId))
-                .orElseThrow(() -> new ItemNotFoundException("Game with ID '%s' not found in external API".formatted(rawgId)));
+        Game game = Optional.ofNullable(gameInfoPort.getGame(externalId))
+                .orElseThrow(() -> new ItemNotFoundException("Game with ID '%s' not found in external API".formatted(externalId)));
 
         game.setStatus(gameStatus);
         GameEntity savedGameEntity = gameJpaRepository.save(gameMapper.mapGameToGameEntity(game));
@@ -128,7 +128,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
         return new DashboardDto(
                 stats,
                 gameJpaRepository.completionsPerYear(),
-                gameJpaRepository.recentlyUpdated(PageRequest.of(0, 5))
+                gameJpaRepository.recentlyUpdated(PageRequest.of(0, 6))
         );
     }
 
@@ -140,7 +140,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
 
         Game game = gameMapper.mapGameEntityToGame(existingGameEntity);
 
-        GameDetails externalDetails = gameInfoPort.getGameDetails(game.getRawgId());
+        GameDetails externalDetails = gameInfoPort.getGameDetails(game.getIgdbId());
 
         if (externalDetails == null) {
             return new GameDetailsDto(game, null);

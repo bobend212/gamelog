@@ -24,10 +24,10 @@ const gameService = {
     }
   },
 
-  saveGame: async (rawgId, gameStatus) => {
+  saveGame: async (externalId, gameStatus) => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/${rawgId}`,
+        `${API_BASE_URL}/${externalId}`,
         null,
         {
           params: { gameStatus },

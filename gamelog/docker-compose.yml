@@ -15,16 +15,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: thelibrary-pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - "8081:80"
-    depends_on:
-      - postgres
+  #  pgadmin:
+  #    image: dpage/pgadmin4
+  #    container_name: thelibrary-pgadmin
+  #    environment:
+  #      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+  #      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+  #    ports:
+  #      - "8081:80"
+  #    depends_on:
+  #      - postgres
 
   backend:
     build:
@@ -40,6 +40,10 @@ services:
       RAWG_API_KEY: ${RAWG_API_KEY}
       TMDB_API_KEY: ${TMDB_API_KEY}
       TMDB_API_URL: ${TMDB_API_URL}
+      IGDB_API_URL: ${IGDB_API_URL}
+      IGDB_CLIENT_ID: ${IGDB_CLIENT_ID}
+      IGDB_AUTH_TOKEN_URL: ${IGDB_AUTH_TOKEN_URL}
+      IGDB_CLIENT_SECRET: ${IGDB_CLIENT_SECRET}
     depends_on:
       - postgres
 

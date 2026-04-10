@@ -9,7 +9,7 @@ public interface GameInfoPort {
 
     List<Game> searchGames(String query);
 
-    Game getGame(Long rawgId);
+    Game getGame(Long externalId);
 
-    GameDetails getGameDetails(Long rawgId);
+    GameDetails getGameDetails(Long externalId);
 }

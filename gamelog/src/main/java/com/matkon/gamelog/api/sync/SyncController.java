@@ -29,7 +29,7 @@ public class SyncController {
     private final SyncApiMapper syncApiMapper;
 
     @PatchMapping("/games")
-    @Operation(summary = "[RAWG API] Sync games data with RAWG API - by status")
+    @Operation(summary = "[IGDB API] Sync games data with IGDB API - by status")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
     public ResponseEntity<SyncResponse> syncGames(@RequestParam(defaultValue = "WISHLIST") GameStatus status) {
         return ResponseEntity.status(HttpStatus.OK)

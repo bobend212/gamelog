@@ -16,6 +16,7 @@ public interface GameApiMapper {
 
     GameResponse mapGameToGameResponse(Game game);
 
+    @Mapping(target = "externalId", source = "igdbId")
     GameSearchResponse mapGameToGameSearchResponse(Game game);
 
     @Mapping(target = "daysToRelease", expression = "java(calculateDaysToRelease(game.getReleaseDate()))")

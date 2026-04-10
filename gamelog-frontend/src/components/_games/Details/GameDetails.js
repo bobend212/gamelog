@@ -84,11 +84,11 @@ const GameDetails = () => {
                                     </div>
                                 </div>
 
-                                {details.updatedRawg && (
+                                {details.igdbLastUpdated && (
                                     <div className="meta-section">
-                                        <span className="meta-label">RAWG API update</span>
+                                        <span className="meta-label">IGDB Update</span>
                                         <div className="hero-meta">
-                                            <span>{formatDate(details.updatedRawg)}</span>
+                                            <span>{formatDate(details.igdbLastUpdated)}</span>
                                         </div>
                                     </div>
                                 )}
@@ -121,36 +121,14 @@ const GameDetails = () => {
                             </div>
 
                             <div className="hero-actions">
-                                {details.websiteUrl && (
+                                {details.igdbUrl && (
                                     <a
-                                        href={details.websiteUrl}
+                                        href={details.igdbUrl}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="action-btn"
+                                        className="action-btn igdb"
                                     >
-                                        <span>Website</span>
-                                    </a>
-                                )}
-
-                                {details.metacriticUrl && (
-                                    <a
-                                        href={details.metacriticUrl}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className={`action-btn metacritic ${details.metacritic >= 75
-                                            ? 'good'
-                                            : details.metacritic >= 50
-                                                ? 'mid'
-                                                : 'bad'
-                                            }`}
-                                    >
-                                        <span>Metacritic</span>
-
-                                        {details.metacritic && (
-                                            <span className="metacritic-score">
-                                                {details.metacritic}
-                                            </span>
-                                        )}
+                                        <span>IGDB</span>
                                     </a>
                                 )}
                             </div>
@@ -176,9 +154,18 @@ const GameDetails = () => {
                             <h3>Description</h3>
                         </div>
 
-                        <div
-                            dangerouslySetInnerHTML={{ __html: details.description }}
-                        />
+                        {details.summary ? (
+                            <p className="summary">{details.summary}</p>
+                        ) : (
+                            <p className="muted">No description available.</p>
+                        )}
+
+                        {details.storyline && (
+                            <div className="storyline">
+                                <h4>Storyline</h4>
+                                <p>{details.storyline}</p>
+                            </div>
+                        )}
                     </div>
 
                 </div>

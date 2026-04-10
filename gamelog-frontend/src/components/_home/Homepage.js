@@ -65,12 +65,12 @@ const Homepage = () => {
             <Typography variant="body1" sx={{ maxWidth: 600, opacity: 0.85, fontSize: "1.1rem" }}>
                 Game data provided by&nbsp;
                 <a
-                    href="https://rawg.io/apidocs"
+                    href="https://api-docs.igdb.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: "#ffdd57", textDecoration: "underline" }}
                 >
-                    RAWG API
+                    IGDB API
                 </a>
                 <br /> Movie and TV Show data provided by&nbsp;
                 <a

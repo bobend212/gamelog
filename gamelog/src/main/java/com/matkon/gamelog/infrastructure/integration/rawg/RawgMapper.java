@@ -17,10 +17,5 @@ interface RawgMapper {
     @Mapping(source = "released", target = "releaseDate")
     Game mapRawgGameInfoDtoToGame(RawgGameInfoDto rawgGameInfoDto);
 
-    @Mapping(source = "updated", target = "updatedRawg")
-    @Mapping(source = "website", target = "websiteUrl")
-    @Mapping(source = "metacritic_url", target = "metacriticUrl")
-    @Mapping(source = "background_image_additional", target = "additionalImageUrl")
-    @Mapping(source = "platforms", target = "platforms")
     GameDetails mapRawgGameDetailsDtoToGameDetails(RawgGameDetailsDto rawgGameDetailsDto);
 }

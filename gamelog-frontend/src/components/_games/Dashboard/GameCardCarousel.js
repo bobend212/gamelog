@@ -11,9 +11,9 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useNavigate } from "react-router-dom";
 
-const cardWidth = 200;
-const cardsAtOnce = 5;
-const gapSize = 16;
+const cardWidth = 170;
+const cardsAtOnce = 6;
+const gapSize = 12;
 
 export default function GameCardCarousel({ games, header }) {
     const navigate = useNavigate();
@@ -39,14 +39,29 @@ export default function GameCardCarousel({ games, header }) {
         return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} `;
     };
 
+    const isToday = (dateString) => {
+        if (!dateString) return false;
+
+        const today = new Date();
+        const date = new Date(dateString);
+
+        return (
+            today.getFullYear() === date.getFullYear() &&
+            today.getMonth() === date.getMonth() &&
+            today.getDate() === date.getDate()
+        );
+    };
+
     return (
         <Box
             sx={{
                 position: "relative",
                 py: 1,
+                pr: 4,
+                pl: 2,
                 background: "#191919",
                 borderRadius: 3,
-                overflow: "hidden"
+                overflow: "visible"
             }}
         >
             {header && (
@@ -75,7 +90,7 @@ export default function GameCardCarousel({ games, header }) {
                     sx={{
                         display: "flex",
                         gap: 1.2,
-                        overflow: "hidden",
+                        overflow: "visible",
                         width: `calc(${cardWidth}px * ${cardsAtOnce} + ${gapSize}px * ${cardsAtOnce - 1})`
                     }}
                 >
@@ -88,81 +103,130 @@ export default function GameCardCarousel({ games, header }) {
                                 sx={{
                                     width: cardWidth,
                                     minWidth: cardWidth,
-                                    borderRadius: 2,
-                                    bgcolor: "#232323",
-                                    color: "#fff",
-                                    boxShadow: 2,
-                                    display: "flex",
-                                    flexDirection: "column",
+                                    height: 200,
+                                    borderRadius: 3,
+                                    overflow: "hiddven",
+                                    position: "relative",
                                     cursor: "pointer",
-                                    transition: "all 0.2s ease",
+                                    bgcolor: "#111",
+                                    transition: "all 0.25s ease",
+
                                     "&:hover": {
-                                        transform: "translateY(-3px)",
-                                        boxShadow: 4
+                                        transform: "translateY(-5px) scale(1.02)",
+                                        boxShadow: "0 12px 35px rgba(0,0,0,0.7)"
+                                    },
+
+                                    "&:hover .image": {
+                                        transform: "scale(1.08)"
                                     }
                                 }}
                             >
-                                <CardMedia
-                                    image={game.imageUrl}
-                                    title={game.title}
+                                {/* IMAGE */}
+                                <Box
+                                    className="image"
                                     sx={{
-                                        height: 120,
-                                        backgroundSize: "cover"
+                                        position: "absolute",
+                                        inset: 0,
+                                        backgroundImage: `url(${game.imageUrl})`,
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center",
+                                        transition: "transform 0.4s ease"
                                     }}
                                 />
 
-                                <CardContent
+                                {/* GRADIENT */}
+                                <Box
                                     sx={{
-                                        px: 0.7,
-                                        py: 0.4,
-                                        "&:last-child": {
-                                            pb: 0.4
-                                        },
+                                        position: "absolute",
+                                        inset: 0,
+                                        background: `
+                linear-gradient(to top, rgba(0,0,0,0.95) 25%, transparent 70%),
+                linear-gradient(to right, rgba(0,0,0,0.4), transparent)
+            `
+                                    }}
+                                />
+
+                                {/* UPCOMING BADGE */}
+                                {(game.daysToRelease !== undefined && game.daysToRelease !== null) || isToday(game.releaseDate) ? (
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            top: 8,
+                                            left: 8,
+                                            px: 1,
+                                            py: 0.3,
+                                            borderRadius: 2,
+                                            fontSize: "0.6rem",
+                                            fontWeight: 700,
+                                            backdropFilter: "blur(6px)",
+                                            color: "#fff",
+
+                                            background:
+                                                isToday(game.releaseDate)
+                                                    ? "rgba(34,197,94,0.95)"
+                                                    : "rgba(59,130,246,0.9)"
+                                        }}
+                                    >
+                                        {isToday(game.releaseDate)
+                                            ? "Today!"
+                                            : `${game.daysToRelease} days`}
+                                    </Box>
+                                ) : null}
+
+                                {/* CONTENT */}
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        bottom: 0,
+                                        width: "100%",
+                                        p: 1,
                                         display: "flex",
                                         flexDirection: "column",
-                                        alignItems: "center",
-                                        textAlign: "center"
+                                        gap: 0.4
                                     }}
                                 >
                                     <Typography
                                         variant="body2"
                                         sx={{
                                             fontWeight: 700,
-                                            fontSize: "0.9rem",
+                                            fontSize: "0.8rem",
                                             lineHeight: 1.2,
                                             display: "-webkit-box",
                                             WebkitLineClamp: 2,
                                             WebkitBoxOrient: "vertical",
-                                            overflow: "hidden"
+                                            overflow: "hidden",
+                                            color: "#fff"
                                         }}
                                     >
                                         {game.title}
                                     </Typography>
 
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            color: "#bbb",
-                                            fontSize: "0.72rem"
-                                        }}
-                                    >
-                                        {game.releaseDate
-                                            ? formatDateToCustomString(game.releaseDate)
-                                            : ""}
-                                        {game.daysToRelease && (
-                                            <Typography
-                                                variant="caption"
-                                                sx={{
-                                                    color: "#bbb",
-                                                    fontSize: "0.72rem"
-                                                }}
-                                            >
-                                                - {game.daysToRelease} days left
-                                            </Typography>
-                                        )}
-                                    </Typography>
+                                    {/* RELEASE DATE */}
+                                    {game.releaseDate && (
+                                        <Typography
+                                            variant="caption"
+                                            sx={{ color: "#bbb", fontSize: "0.7rem" }}
+                                        >
+                                            {formatDateToCustomString(game.releaseDate)}
+                                        </Typography>
+                                    )}
 
-                                    {game.status && (
+                                    {/* UPCOMING TEXT (ważne 🔥) */}
+                                    {/* {game.daysToRelease && (
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                fontSize: "0.7rem",
+                                                color: "#60a5fa",
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            Coming soon
+                                        </Typography>
+                                    )} */}
+
+                                    {/* STATUS */}
+                                    {game.status && !game.daysToRelease && (
                                         <Typography
                                             variant="caption"
                                             sx={{
@@ -174,7 +238,7 @@ export default function GameCardCarousel({ games, header }) {
                                             {game.status}
                                         </Typography>
                                     )}
-                                </CardContent>
+                                </Box>
                             </Card>
                         ))}
                 </Box>

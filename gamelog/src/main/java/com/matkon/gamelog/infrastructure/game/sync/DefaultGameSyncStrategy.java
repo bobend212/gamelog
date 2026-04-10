@@ -42,7 +42,7 @@ public class DefaultGameSyncStrategy implements GameSyncStrategy {
 
         for (Game localGame : gameEntities) {
             log.info("Syncing games progress: {} of {}", counter, gameEntities.size());
-            Game latestData = gameInfoPort.getGame(localGame.getRawgId());
+            Game latestData = gameInfoPort.getGame(localGame.getIgdbId());
             if (latestData == null) continue;
 
             boolean changed = false;

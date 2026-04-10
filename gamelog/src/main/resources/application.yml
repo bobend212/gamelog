@@ -9,10 +9,6 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -26,10 +22,6 @@ spring:
 server:
   port: 8080
 
-#logging:
-#  level:
-#    com.gamelibrary: DEBUG
-
 rawg:
   api:
     url: ${RAWG_API_URL}
@@ -41,3 +33,14 @@ tmdb:
     key: ${TMDB_API_KEY}
     url: ${TMDB_API_URL}
     timeoutInSeconds: 10
+
+igdb:
+  api:
+    base-url: ${IGDB_API_URL}
+    client-id: ${IGDB_CLIENT_ID}
+    timeoutInSeconds: 10
+
+  auth:
+    token-url: ${IGDB_AUTH_TOKEN_URL}
+    client-id: ${IGDB_CLIENT_ID}
+    client-secret: ${IGDB_CLIENT_SECRET}

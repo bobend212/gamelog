@@ -5,5 +5,5 @@ import com.matkon.gamelog.domain.game.model.GameStatus;
 
 public interface SaveGameUseCase {
 
-    Game saveGame(Long rawgId, GameStatus gameStatus);
+    Game saveGame(Long externalId, GameStatus gameStatus);
 }

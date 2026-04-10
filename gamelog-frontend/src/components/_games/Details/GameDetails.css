@@ -9,6 +9,7 @@
     height: 420px;
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
 }
 
 .hero-overlay {
@@ -30,10 +31,13 @@
 }
 
 .hero-cover {
-    width: 22rem;
+    width: 18rem;
+    max-height: 420px;
+    object-fit: cover;
     border-radius: 16px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     transition: transform 0.3s ease;
+    aspect-ratio: 3/4;
 }
 
 .hero-cover:hover {
@@ -292,4 +296,39 @@
 .action-btn.metacritic.bad .metacritic-score {
     background: rgba(239, 68, 68, 0.2);
     color: #fca5a5;
+}
+
+.action-btn.igdb {
+    background: rgba(145, 70, 255, 0.15);
+    border: 1px solid rgba(145, 70, 255, 0.4);
+    color: #c4b5fd;
+}
+
+.action-btn.igdb:hover {
+    background: rgba(145, 70, 255, 0.25);
+}
+
+.summary {
+    color: #e5e7eb;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.storyline h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.storyline p {
+    color: #d1d5db;
+    line-height: 1.7;
+}
+
+.muted {
+    color: #6b7280;
+    font-style: italic;
 }

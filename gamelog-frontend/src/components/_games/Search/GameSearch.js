@@ -112,7 +112,7 @@ const GameSearch = () => {
                   <div className="results-grid">
                     {searchResults.map((game) => (
                       <SearchResultCard
-                        key={game.rawgId}
+                        key={game.externalId}
                         game={game}
                         onGameAdded={() => {
                           setSearchQuery('');
@@ -132,7 +132,7 @@ const GameSearch = () => {
               }
             </div>
           )}
-          <p className="footer" >metadata by RAWG API</p>
+          <p className="footer" >metadata by IGDB API</p>
           {/* Loading Spinner */}
           {loading && <LoadingSpinner />}
         </div>
