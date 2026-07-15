@@ -21,9 +21,31 @@ public interface MovieJpaRepository extends JpaRepository<MovieEntity, Long> {
 
     Optional<MovieEntity> findByTmdbId(Long tmdbId);
 
-    @Query("SELECT m FROM MovieEntity m LEFT JOIN FETCH m.genres g LEFT JOIN FETCH m.vodProviders " +
-            "WHERE (LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(m.originalTitle) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(g) LIKE LOWER(CONCAT('%', :search, '%')))")
+    @EntityGraph(attributePaths = {"genres", "vodProviders"})
+    @Query(
+            value = """
+                    SELECT DISTINCT m
+                    FROM MovieEntity m
+                    LEFT JOIN m.genres g
+                    LEFT JOIN m.vodProviders vp
+                    WHERE
+                          LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%'))
+                       OR LOWER(m.originalTitle) LIKE LOWER(CONCAT('%', :search, '%'))
+                       OR LOWER(g) LIKE LOWER(CONCAT('%', :search, '%'))
+                       OR LOWER(vp) LIKE LOWER(CONCAT('%', :search, '%'))
+                    ORDER BY m.releaseDate DESC
+                    """,
+            countQuery = """
+                     SELECT COUNT(DISTINCT m)
+                     FROM MovieEntity m
+                     LEFT JOIN m.genres g
+                     LEFT JOIN m.vodProviders vp
+                     WHERE
+                           LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(m.originalTitle) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(g) LIKE LOWER(CONCAT('%', :search, '%'))
+                        OR LOWER(vp) LIKE LOWER(CONCAT('%', :search, '%'))
+                    """
+    )
     Page<MovieEntity> findMovies(Pageable pageable, @Param("search") String search);
 }

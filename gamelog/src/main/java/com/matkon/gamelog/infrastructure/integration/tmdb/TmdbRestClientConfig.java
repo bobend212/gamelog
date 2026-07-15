@@ -23,7 +23,7 @@ class TmdbRestClientConfig {
     @Bean
     @Qualifier("tmdbRestClient")
     RestClient tmdbRestClient(RestClient.Builder builder, TmdbClientProperties properties) {
-        String baseUrlWithLanguage = properties.getUrl() + "?language=en-US";
+        String baseUrlWithLanguage = properties.getUrl() + "?language=pl-PL";
 
         return builder
                 .baseUrl(baseUrlWithLanguage)

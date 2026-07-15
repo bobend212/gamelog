@@ -9,11 +9,13 @@ import com.matkon.gamelog.domain.movie.sync.MovieSyncContext;
 import com.matkon.gamelog.domain.movie.sync.MovieSyncStrategy;
 import com.matkon.gamelog.infrastructure.movie.database.MovieJpaRepository;
 import com.matkon.gamelog.infrastructure.movie.database.MovieMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class AllMoviesSyncStrategy implements MovieSyncStrategy {
 
@@ -66,6 +68,7 @@ public class AllMoviesSyncStrategy implements MovieSyncStrategy {
             }
 
             if (changed) {
+                log.info("Update movie: {}", latestMovieData.getTitle());
                 movieJpaRepository.save(movieMapper.mapMovieToMovieEntity(localMovie));
                 updatedCount++;
             }
