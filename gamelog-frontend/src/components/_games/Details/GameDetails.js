@@ -38,6 +38,22 @@ const GameDetails = () => {
         });
     };
 
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case "FULL_RELEASE":
+                return "Release";
+            case "ADVANCED_ACCESS":
+            case "EARLY_ACCESS":
+                return "Early Access";
+            case "BETA":
+                return "Beta";
+            case "ALPHA":
+                return "Alpha";
+            default:
+                return "";
+        }
+    };
+
     if (loading) return <LoadingSpinner />;
     if (error) return <ErrorMessage message={error} />;
 
@@ -167,6 +183,40 @@ const GameDetails = () => {
                             </div>
                         )}
                     </div>
+
+                    {details.releaseDates && details.releaseDates.length > 0 && (
+                        <div className="glass">
+                            <div className="section-header">
+                                <h3>Release Dates</h3>
+                            </div>
+
+                            <div className="release-grid">
+                                {details.releaseDates.map((platformData) => (
+                                    <div key={platformData.platform} className="release-card">
+
+                                        <div className="release-platform">
+                                            {platformData.platform}
+                                        </div>
+
+                                        <div className="release-list">
+                                            {platformData.releases.map((r, idx) => (
+                                                <div key={idx} className="release-item">
+                                                    <span className="release-date">
+                                                        {formatDate(r.date)}
+                                                    </span>
+
+                                                    <span className={`release-badge ${r.status?.toLowerCase()}`}>
+                                                        {getStatusLabel(r.status)}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                 </div>
 

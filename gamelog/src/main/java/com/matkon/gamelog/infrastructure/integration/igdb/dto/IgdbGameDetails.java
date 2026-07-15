@@ -19,4 +19,7 @@ public class IgdbGameDetails {
     private String url;
 
     private List<IgdbScreenshot> screenshots;
+
+    @JsonProperty("release_dates")
+    private List<IgdbReleaseDate> releaseDates;
 }

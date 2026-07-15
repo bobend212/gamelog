@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -20,4 +21,5 @@ public class GameDetails {
     private LocalDate igdbLastUpdated;
     private String additionalImageUrl;
     private String igdbUrl;
+    private List<PlatformReleaseDates> releaseDates;
 }

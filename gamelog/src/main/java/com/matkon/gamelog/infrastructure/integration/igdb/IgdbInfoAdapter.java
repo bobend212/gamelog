@@ -72,7 +72,14 @@ public class IgdbInfoAdapter implements GameInfoPort {
     @Override
     public GameDetails getGameDetails(Long externalId) {
         String query = """
-                fields storyline, summary, updated_at, url, screenshots.image_id;
+                fields storyline,
+                       summary,
+                       updated_at,
+                       url,
+                       screenshots.image_id,
+                       release_dates.date,
+                       release_dates.platform.name,
+                       release_dates.status.name;
                 where id = %d;
                 """.formatted(externalId);
 
