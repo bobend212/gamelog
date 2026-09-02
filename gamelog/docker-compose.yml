@@ -1,5 +1,7 @@
 version: '3.9'
 
+name: the-library
+
 services:
   postgres:
     image: postgres:15
@@ -15,18 +17,8 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  #  pgadmin:
-  #    image: dpage/pgadmin4
-  #    container_name: thelibrary-pgadmin
-  #    environment:
-  #      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-  #      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-  #    ports:
-  #      - "8081:80"
-  #    depends_on:
-  #      - postgres
-
   backend:
+    image: thelibrary-backend
     build:
       context: .
     container_name: thelibrary-backend
@@ -48,6 +40,7 @@ services:
       - postgres
 
   frontend:
+    image: thelibrary-frontend
     build:
       context: ../gamelog-frontend
     container_name: thelibrary-frontend
@@ -64,3 +57,5 @@ services:
 
 volumes:
   pgdata:
+    external: true
+    name: gamelog_pgdata
