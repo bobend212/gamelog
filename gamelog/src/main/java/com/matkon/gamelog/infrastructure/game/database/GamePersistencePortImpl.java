@@ -7,6 +7,7 @@ import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameDetails;
 import com.matkon.gamelog.domain.game.model.GameDetailsDto;
 import com.matkon.gamelog.domain.game.model.GameStatus;
+import com.matkon.gamelog.domain.game.model.GameSort;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
 import com.matkon.gamelog.domain.game.model.dashboard.GameStatsDto;
@@ -35,7 +36,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
     private final GameSyncStrategy syncStrategy;
 
     @Override
-    public Page<Game> getGames(int page, int size, String status, String searchTerm) {
+    public Page<Game> getGames(int page, int size, String status, String searchTerm, GameSort sortBy, String sortDirection) {
         log.info("Getting games with status: {}, searchTerm: {}", status, searchTerm);
         Pageable pageable = PageRequest.of(page, size);
 
@@ -53,7 +54,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
 
         String dbSearchTerm = (searchTerm == null || searchTerm.trim().isEmpty()) ? null : searchTerm;
 
-        Page<GameEntity> games = gameJpaRepository.findGamesByStatus(dbStatus, dbSearchTerm, pageable);
+        Page<GameEntity> games = gameJpaRepository.findGamesByStatus(dbStatus, dbSearchTerm, sortBy.name(), sortDirection.toUpperCase(), pageable);
         return games.map(gameMapper::mapGameEntityToGame);
     }
 

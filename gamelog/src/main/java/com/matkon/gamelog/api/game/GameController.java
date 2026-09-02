@@ -2,6 +2,7 @@ package com.matkon.gamelog.api.game;
 
 import com.matkon.gamelog.api.game.dashboard.DashboardResponse;
 import com.matkon.gamelog.domain.game.model.GameStatus;
+import com.matkon.gamelog.domain.game.model.GameSort;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,9 +64,11 @@ class GameController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
             @RequestParam(defaultValue = "ALL") String status,
-            @RequestParam(defaultValue = "") String search) {
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "DEFAULT") GameSort sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(gameService.getGames(page, size, status, search)
+                .body(gameService.getGames(page, size, status, search, sortBy, sortDirection)
                         .map(gameApiMapper::mapGameToGameResponse));
     }
 
@@ -78,7 +81,7 @@ class GameController {
             @RequestParam(defaultValue = "") String search
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(gameService.getGames(page, size, GameStatus.WISHLIST.name(), search)
+                .body(gameService.getGames(page, size, GameStatus.WISHLIST.name(), search, GameSort.DEFAULT, "DESC")
                         .map(gameApiMapper::mapGameToGameWishlistResponse));
     }
 

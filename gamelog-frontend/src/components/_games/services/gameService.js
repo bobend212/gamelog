@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL + "/api/games";
+// Docker supplies REACT_APP_API_URL. The fallback keeps `npm start` working
+// locally when no .env file is present.
+const API_BASE_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/games`;
 
 const gameService = {
 
@@ -45,7 +47,9 @@ const gameService = {
     page = 0,
     size = 8,
     status = "ALL",
-    searchTerm = ""
+    searchTerm = "",
+    sortBy = "DEFAULT",
+    sortDirection = "DESC"
   ) => {
     try {
       const response = await axios.get(`${API_BASE_URL}`, {
@@ -54,6 +58,8 @@ const gameService = {
           size,
           status: status !== "ALL" ? status : "ALL",
           search: searchTerm,
+          sortBy,
+          sortDirection,
         },
       });
       return response.data;

@@ -26,6 +26,9 @@ const Navbar = () => {
           <Link to="/games/library" className={isActive('/games/library')}>
             Library
           </Link>
+          <Link to="/games/temp" className={isActive('/games/temp')}>
+            Temp
+          </Link>
           <Link to="/games/sync" className={isActive('/games/sync')}>
             Sync
           </Link>

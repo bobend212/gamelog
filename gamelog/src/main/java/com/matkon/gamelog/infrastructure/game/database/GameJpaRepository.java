@@ -25,28 +25,41 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
             FROM GameEntity g
             WHERE (:status IS NULL OR g.status = :status)
               AND (:searchTerm IS NULL OR :searchTerm = '' OR LOWER(g.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')))
-            ORDER BY CASE
-                         WHEN :status IS NOT NULL THEN 0
-                         WHEN g.status = 'PLAYING' THEN 0
-                         WHEN g.status = 'BACKLOG' THEN 1
-                         WHEN g.status = 'COMPLETED' THEN 2
-                         ELSE 3
-                         END,
-                     CASE
-                         WHEN :status = 'COMPLETED' AND g.completedAt IS NULL THEN 1
-                         WHEN :status IS NULL AND g.status = 'COMPLETED' AND g.completedAt IS NULL THEN 1
-                         ELSE 0
-                         END,
-                     CASE
-                         WHEN :status = 'COMPLETED' THEN g.completedAt
-                         WHEN :status IS NOT NULL THEN g.updatedAt
-                         WHEN g.status = 'COMPLETED' THEN g.completedAt
-                         ELSE g.updatedAt
-                         END DESC
+            ORDER BY
+                     CASE WHEN :sortBy = 'RELEASE_DATE' AND g.releaseDate IS NULL THEN 1 ELSE 0 END ASC,
+                     CASE WHEN :sortBy = 'COMPLETED_AT' AND g.completedAt IS NULL THEN 1 ELSE 0 END ASC,
+                     CASE WHEN :sortBy = 'RATING' AND g.rating IS NULL THEN 1 ELSE 0 END ASC,
+                     CASE WHEN :sortBy = 'UPDATED_AT' AND g.updatedAt IS NULL THEN 1 ELSE 0 END ASC,
+                     CASE WHEN :sortBy = 'CREATED_AT' AND g.createdAt IS NULL THEN 1 ELSE 0 END ASC,
+                     CASE WHEN :sortBy = 'TITLE' AND :sortDirection = 'ASC' THEN LOWER(g.title) END ASC,
+                     CASE WHEN :sortBy = 'TITLE' AND :sortDirection = 'DESC' THEN LOWER(g.title) END DESC,
+                     CASE WHEN :sortBy = 'RELEASE_DATE' AND :sortDirection = 'ASC' THEN g.releaseDate END ASC,
+                     CASE WHEN :sortBy = 'RELEASE_DATE' AND :sortDirection = 'DESC' THEN g.releaseDate END DESC,
+                     CASE WHEN :sortBy = 'COMPLETED_AT' AND :sortDirection = 'ASC' THEN g.completedAt END ASC,
+                     CASE WHEN :sortBy = 'COMPLETED_AT' AND :sortDirection = 'DESC' THEN g.completedAt END DESC,
+                     CASE WHEN :sortBy = 'RATING' AND :sortDirection = 'ASC' THEN g.rating END ASC,
+                     CASE WHEN :sortBy = 'RATING' AND :sortDirection = 'DESC' THEN g.rating END DESC,
+                     CASE WHEN :sortBy = 'UPDATED_AT' AND :sortDirection = 'ASC' THEN g.updatedAt END ASC,
+                     CASE WHEN :sortBy = 'UPDATED_AT' AND :sortDirection = 'DESC' THEN g.updatedAt END DESC,
+                     CASE WHEN :sortBy = 'CREATED_AT' AND :sortDirection = 'ASC' THEN g.createdAt END ASC,
+                     CASE WHEN :sortBy = 'CREATED_AT' AND :sortDirection = 'DESC' THEN g.createdAt END DESC,
+                     CASE WHEN :sortBy = 'DEFAULT' AND :status IS NULL AND g.status = 'PLAYING' THEN 0
+                          WHEN :sortBy = 'DEFAULT' AND :status IS NULL AND g.status = 'BACKLOG' THEN 1
+                          WHEN :sortBy = 'DEFAULT' AND :status IS NULL AND g.status = 'COMPLETED' THEN 2
+                          WHEN :sortBy = 'DEFAULT' THEN 3 ELSE 0 END ASC,
+                     CASE WHEN :sortBy = 'DEFAULT' AND :status = 'COMPLETED' AND g.completedAt IS NULL THEN 1
+                          WHEN :sortBy = 'DEFAULT' AND :status IS NULL AND g.status = 'COMPLETED' AND g.completedAt IS NULL THEN 1
+                          ELSE 0 END ASC,
+                     CASE WHEN :sortBy = 'DEFAULT' AND :status = 'COMPLETED' THEN g.completedAt
+                          WHEN :sortBy = 'DEFAULT' AND :status IS NOT NULL THEN g.updatedAt
+                          WHEN :sortBy = 'DEFAULT' AND g.status = 'COMPLETED' THEN g.completedAt
+                          WHEN :sortBy = 'DEFAULT' THEN g.updatedAt END DESC
             """)
     Page<GameEntity> findGamesByStatus(
             @Param("status") GameStatus status,
             @Param("searchTerm") String searchTerm,
+            @Param("sortBy") String sortBy,
+            @Param("sortDirection") String sortDirection,
             Pageable pageable
     );
 

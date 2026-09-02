@@ -4,6 +4,7 @@ import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameDetailsDto;
 import com.matkon.gamelog.domain.game.model.GameStatus;
+import com.matkon.gamelog.domain.game.model.GameSort;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
 import com.matkon.gamelog.domain.game.ports.in.DeleteGameUseCase;
@@ -36,8 +37,8 @@ public class GameService
     }
 
     @Override
-    public Page<Game> getGames(int page, int size, String status, String searchTerm) {
-        return gamePersistencePort.getGames(page, size, status, searchTerm);
+    public Page<Game> getGames(int page, int size, String status, String searchTerm, GameSort sortBy, String sortDirection) {
+        return gamePersistencePort.getGames(page, size, status, searchTerm, sortBy, sortDirection);
     }
 
     @Override

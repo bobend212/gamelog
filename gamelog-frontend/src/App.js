@@ -16,6 +16,7 @@ import TVShowSearch from './components/_tv-shows/Search/TVShowSearch';
 import TVShowDetails from './components/_tv-shows/Details/TVShowDetails';
 import TVShowSync from './components/_tv-shows/Sync/TVShowSync';
 import GameDetails from './components/_games/Details/GameDetails';
+import GameListProposal from './components/_games/Temp/GameListProposal';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/games/sync" element={<SyncLibrary />} />
             <Route path="/games/search" element={<GameSearch />} />
             <Route path="/games/details/:gameId" element={<GameDetails />} />
+            <Route path="/games/temp" element={<GameListProposal />} />
 
             {/* TV Shows */}
             <Route path="/tv-shows/dashboard" element={<TVShowsDashboard />} />

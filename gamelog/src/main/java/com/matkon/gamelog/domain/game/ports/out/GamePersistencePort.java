@@ -4,13 +4,14 @@ import com.matkon.gamelog.domain.common.sync.SyncResult;
 import com.matkon.gamelog.domain.game.model.Game;
 import com.matkon.gamelog.domain.game.model.GameDetailsDto;
 import com.matkon.gamelog.domain.game.model.GameStatus;
+import com.matkon.gamelog.domain.game.model.GameSort;
 import com.matkon.gamelog.domain.game.model.GameUpdate;
 import com.matkon.gamelog.domain.game.model.dashboard.DashboardDto;
 import org.springframework.data.domain.Page;
 
 public interface GamePersistencePort {
 
-    Page<Game> getGames(int page, int size, String status, String searchTerm);
+    Page<Game> getGames(int page, int size, String status, String searchTerm, GameSort sortBy, String sortDirection);
 
     Game saveGame(Long externalId, GameStatus gameStatus);
 
