@@ -8,6 +8,8 @@ import com.matkon.gamelog.infrastructure.integration.igdb.dto.IgdbCover;
 import com.matkon.gamelog.infrastructure.integration.igdb.dto.IgdbGame;
 import com.matkon.gamelog.infrastructure.integration.igdb.dto.IgdbGameDetails;
 import com.matkon.gamelog.infrastructure.integration.igdb.dto.IgdbReleaseDate;
+import com.matkon.gamelog.infrastructure.integration.igdb.dto.IgdbFinalReleaseDate;
+import com.matkon.gamelog.infrastructure.integration.igdb.dto.IgdbReleaseDateStatus;
 import com.matkon.gamelog.infrastructure.integration.igdb.dto.IgdbReleaseStatus;
 import com.matkon.gamelog.infrastructure.integration.igdb.dto.IgdbScreenshot;
 import org.mapstruct.Mapper;
@@ -27,13 +29,13 @@ public interface IgdbMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "igdbId", source = "id")
     @Mapping(target = "title", source = "name")
-    @Mapping(target = "releaseDate", source = "firstReleaseDate", qualifiedByName = "mapToLocalDate")
+    @Mapping(target = "releaseDate", source = "releaseDates", qualifiedByName = "mapFinalGameReleaseDate")
     @Mapping(target = "imageUrl", source = "cover", qualifiedByName = "mapImageUrl")
     Game magIgdbGameResponseToGame(IgdbGame source);
 
     @Mapping(target = "igdbId", source = "id")
     @Mapping(target = "title", source = "name")
-    @Mapping(target = "releaseDate", source = "firstReleaseDate", qualifiedByName = "mapToLocalDate")
+    @Mapping(target = "releaseDate", source = "releaseDates", qualifiedByName = "mapFinalGameReleaseDate")
     @Mapping(target = "imageUrl", source = "cover", qualifiedByName = "mapImageUrl")
     Game mapIgdbGameResponseToGameForMatcher(IgdbGame response);
 
@@ -50,8 +52,14 @@ public interface IgdbMapper {
         }
 
         return dates.stream()
-                .filter(d -> d.getDate() != null && d.getPlatform() != null && d.getPlatform().getName() != null)
-                .collect(Collectors.groupingBy(d -> d.getPlatform().getName()))
+                .filter(d ->
+                        d.getDate() != null
+                                && d.getPlatform() != null
+                                && d.getPlatform().getName() != null
+                )
+                .collect(Collectors.groupingBy(
+                        d -> d.getPlatform().getName()
+                ))
                 .entrySet()
                 .stream()
                 .map(entry -> new PlatformReleaseDates(
@@ -61,7 +69,9 @@ public interface IgdbMapper {
                                 .sorted(Comparator.comparing(ReleaseInfo::date))
                                 .toList()
                 ))
-                .sorted(Comparator.comparing(PlatformReleaseDates::platform))
+                .sorted(Comparator.comparing(
+                        PlatformReleaseDates::platform
+                ))
                 .toList();
     }
 
@@ -113,5 +123,30 @@ public interface IgdbMapper {
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
                 : null;
+    }
+
+    @Named("mapFinalGameReleaseDate")
+    default LocalDate mapGameReleaseDate(List<IgdbFinalReleaseDate> releaseDates) {
+        if (releaseDates == null || releaseDates.isEmpty()) {
+            return null;
+        }
+
+        return releaseDates.stream()
+                .filter(d -> d.getDate() != null)
+                .filter(this::isRelevantRelease)
+                .map(IgdbFinalReleaseDate::getDate)
+                .min(Long::compareTo)
+                .map(IgdbMapper::mapToLocalDate)
+                .orElse(null);
+    }
+
+    default boolean isRelevantRelease(IgdbFinalReleaseDate releaseDate) {
+        IgdbReleaseDateStatus status = releaseDate.getStatus();
+
+        if (status == null || status.getName() == null) {
+            return true;
+        }
+
+        return "Full Release".equals(status.getName());
     }
 }

@@ -52,7 +52,7 @@ public class IgdbInfoAdapter implements GameInfoPort {
     @Override
     public Game getGame(Long externalId) {
         String query = """
-                fields id, name, first_release_date, cover.image_id;
+                fields id, name, release_dates.date, release_dates.status.name, release_dates.release_region , cover.image_id;
                 where id = %d;
                 """.formatted(externalId);
 
