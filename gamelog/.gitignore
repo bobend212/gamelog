@@ -37,3 +37,4 @@ build/
 application.properties
 notes.txt
 .env
+.DS_Store
