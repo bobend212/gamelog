@@ -27,6 +27,9 @@ import java.util.Set;
 @Component
 class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
 
+    private static final String LANGUAGE_EN = "en-US";
+    private static final String LANGUAGE_PL = "pl-PL";
+
     RestClient restClient;
     TmdbMapper tmdbMapper;
 
@@ -41,6 +44,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
                 .uri(uriBuilder -> uriBuilder
                         .path("/search/movie")
                         .queryParam("query", query)
+                        .queryParam("language", LANGUAGE_PL)
                         .build())
                 .retrieve()
                 .body(TmdbMovieSearchResponse.class);
@@ -59,6 +63,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
         TmdbMovieInfoDto response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + movie.getTmdbId())
+                        .queryParam("language", LANGUAGE_PL)
                         .build())
                 .retrieve()
                 .body(TmdbMovieInfoDto.class);
@@ -76,6 +81,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
         TmdbMovieSaveDto response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + tmdbId)
+                        .queryParam("language", LANGUAGE_PL)
                         .build())
                 .retrieve()
                 .body(TmdbMovieSaveDto.class);
@@ -93,6 +99,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
         String response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + tmdbId + "/release_dates")
+                        .queryParam("language", LANGUAGE_PL)
                         .build())
                 .retrieve()
                 .body(String.class);
@@ -150,6 +157,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
         String response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movie/" + tmdbId + "/watch/providers")
+                        .queryParam("language", LANGUAGE_PL)
                         .build())
                 .retrieve()
                 .body(String.class);
@@ -190,6 +198,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
                 .uri(uriBuilder -> uriBuilder
                         .path("/search/tv")
                         .queryParam("query", query)
+                        .queryParam("language", LANGUAGE_EN)
                         .build())
                 .retrieve()
                 .body(TmdbTVShowSearchResponse.class);
@@ -208,6 +217,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
         TmdbTVShowSaveDto response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/tv/" + tmdbId)
+                        .queryParam("language", LANGUAGE_EN)
                         .build())
                 .retrieve()
                 .body(TmdbTVShowSaveDto.class);
@@ -225,6 +235,7 @@ class TmdbInfoAdapter implements MovieInfoPort, TVShowInfoPort {
         String response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/tv/" + tmdbId + "/watch/providers")
+                        .queryParam("language", LANGUAGE_EN)
                         .build())
                 .retrieve()
                 .body(String.class);
