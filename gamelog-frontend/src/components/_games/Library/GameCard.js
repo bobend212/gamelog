@@ -4,6 +4,8 @@ import EditGameModal from './EditGameModal';
 import './GameCard.css';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import Tooltip from '@mui/material/Tooltip';
+import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined';
 
 const GameCard = ({ game, onUpdate, showStatus = true }) => {
   const navigate = useNavigate();
@@ -151,6 +153,19 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
           )}
 
           <div className="image-actions">
+
+            {game.notes?.trim() && (
+              <Tooltip
+                title={game.notes}
+                placement="left"
+                arrow
+              >
+                <div className="btn-compact notes-info">
+                  <EditNoteOutlinedIcon fontSize="small" />
+                </div>
+              </Tooltip>
+            )}
+
             <button
               onClick={handleEdit}
               disabled={isUpdating}
@@ -166,12 +181,14 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
             >
               <span className="icon">🗑️</span>
             </button>
+
             <button
               onClick={() => navigate(`/games/details/${game.id}`)}
               className="btn-compact"
             >
               <span className="icon">❔</span>
             </button>
+
           </div>
         </div>
       </div>

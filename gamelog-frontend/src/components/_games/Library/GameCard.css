@@ -270,3 +270,13 @@
 .btn-compact .icon {
   font-size: 0.8rem;
 }
+
+.notes-info {
+  cursor: help;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.notes-info:hover {
+  transform: none;
+  background: rgba(0, 0, 0, 0.75);
+}
