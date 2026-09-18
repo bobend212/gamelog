@@ -145,10 +145,9 @@ const GameCard = ({ game, onUpdate, showStatus = true }) => {
           )}
 
           {showStatus && (
-            <div
-              className={`status-badge ${game.status?.toLowerCase()}`}
-            >
+            <div className={`status-badge ${game.status?.toLowerCase()}`}>
               {getStatusLabel(game.status)}
+              {game.playTime != null && ` • ${game.playTime}h`}
             </div>
           )}
 

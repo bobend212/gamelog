@@ -92,7 +92,8 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
                 g.updatedAt,
                 g.status,
                 g.releaseDate,
-                g.imageUrl
+                g.imageUrl,
+                g.playTime
             )
             FROM GameEntity g
             ORDER BY g.updatedAt DESC

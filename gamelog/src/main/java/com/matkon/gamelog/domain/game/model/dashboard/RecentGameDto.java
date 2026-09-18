@@ -11,6 +11,7 @@ public record RecentGameDto(
         OffsetDateTime updatedAt,
         GameStatus status,
         LocalDate releaseDate,
-        String imageUrl
+        String imageUrl,
+        Integer playTime
 ) {
 }

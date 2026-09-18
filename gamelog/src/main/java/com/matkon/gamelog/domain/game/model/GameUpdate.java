@@ -19,4 +19,5 @@ public class GameUpdate {
     private String notes;
     private LocalDate completedAt;
     private Boolean favourite;
+    private Integer playTime;
 }

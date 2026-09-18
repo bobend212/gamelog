@@ -68,6 +68,9 @@ public class GameEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "play_time")
+    private Integer playTime;
+
     @PrePersist
     protected void onCreate() {
         createdAt = OffsetDateTime.now();

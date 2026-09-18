@@ -85,7 +85,6 @@ const GameDetails = () => {
                             <h1>{game.title}</h1>
 
                             <div className="meta-row">
-
                                 <div className="meta-section">
                                     <span className="meta-label">Release date</span>
                                     <div className="hero-meta">
@@ -100,6 +99,15 @@ const GameDetails = () => {
                                     </div>
                                 </div>
 
+                                {game.playTime != null && (
+                                    <div className="meta-section">
+                                        <span className="meta-label">Play Time (h)</span>
+                                        <div className="hero-meta">
+                                            <span>{game.playTime}</span>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {details.igdbLastUpdated && (
                                     <div className="meta-section">
                                         <span className="meta-label">IGDB Update</span>
@@ -108,7 +116,6 @@ const GameDetails = () => {
                                         </div>
                                     </div>
                                 )}
-
                             </div>
 
                             <div className="meta-section user">

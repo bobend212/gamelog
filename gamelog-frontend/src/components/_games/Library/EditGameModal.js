@@ -8,6 +8,7 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
     status: game.status || 'BACKLOG',
     notes: game.notes || '',
     rating: game.rating || '',
+    playTime: game.playTime ?? '',
     completedAt: game.completedAt || null,
     favourite: game.favourite || false
   });
@@ -34,8 +35,20 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (formData.rating && (isNaN(formData.rating) || formData.rating < 0 || formData.rating > 5)) {
+    if (
+      formData.rating &&
+      (isNaN(formData.rating) ||
+        formData.rating < 0 ||
+        formData.rating > 5)
+    ) {
       newErrors.rating = 'Rating must be between 0 and 5';
+    }
+
+    if (
+      formData.playTime !== '' &&
+      (isNaN(formData.playTime) || formData.playTime < 0)
+    ) {
+      newErrors.playTime = 'Play time cannot be negative';
     }
 
     setErrors(newErrors);
@@ -46,32 +59,52 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
     e.preventDefault();
 
     if (validateForm()) {
-      onSave({
+      const data = {
         ...formData,
-        rating: formData.rating ? parseFloat(formData.rating) : null
-      });
+        rating: formData.rating
+          ? parseFloat(formData.rating)
+          : null,
+        playTime: formData.playTime !== ''
+          ? parseInt(formData.playTime, 10)
+          : null
+      };
+      onSave(data);
     }
   };
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
-      // onCancel(); // temp disabled
+      onCancel();
     }
   };
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
+
         <div className="modal-header">
-          <div className="modal-header-title" >{game.title}</div>
-          <button onClick={onCancel} className="modal-close">×</button>
+          <div className="modal-header-title">
+            {game.title}
+          </div>
+
+          <button
+            onClick={onCancel}
+            className="modal-close"
+          >
+            ×
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="edit-form">
-          {/* Platform and Status Row */}
+
+          {/* Platform and Status */}
           <div className="form-row">
+
             <div className="form-group">
-              <label htmlFor="platform">Platform</label>
+              <label htmlFor="platform">
+                Platform
+              </label>
+
               <select
                 id="platform"
                 name="platform"
@@ -80,14 +113,20 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
                 className="form-select"
               >
                 <option value="">Select</option>
+
                 {PLATFORM_OPTIONS.map(platform => (
-                  <option key={platform} value={platform}>{platform}</option>
+                  <option key={platform} value={platform}>
+                    {platform}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div className="form-group">
-              <label htmlFor="status">Status</label>
+              <label htmlFor="status">
+                Status
+              </label>
+
               <select
                 id="status"
                 name="status"
@@ -103,12 +142,17 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
                 <option value="ONLINE">Online</option>
               </select>
             </div>
+
           </div>
 
-          {/* Category and Rating Row */}
+          {/* Rating and Favourite */}
           <div className="form-row">
+
             <div className="form-group">
-              <label htmlFor="rating">Rating (0-5)</label>
+              <label htmlFor="rating">
+                Rating (0-5)
+              </label>
+
               <input
                 type="number"
                 id="rating"
@@ -120,13 +164,40 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
                 step="0.5"
                 className={errors.rating ? 'error' : ''}
               />
-              {errors.rating && <span className="error-text">{errors.rating}</span>}
+
+              {errors.rating && (
+                <span className="error-text">
+                  {errors.rating}
+                </span>
+              )}
             </div>
+
+            <div className="form-group favourite-group">
+              <label htmlFor="favourite">
+                Favourite
+              </label>
+
+              <div className="favourite-control">
+                <input
+                  type="checkbox"
+                  id="favourite"
+                  name="favourite"
+                  checked={formData.favourite}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+          </div>
+
+          {/* Completion Date and Play Time */}
+          <div className="form-row">
 
             <div className="form-group">
               <label htmlFor="completedAt">
                 Completion Date
               </label>
+
               <div className="date-input-wrapper">
                 <input
                   type="date"
@@ -135,12 +206,18 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
                   value={formData.completedAt || ''}
                   onChange={handleChange}
                   className={errors.completedAt ? 'error' : ''}
-                  max={new Date().toISOString().split('T')[0]} // Prevent future dates
+                  max={new Date().toISOString().split('T')[0]}
                 />
+
                 {formData.completedAt && (
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, completedAt: '' }))}
+                    onClick={() =>
+                      setFormData(prev => ({
+                        ...prev,
+                        completedAt: ''
+                      }))
+                    }
                     className="clear-date-btn"
                     title="Clear completion date"
                   >
@@ -148,14 +225,46 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
                   </button>
                 )}
               </div>
-              {errors.completedAt && <span className="error-text">{errors.completedAt}</span>}
+
+              {errors.completedAt && (
+                <span className="error-text">
+                  {errors.completedAt}
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="playTime">
+                Play Time (hours)
+              </label>
+
+              <input
+                type="number"
+                id="playTime"
+                name="playTime"
+                value={formData.playTime}
+                onChange={handleChange}
+                min="0"
+                step="1"
+                placeholder="e.g. 25"
+                className={errors.playTime ? 'error' : ''}
+              />
+
+              {errors.playTime && (
+                <span className="error-text">
+                  {errors.playTime}
+                </span>
+              )}
             </div>
 
           </div>
 
           {/* Notes */}
           <div className="form-group">
-            <label htmlFor="notes">Notes</label>
+            <label htmlFor="notes">
+              Notes
+            </label>
+
             <textarea
               id="notes"
               name="notes"
@@ -167,27 +276,26 @@ const EditGameModal = ({ game, onSave, onCancel }) => {
             />
           </div>
 
-          {/* ✅ Favourite Toggle */}
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="favourite"
-                checked={formData.favourite}
-                onChange={handleChange}
-              />
-              Favourite
-            </label>
-          </div>
-
+          {/* Actions */}
           <div className="modal-actions">
-            <button type="button" onClick={onCancel} className="btn btn-secondary">
+
+            <button
+              type="button"
+              onClick={onCancel}
+              className="btn btn-secondary"
+            >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
+
+            <button
+              type="submit"
+              className="btn btn-primary"
+            >
               Save
             </button>
+
           </div>
+
         </form>
       </div>
     </div>

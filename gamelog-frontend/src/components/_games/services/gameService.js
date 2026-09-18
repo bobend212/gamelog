@@ -84,6 +84,7 @@ const gameService = {
         notes: updateData.notes || null,
         completedAt: updateData.completedAt || null,
         favourite: updateData.favourite || false,
+        playTime: updateData.playTime || null,
       };
       const response = await axios.patch(
         `${API_BASE_URL}/${gameId}`,

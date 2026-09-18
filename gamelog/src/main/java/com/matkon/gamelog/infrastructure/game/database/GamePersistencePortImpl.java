@@ -100,6 +100,7 @@ class GamePersistencePortImpl implements GamePersistencePort {
         Optional.ofNullable(updateRequest.getNotes()).ifPresent(existingGameEntity::setNotes);
         Optional.ofNullable(updateRequest.getCompletedAt()).ifPresent(existingGameEntity::setCompletedAt);
         Optional.ofNullable(updateRequest.getFavourite()).ifPresent(existingGameEntity::setFavourite);
+        Optional.ofNullable(updateRequest.getPlayTime()).ifPresent(existingGameEntity::setPlayTime);
 
         return gameMapper.mapGameEntityToGame(existingGameEntity);
     }

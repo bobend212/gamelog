@@ -236,6 +236,20 @@ export default function GameCardCarousel({ games, header }) {
                                             }}
                                         >
                                             {game.status}
+
+                                            {game.playTime != null && (
+                                                <Typography
+                                                    component="span"
+                                                    sx={{
+                                                        fontWeight: 700,
+                                                        fontSize: "0.7rem",
+                                                        color: "#fbbf24",
+                                                        marginLeft: "6px"
+                                                    }}
+                                                >
+                                                    • {game.playTime}h
+                                                </Typography>
+                                            )}
                                         </Typography>
                                     )}
                                 </Box>

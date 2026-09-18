@@ -26,4 +26,5 @@ class GameResponse {
     private String title;
     private LocalDate releaseDate;
     private String imageUrl;
+    private Integer playTime;
 }
