@@ -29,9 +29,8 @@ public class IgdbInfoAdapter implements GameInfoPort {
     public List<Game> searchGames(String title) {
         String query = """
                 search "%s";
-                fields id, name, first_release_date, cover.image_id;
+                fields id, name, release_dates.date, release_dates.status.name, release_dates.release_region, cover.image_id;
                 where version_parent = null;
-                limit 8;
                 """.formatted(title);
 
         IgdbGame[] response = restClient.post()
@@ -52,7 +51,7 @@ public class IgdbInfoAdapter implements GameInfoPort {
     @Override
     public Game getGame(Long externalId) {
         String query = """
-                fields id, name, release_dates.date, release_dates.status.name, release_dates.release_region , cover.image_id;
+                fields id, name, release_dates.date, release_dates.status.name, release_dates.release_region, cover.image_id;
                 where id = %d;
                 """.formatted(externalId);
 

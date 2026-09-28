@@ -15,7 +15,6 @@ const SyncLibrary = ({ onSyncComplete }) => {
         setSyncError(null);
         try {
             const result = await gameService.syncLibraryGames(syncStatus);
-            console.log(result)
             setSyncSummary(result);
             setSyncSuccess(true);
             if (onSyncComplete) onSyncComplete();  // notify parent if needed

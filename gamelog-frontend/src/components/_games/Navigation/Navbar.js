@@ -27,7 +27,7 @@ const Navbar = () => {
             Library
           </Link>
           <Link to="/games/temp" className={isActive('/games/temp')}>
-            Temp
+            *Temp
           </Link>
           <Link to="/games/sync" className={isActive('/games/sync')}>
             Sync

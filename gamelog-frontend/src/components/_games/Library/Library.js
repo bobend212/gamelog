@@ -12,17 +12,15 @@ const Library = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(''); // ✅ Add debounced state
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [allGamesCount, setAllGamesCount] = useState(0); // ✅ Track total games without filters
+  const [allGamesCount, setAllGamesCount] = useState(0);
 
-  // pagination consts
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalGames, setTotalGames] = useState(0);
   const [pageSize] = useState(12);
 
-  // ✅ Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -31,12 +29,10 @@ const Library = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // ✅ Load data when debounced search, status, or page changes
   useEffect(() => {
     loadLibraryGames(currentPage);
   }, [currentPage, debouncedSearchTerm, statusFilter]);
 
-  // ✅ Reset to page 0 when filters change (but not on every keystroke)
   useEffect(() => {
     if (currentPage !== 0) {
       setCurrentPage(0);
@@ -46,6 +42,8 @@ const Library = () => {
   const loadLibraryGames = async (page) => {
     try {
       setLoading(true);
+      setError(null);
+
       const response = await gameService.getGames(
         page,
         pageSize,
@@ -54,10 +52,11 @@ const Library = () => {
       );
 
       const totalCountResponse = await gameService.getGames(0, 2000);
+
       setGames(response.content || []);
       setTotalPages(response.totalPages || 0);
       setTotalGames(response.totalElements || 0);
-      setAllGamesCount(totalCountResponse.totalElements || 0); // Total count
+      setAllGamesCount(totalCountResponse.totalElements || 0);
     } catch (err) {
       setError(err.message);
       setGames([]);
@@ -77,9 +76,8 @@ const Library = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ✅ Handle search input without triggering API calls
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value); // This won't trigger API calls immediately
+    setSearchTerm(e.target.value);
   };
 
   const handleStatusChange = (e) => {
@@ -88,30 +86,31 @@ const Library = () => {
 
   const clearFilters = () => {
     setSearchTerm('');
-    setDebouncedSearchTerm(''); // ✅ Also clear debounced term
+    setDebouncedSearchTerm('');
     setStatusFilter('ALL');
     setCurrentPage(0);
   };
 
-  const hasActiveFilters = searchTerm.length > 0 || statusFilter !== 'ALL';
+  const hasActiveFilters =
+    searchTerm.length > 0 || statusFilter !== 'ALL';
 
   const getLibraryTitle = () => {
     if (hasActiveFilters) {
       return `Library (${totalGames} of ${allGamesCount})`;
     }
+
     return `Library (${allGamesCount})`;
   };
-
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage message={error} />;
 
   return (
     <>
       <Navbar />
+
       <div className="library">
         <div className="container">
           <div className="library-header">
             <h1>{getLibraryTitle()}</h1>
+
             {totalPages > 1 && (
               <Pagination
                 currentPage={currentPage}
@@ -119,6 +118,7 @@ const Library = () => {
                 onPageChange={handlePageChange}
               />
             )}
+
             <div className="library-controls">
               {hasActiveFilters && (
                 <button
@@ -129,19 +129,21 @@ const Library = () => {
                   ✕
                 </button>
               )}
+
               <div className="search-container">
                 <input
                   type="text"
                   placeholder="Search games..."
-                  value={searchTerm} // ✅ Uses immediate state for UI responsiveness
+                  value={searchTerm}
                   onChange={handleSearchChange}
                   className="search-input"
                 />
-                {/* ✅ Optional: Show loading indicator while searching */}
+
                 {searchTerm !== debouncedSearchTerm && (
                   <div className="search-loading">🔍</div>
                 )}
               </div>
+
               <select
                 value={statusFilter}
                 onChange={handleStatusChange}
@@ -158,27 +160,38 @@ const Library = () => {
             </div>
           </div>
 
-          {games.length > 0 ? (
-            <div className="games-grid">
-              {games.map(game => (
-                <GameCard
-                  key={game.id}
-                  game={game}
-                  onUpdate={handleGameUpdate}
-                  showStatus={true}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="no-games">
-              <p>
-                {debouncedSearchTerm || statusFilter !== 'ALL'
-                  ? 'No games match your current filters.'
-                  : 'Your library is empty. Add some games to get started!'
-                }
-              </p>
-            </div>
-          )}
+          {error && <ErrorMessage message={error} />}
+
+          <div style={{ position: 'relative' }}>
+            {loading && games.length > 0 && (
+              <div className="library-loading">
+                <LoadingSpinner />
+              </div>
+            )}
+
+            {loading && games.length === 0 ? (
+              <LoadingSpinner />
+            ) : games.length > 0 ? (
+              <div className="games-grid">
+                {games.map(game => (
+                  <GameCard
+                    key={game.id}
+                    game={game}
+                    onUpdate={handleGameUpdate}
+                    showStatus={true}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="no-games">
+                <p>
+                  {debouncedSearchTerm || statusFilter !== 'ALL'
+                    ? 'No games match your current filters.'
+                    : 'Your library is empty. Add some games to get started!'}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>

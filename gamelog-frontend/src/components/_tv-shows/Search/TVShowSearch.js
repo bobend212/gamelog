@@ -99,7 +99,6 @@ const TVShowSearch = ({ onTVShowAdded }) => {
     const handleSave = async (tmdbId, name, trackingType) => {
         try {
             const result = await tvShowService.saveTVShow(tmdbId, trackingType);
-            console.log(result);
 
             if (result.alreadyExists) {
                 checkIfAlreadyExist();
